@@ -102,9 +102,9 @@ function commitWork(fiber: Fiber) {
   }
   const domParent = domParentFiber.dom
 
-  if (fiber.effectTag === 'PLACEMENT' && fiber.dom != null) {
+  if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
     domParent.appendChild(fiber.dom)
-  } else if (fiber.effectTag === 'UPDATE' && fiber.dom != null) {
+  } else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props)
   } else if (fiber.effectTag === 'DELETION') {
     commitDeletion(fiber, domParent)
@@ -138,7 +138,7 @@ function reconcileChildren(currentFiber: Fiber, elements: JSX.Element[]) {
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child
   let prevSibling = null
 
-  while (index < elements.length || oldFiber != null) {
+  while (index < elements.length || oldFiber !== null) {
     const element = elements[index]
     let newFiber = null
 
