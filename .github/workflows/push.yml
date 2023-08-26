@@ -1,0 +1,24 @@
+name: push
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-build-publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install --legacy-peer-deps
+      - name: 🚧 Build
+        run: npm run build
+      - name: 🧪 Test
+        run: npm test
+      - run: npm install -g npm@latest
+      - name: 📢 Release
+        uses: tobua/release-npm-action@v2
+        with:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
