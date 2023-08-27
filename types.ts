@@ -7,13 +7,14 @@ export type Props = { [key: string]: any }
 
 export interface Fiber {
   // keyof HTMLElementTagNameMap
-  type: Function | 'TEXT_ELEMENT' // keyof JSX.IntrinsicElements // Coming from @types/react
-  child: Fiber
-  sibling: Fiber
-  parent: Fiber
+  type?: Function | 'TEXT_ELEMENT' // keyof JSX.IntrinsicElements // Coming from @types/react
+  child?: Fiber
+  sibling?: Fiber
+  parent?: Fiber
   dom: Element
   props: Props
-  hooks: Hook[]
+  hooks?: Hook[]
   alternate: Fiber
-  effectTag: 'DELETION' | 'PLACEMENT' | 'UPDATE'
+  effectTag?: 'DELETION' | 'PLACEMENT' | 'UPDATE'
+  unmount?: () => void
 }

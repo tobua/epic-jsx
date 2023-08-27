@@ -36,7 +36,9 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
-    }
+    },
+    "./jsx-runtime": "./dist/index.js",
+    "./jsx-dev-runtime": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -58,7 +60,7 @@
     }
   },
   "publishConfig": {
-    "provenance": false
+    "provenance": true
   },
   "engines": {
     "node": ">= 16"

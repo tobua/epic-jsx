@@ -1,14 +1,27 @@
 import { Fiber, Props } from './types'
 
 let nextUnitOfWork = null
-let currentRoot = null
-let wipRoot = null
+let currentRoot: Fiber = null
+let wipRoot: Fiber = null
 let deletions = null
 let wipFiber: Fiber = null
 let hookIndex = null
 
 // TODO wait until return if still WIP
 export const getRoot = () => currentRoot
+
+export const unmount = (container: Element) => {
+  while (container.firstChild) {
+    container.removeChild(container.firstChild)
+  }
+
+  nextUnitOfWork = null
+  currentRoot = null
+  wipRoot = null
+  deletions = null
+  wipFiber = null
+  hookIndex = null
+}
 
 function createTextElement(text) {
   return {
@@ -32,11 +45,16 @@ export function createElement(type, props, ...children) {
   }
 }
 
+// JSX environment specific runtime aliases.
+export const jsxDEV = createElement
+export const jsx = createElement
+export const jsxs = createElement
+
 const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
-function updateDom(dom: Element, prevProps: Props, nextProps: Props) {
+function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
@@ -128,12 +146,13 @@ export function render(element: JSX.Element, container = document.body) {
       children: [element],
     },
     alternate: currentRoot,
+    unmount: () => unmount(container),
   }
   deletions = []
   nextUnitOfWork = wipRoot
 }
 
-function reconcileChildren(currentFiber: Fiber, elements: JSX.Element[]) {
+function reconcileChildren(currentFiber: Fiber, elements: JSX.Element[] = []) {
   let index = 0
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child
   let prevSibling = null
@@ -197,7 +216,7 @@ function updateHostComponent(fiber: Fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
   }
-  reconcileChildren(fiber, fiber.props.children)
+  reconcileChildren(fiber, fiber.props?.children)
 }
 
 function performUnitOfWork(fiber: Fiber) {
