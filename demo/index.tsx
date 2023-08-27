@@ -1,7 +1,15 @@
-import * as React from 'react'
+import { render } from 'react'
 
-React.render(
-  <div>
-    Hello <button>World</button>
-  </div>
+render(
+  <>
+    <div>
+      Hello <button>World</button>
+    </div>
+    <input placeholder="emtpy" value="enter text" />
+    <div aria-label="labelled">
+      <button type="button" tabIndex={-1}>
+        Attributes
+      </button>
+    </div>
+  </>
 )

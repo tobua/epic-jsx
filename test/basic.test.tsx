@@ -53,8 +53,23 @@ test('Renders DOM attributes.', () => {
 
   run()
 
-  // TODO many attributes are missing.
   expect(serializeDocumentNode()).toEqual(
-    '<body><div><button type="button">Hello</button> World</div></body>'
+    '<body><div aria-label="labelled"><button type="button" tabindex="-1">Hello</button> World</div></body>'
   )
+})
+
+test('Works with fragments.', () => {
+  React.render(
+    <>
+      <p>first</p>
+      <>
+        <p>second</p>
+        <p>third</p>
+      </>
+    </>
+  )
+
+  run()
+
+  expect(serializeDocumentNode()).toEqual('<body><p>first</p><p>second</p><p>third</p></body>')
 })

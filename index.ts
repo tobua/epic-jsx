@@ -1,4 +1,4 @@
-import { Fiber, Props } from './types'
+import { Fiber, Props, Type } from './types'
 
 let nextUnitOfWork = null
 let currentRoot: Fiber = null
@@ -23,7 +23,7 @@ export const unmount = (container: Element) => {
   hookIndex = null
 }
 
-function createTextElement(text) {
+function createTextElement(text: string) {
   return {
     type: 'TEXT_ELEMENT',
     props: {
@@ -33,7 +33,14 @@ function createTextElement(text) {
   }
 }
 
-export function createElement(type, props, ...children) {
+export function createElement(type: Type, props: Props, ...children: JSX.Element[]) {
+  // NOTE needed for browser JSX runtime
+  if (props?.children) {
+    // eslint-disable-next-line no-param-reassign
+    children = Array.isArray(props.children) ? props.children : [props.children]
+    delete props.children
+  }
+
   return {
     type,
     props: {
@@ -77,7 +84,11 @@ function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
     .filter(isProperty)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
-      dom[name] = nextProps[name]
+      if (dom.setAttribute) {
+        dom.setAttribute(name, nextProps[name])
+      } else {
+        dom[name] = nextProps[name]
+      }
     })
 
   // Add event listeners
@@ -91,6 +102,8 @@ function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
 }
 
 function createDom(fiber: Fiber): Element {
+  if (!fiber.type) return null // Ignore fragments.
+
   const dom =
     fiber.type === 'TEXT_ELEMENT'
       ? document.createTextNode('')
