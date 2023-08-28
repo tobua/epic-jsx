@@ -268,20 +268,20 @@ function workLoop(deadline: IdleDeadline) {
 
 requestIdleCallback(workLoop)
 
-export function useState(initial) {
+export function useState<T extends any>(initial: T) {
   const oldHook =
     wipFiber.alternate && wipFiber.alternate.hooks && wipFiber.alternate.hooks[hookIndex]
   const hook = {
     state: oldHook ? oldHook.state : initial,
     queue: [],
-  }
+  } as { state: T; queue: ((value: T) => T)[] }
 
-  const actions = oldHook ? oldHook.queue : []
+  const actions: ((value: T) => T)[] = oldHook ? oldHook.queue : []
   actions.forEach((action) => {
     hook.state = action(hook.state)
   })
 
-  const setState = (action) => {
+  const setState = (action: (value: T) => T) => {
     hook.queue.push(action)
     wipRoot = {
       dom: currentRoot.dom,
@@ -294,5 +294,5 @@ export function useState(initial) {
 
   wipFiber.hooks.push(hook)
   hookIndex += 1
-  return [hook.state, setState]
+  return [hook.state, setState] as const
 }

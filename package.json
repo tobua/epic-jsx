@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.2.21",
-    "happy-dom": "^10.11.0",
+    "happy-dom": "^10.11.1",
     "padua": "^2.0.3",
     "vitest": "^0.34.3"
   },

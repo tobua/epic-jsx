@@ -1,6 +1,8 @@
+export type Action = (value: any) => any
+
 export interface Hook {
   state: any
-  queue: Function[]
+  queue: Action[]
 }
 
 export type Props = { [key: string]: any }
@@ -15,7 +17,7 @@ export interface Fiber {
   parent?: Fiber
   dom: Element
   props: Props
-  hooks?: Hook[]
+  hooks?: any[]
   alternate: Fiber
   effectTag?: 'DELETION' | 'PLACEMENT' | 'UPDATE'
   unmount?: () => void
