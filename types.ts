@@ -15,7 +15,7 @@ export interface Fiber {
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
-  dom: Element
+  dom: HTMLElement
   props: Props
   hooks?: any[]
   alternate: Fiber

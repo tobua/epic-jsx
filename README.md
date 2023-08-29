@@ -9,3 +9,4 @@ React-compatible React rearchitecture based on [Didact](https://github.com/pombe
 - 🌳 Navigatable tree
 - 🏙️ ES Modules
 - 🎓 TypeScript source and built-in types
+- 🧪 Built-in testing framework

@@ -8,9 +8,18 @@
   "scripts": {
     "build": "padua build",
     "start": "padua watch",
-    "test": "vitest run"
+    "test": "vitest run --config test/vitest.config.ts"
   },
   "padua": {
+    "entry": [
+      "index.ts",
+      "test.ts"
+    ],
+    "esbuild": {
+      "external": [
+        "epic-jsx"
+      ]
+    },
     "tsconfig": {
       "compilerOptions": {
         "paths": {
@@ -35,6 +44,12 @@
       "default": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      }
+    },
+    "./test": {
+      "default": {
+        "types": "./dist/test.d.ts",
+        "default": "./dist/test.js"
       }
     },
     "./jsx-runtime": "./dist/index.js",

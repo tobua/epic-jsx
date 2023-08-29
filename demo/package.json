@@ -1,4 +1,8 @@
 {
+  "papua": {
+    "icon": "../logo.svg",
+    "title": "epic-jsx Demo"
+  },
   "dependencies": {
     "papua": "latest"
   },

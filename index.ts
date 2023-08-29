@@ -6,6 +6,7 @@ let wipRoot: Fiber = null
 let deletions = null
 let wipFiber: Fiber = null
 let hookIndex = null
+let idleCallback = null
 
 // TODO wait until return if still WIP
 export const getRoot = () => currentRoot
@@ -21,6 +22,7 @@ export const unmount = (container: Element) => {
   deletions = null
   wipFiber = null
   hookIndex = null
+  idleCallback = null
 }
 
 function createTextElement(text: string) {
@@ -61,7 +63,7 @@ const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
-function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
+function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
@@ -85,7 +87,11 @@ function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
       if (dom.setAttribute) {
-        dom.setAttribute(name, nextProps[name])
+        if (name === 'style') {
+          Object.assign(dom.style, nextProps[name])
+        } else {
+          dom.setAttribute(name, nextProps[name])
+        }
       } else {
         dom[name] = nextProps[name]
       }
@@ -101,7 +107,7 @@ function updateDom(dom: Element, prevProps: Props = {}, nextProps: Props = {}) {
     })
 }
 
-function createDom(fiber: Fiber): Element {
+function createDom(fiber: Fiber): HTMLElement {
   if (!fiber.type) return null // Ignore fragments.
 
   const dom =
@@ -150,19 +156,6 @@ function commitRoot() {
   commitWork(wipRoot.child)
   currentRoot = wipRoot
   wipRoot = null
-}
-
-export function render(element: JSX.Element, container = document.body) {
-  wipRoot = {
-    dom: container,
-    props: {
-      children: [element],
-    },
-    alternate: currentRoot,
-    unmount: () => unmount(container),
-  }
-  deletions = []
-  nextUnitOfWork = wipRoot
 }
 
 function reconcileChildren(currentFiber: Fiber, elements: JSX.Element[] = []) {
@@ -239,17 +232,13 @@ function performUnitOfWork(fiber: Fiber) {
   } else {
     updateHostComponent(fiber)
   }
-  if (fiber.child) {
-    return fiber.child
-  }
+  if (fiber.child) return fiber.child
   let nextFiber = fiber
   while (nextFiber) {
-    if (nextFiber.sibling) {
-      return nextFiber.sibling
-    }
+    if (nextFiber.sibling) return nextFiber.sibling
     nextFiber = nextFiber.parent
   }
-  return null // TODO added by me!
+  return null
 }
 
 function workLoop(deadline: IdleDeadline) {
@@ -263,10 +252,31 @@ function workLoop(deadline: IdleDeadline) {
     commitRoot()
   }
 
-  requestIdleCallback(workLoop)
+  if (!idleCallback) {
+    idleCallback = requestIdleCallback(workLoop)
+  }
 }
 
-requestIdleCallback(workLoop)
+export function render(element: JSX.Element, container?: HTMLElement | null) {
+  if (wipRoot || currentRoot) {
+    unmount(wipRoot?.dom ?? currentRoot?.dom)
+  }
+
+  wipRoot = {
+    dom: container ?? document.body,
+    props: {
+      children: [element],
+    },
+    alternate: currentRoot,
+    unmount: () => unmount(container ?? document.body),
+  }
+  deletions = []
+  nextUnitOfWork = wipRoot
+
+  if (!idleCallback) {
+    idleCallback = requestIdleCallback(workLoop)
+  }
+}
 
 export function useState<T extends any>(initial: T) {
   const oldHook =
