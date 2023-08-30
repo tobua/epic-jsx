@@ -1,5 +1,7 @@
 import { Fiber, Props, Type } from './types'
 
+export { Fiber, Props }
+
 let nextUnitOfWork = null
 let currentRoot: Fiber = null
 let wipRoot: Fiber = null
@@ -206,6 +208,11 @@ function reconcileChildren(currentFiber: Fiber, elements: JSX.Element[] = []) {
 
     prevSibling = newFiber
     index += 1
+
+    // NOTE added to prevent endless loop after state update to component.
+    if (index > elements.length) {
+      oldFiber = null
+    }
   }
 }
 

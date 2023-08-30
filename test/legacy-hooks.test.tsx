@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { test, expect, afterEach } from 'vitest'
-import { render } from '../test'
+import { render, run, serializeElement } from '../test'
 import * as React from '../index'
 import { unmount } from './helper'
 
@@ -22,13 +22,12 @@ test('Renders a basic component and rerenders after state update.', () => {
   expect(serialized).toEqual('<body><button type="button">Count: 1</button></body>')
 
   expect(tree.tag).toBe('body')
-  expect(tree.child?.child?.tag).toBe('button')
+  expect(tree.children[0].children[0].tag).toBe('button')
 
-  // @ts-ignore
-  const heading = tree.child.child.getElement() as HTMLButtonElement
+  const heading = tree.children[0].children[0].getElement() as HTMLButtonElement
 
   heading.click()
-  // run() TODO
+  run()
 
-  expect(serialized).toEqual('<body><button type="button">Count: 1</button></body>')
+  expect(serializeElement()).toEqual('<body><button type="button">Count: 2</button></body>')
 })

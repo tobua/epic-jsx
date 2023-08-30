@@ -8,29 +8,45 @@ export const serializeElement = (node: Element = document.body) => {
 
 type ReadableNode = {
   tag?: Type
-  getElement?: () => Element
+  getElement: () => Element
   props?: Props
-  child?: ReadableNode
+  children: ReadableNode[]
 }
 
-export const toReadableTree = (root: Fiber) => {
-  const result: ReadableNode = {}
+const getProps = (node: Fiber) => {
+  const { children, ...props } = node.props // This ensures that props is copied and children remains on original.
+  return props
+}
 
-  if (root.props) {
-    result.props = root.props
+const getTag = (node: Fiber) => {
+  const htmlTag = node?.dom?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
+
+  if (htmlTag) {
+    return htmlTag
   }
 
-  if (root.child) {
-    result.child = toReadableTree(root.child)
+  if (typeof node?.type === 'function') {
+    return node.type
   }
 
-  if (root.dom) {
-    result.tag = root?.dom.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
+  return undefined
+}
+
+export const toReadableTree = (node: Fiber) => {
+  const result: ReadableNode = {
+    children: [],
+    getElement: () => node?.dom,
+    tag: getTag(node),
+    props: getProps(node),
   }
 
-  if (root.dom) {
-    result.getElement = () => root?.dom
+  let currentChild = node.child
+
+  while (currentChild) {
+    result.children.push(toReadableTree(currentChild))
+    currentChild = currentChild.sibling
   }
+
   return result
 }
 

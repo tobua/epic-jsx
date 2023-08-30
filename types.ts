@@ -7,7 +7,7 @@ export interface Hook {
 
 export type Props = { [key: string]: any }
 
-export type Type = keyof HTMLElementTagNameMap | undefined // undefined if Fragment
+export type Type = keyof HTMLElementTagNameMap | Function | undefined // undefined if Fragment
 
 export interface Fiber {
   // keyof HTMLElementTagNameMap
