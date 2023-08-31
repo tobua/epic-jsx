@@ -1,5 +1,15 @@
-import { render } from 'react'
+import { render, useState } from 'react'
 import logo from './logo.svg'
+
+function Counter() {
+  const [value, setValue] = useState.call(this, 1)
+
+  return (
+    <button type="button" onClick={() => setValue((current) => current + 1)}>
+      Increment: {value}
+    </button>
+  )
+}
 
 render(
   <div style={{ fontFamily: 'sans-serif', display: 'flex', gap: '10px', flexDirection: 'column' }}>
@@ -20,6 +30,7 @@ render(
       <button type="button" onClick={() => alert('click')}>
         Event listeners
       </button>
+      <Counter />
     </div>
   </div>
 )

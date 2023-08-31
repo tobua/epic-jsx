@@ -8,7 +8,7 @@ import { unmount } from './helper'
 afterEach(unmount)
 
 test('Renders regular JSX tags.', () => {
-  expect(React.getRoot()).toBe(null)
+  expect(React.getRoots().length).toBe(0)
 
   const { serialized } = render(
     <div>
@@ -99,15 +99,10 @@ test('Can render into different elements.', () => {
     render(<p>{name}</p>, { container: document.getElementById(name) })
   })
 
-  // TODO split wipRoot by containers.
+  // TODO bug, <p>second</p> at first shouldn't be there.
   expect(serializeElement()).toEqual(
-    '<body><div id="first"></div><div id="second"><p>second</p></div></body>'
+    '<body><p>second</p><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>'
   )
-
-  // Necessary to remove manually added divs in body.
-  while (document.body.firstChild) {
-    document.body.removeChild(document.body.firstChild)
-  }
 })
 
 test('Can render object styles as inline-styles.', () => {

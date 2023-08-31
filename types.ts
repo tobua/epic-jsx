@@ -22,3 +22,18 @@ export interface Fiber {
   effectTag?: 'DELETION' | 'PLACEMENT' | 'UPDATE'
   unmount?: () => void
 }
+
+export interface Context {
+  nextUnitOfWork?: Fiber
+  currentRoot?: Fiber
+  wipRoot?: Fiber
+  deletions: Fiber[]
+  wipFiber: Fiber
+  hookIndex: number
+}
+
+export interface Component {
+  id: string
+  root: Fiber
+  context: Context
+}

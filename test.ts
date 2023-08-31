@@ -1,4 +1,4 @@
-import { render as baseRender, getRoot } from 'epic-jsx'
+import { render as baseRender } from 'epic-jsx'
 import { Fiber, Props, Type } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
@@ -14,7 +14,7 @@ type ReadableNode = {
 }
 
 const getProps = (node: Fiber) => {
-  const { children, ...props } = node.props // This ensures that props is copied and children remains on original.
+  const { children, ...props } = node?.props ?? {} // This ensures that props is copied and children remains on original.
   return props
 }
 
@@ -40,7 +40,7 @@ export const toReadableTree = (node: Fiber) => {
     props: getProps(node),
   }
 
-  let currentChild = node.child
+  let currentChild = node?.child
 
   while (currentChild) {
     result.children.push(toReadableTree(currentChild))
@@ -64,10 +64,14 @@ export function render(
   element: JSX.Element,
   { container, skipRun = false }: { container?: HTMLElement | null; skipRun?: boolean } = {}
 ) {
-  baseRender(element, container)
+  const context = baseRender(element, container)
   if (!skipRun) {
     run() // requestIdleCallback
   }
-  const root = getRoot()
-  return { root, tree: toReadableTree(root), serialized: serializeElement() }
+  // NOTE make sure to not destruct context before run(), context not useful for user.
+  return {
+    root: context.currentRoot,
+    tree: toReadableTree(context.currentRoot),
+    serialized: serializeElement(),
+  }
 }
