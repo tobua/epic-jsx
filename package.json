@@ -30,6 +30,9 @@
       }
     }
   },
+  "dependencies": {
+    "logua": "^2.3.0"
+  },
   "devDependencies": {
     "@types/react": "^18.2.21",
     "happy-dom": "^10.11.2",
@@ -72,7 +75,8 @@
       "jsx-a11y/click-events-have-key-events": 0,
       "jsx-a11y/no-noninteractive-element-interactions": 0,
       "react/function-component-definition": 0,
-      "react/no-deprecated": 0
+      "react/no-deprecated": 0,
+      "react/no-this-in-sfc": 0
     }
   },
   "publishConfig": {

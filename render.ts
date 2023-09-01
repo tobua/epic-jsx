@@ -1,4 +1,4 @@
-import { Context, Fiber } from './types'
+import { Context, Fiber, State } from './types'
 import { commitWork, createDom } from './browser'
 
 function commitRoot(context: Context) {
@@ -6,16 +6,24 @@ function commitRoot(context: Context) {
   commitWork(context.wipRoot.child)
   context.currentRoot = context.wipRoot
   context.wipRoot = undefined
+
+  // TODO check if dependencies changed.
+  if (State.effects.length) {
+    State.effects.forEach((effect) => effect())
+    State.effects = []
+  }
 }
 
 function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.Element[] = []) {
   let index = 0
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child
-  let prevSibling = null
+  let prevSibling: Fiber
+  let maxTries = 100
 
-  while (index < elements.length || oldFiber !== null) {
+  while ((index < elements.length || oldFiber) && maxTries > 0) {
+    maxTries -= 1
     const element = elements[index]
-    let newFiber = null
+    let newFiber: Fiber
 
     const sameType = oldFiber && element && element.type === oldFiber.type
 
@@ -33,9 +41,9 @@ function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.
       newFiber = {
         type: element.type,
         props: element.props,
-        dom: null,
+        dom: undefined,
         parent: currentFiber,
-        alternate: null,
+        alternate: undefined,
         effectTag: 'PLACEMENT',
       }
     }
@@ -62,6 +70,10 @@ function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.
       oldFiber = undefined
     }
   }
+
+  if (maxTries === 0) {
+    console.error('Ran out of tries at reconcileChildren.', elements)
+  }
 }
 
 function updateFunctionComponent(context: Context, fiber: Fiber) {
@@ -69,7 +81,25 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
   context.wipFiber = fiber
   context.hookIndex = 0
   context.wipFiber.hooks = []
-  const children = [fiber.type.call({ context }, fiber.props)]
+  State.context = context
+  const children = [
+    fiber.type.call(
+      {
+        context,
+        rerender: () => {
+          // Same as setState
+          context.wipRoot = {
+            dom: context.currentRoot.dom,
+            props: context.currentRoot.props,
+            alternate: context.currentRoot,
+          }
+          context.nextUnitOfWork = context.wipRoot
+        },
+      },
+      fiber.props
+    ),
+  ]
+  State.context = undefined
   reconcileChildren(context, fiber, children)
 }
 
@@ -89,18 +119,28 @@ function performUnitOfWork(context: Context, fiber: Fiber) {
   }
   if (fiber.child) return fiber.child
   let nextFiber: Fiber | undefined = fiber
-  while (nextFiber) {
+  let maxTries = 100
+  while (nextFiber && maxTries > 0) {
+    maxTries -= 1
     if (nextFiber.sibling) return nextFiber.sibling
     nextFiber = nextFiber.parent
+  }
+  if (maxTries === 0) {
+    console.error('Ran out of tries at performUnitOfWork.')
   }
   return undefined
 }
 
 export function workLoop(deadline: IdleDeadline, context: Context) {
   let shouldYield = false
-  while (context.nextUnitOfWork && !shouldYield) {
+  let maxTries = 100
+  while (context.nextUnitOfWork && !shouldYield && maxTries > 0) {
+    maxTries -= 1
     context.nextUnitOfWork = performUnitOfWork(context, context.nextUnitOfWork)
     shouldYield = deadline.timeRemaining() < 1
+  }
+  if (maxTries === 0) {
+    console.error('Ran out of tries at workLoop.')
   }
 
   if (!context.nextUnitOfWork && context.wipRoot) {

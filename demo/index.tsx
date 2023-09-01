@@ -1,13 +1,36 @@
-import { render, useState } from 'react'
+import { render, useState, useRef, useEffect } from 'react'
 import logo from './logo.svg'
 
-function Counter() {
-  const [value, setValue] = useState.call(this, 1)
+const randomHexValue = () =>
+  Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, '0')
 
+function Counter() {
+  const [count, setCount] = useState(1)
+  const buttonRef = useRef<HTMLButtonElement>()
+  useEffect(() => {
+    buttonRef.current.style.backgroundColor = `#${randomHexValue()}${randomHexValue()}${randomHexValue()}`
+    buttonRef.current.style.color = 'white'
+  })
   return (
-    <button type="button" onClick={() => setValue((current) => current + 1)}>
-      Increment: {value}
+    <button ref={buttonRef} type="button" onClick={() => setCount(count + 1)}>
+      Increment: {count}
     </button>
+  )
+}
+
+function Form() {
+  const [value, setValue] = useState('World!')
+  return (
+    <>
+      <input
+        placeholder="Hello?"
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+      />
+      <p>Uppercase Value: {value.toUpperCase()} (currently only updates on blur...)</p>
+    </>
   )
 }
 
@@ -22,7 +45,7 @@ render(
     <div>
       Hello <button>World</button>
     </div>
-    <input placeholder="emtpy" value="enter text" />
+    <Form />
     <div aria-label="labelled">
       <button type="button" tabIndex={-1}>
         Attributes

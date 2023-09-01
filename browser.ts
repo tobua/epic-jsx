@@ -27,6 +27,10 @@ function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {
     .filter(isProperty)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
+      if (name === 'ref') {
+        nextProps[name].current = dom
+        return
+      }
       if (dom.setAttribute) {
         if (name === 'style') {
           Object.assign(dom.style, nextProps[name])
@@ -49,7 +53,7 @@ function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {
 }
 
 export function createDom(fiber: Fiber): HTMLElement {
-  if (!fiber.type) return null // Ignore fragments.
+  if (!fiber.type) return undefined // Ignore fragments.
 
   const dom =
     fiber.type === 'TEXT_ELEMENT'
@@ -75,14 +79,19 @@ export function commitWork(fiber: Fiber) {
   }
 
   let domParentFiber = fiber.parent
-  while (!domParentFiber.dom) {
+  let maxTries = 100
+  while (!domParentFiber.dom && maxTries > 0) {
+    maxTries -= 1
     domParentFiber = domParentFiber.parent
+  }
+  if (maxTries === 0) {
+    console.error('Ran out of tries at commitWork.')
   }
   const domParent = domParentFiber.dom
 
-  if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
+  if (fiber.effectTag === 'PLACEMENT' && fiber.dom) {
     domParent.appendChild(fiber.dom)
-  } else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
+  } else if (fiber.effectTag === 'UPDATE' && fiber.dom) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props)
   } else if (fiber.effectTag === 'DELETION') {
     commitDeletion(fiber, domParent)

@@ -12,11 +12,21 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - name: 🚧 Build
         run: npm run build
       - name: 🧪 Test
         run: npm test
+      - name: 🛠️ Build Documentation
+        run: |
+          cd demo
+          npm install
+          npx papua build
+      - name: 🚀 Publish Documentation
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: publish
+          folder: demo/dist
       - run: npm install -g npm@latest
       - name: 📢 Release
         uses: tobua/release-npm-action@v2

@@ -1,3 +1,8 @@
+export const State: { context: Context | null; effects: Function[] } = {
+  context: null,
+  effects: [],
+}
+
 export type Action = (value: any) => any
 
 export interface Hook {
@@ -30,10 +35,16 @@ export interface Context {
   deletions: Fiber[]
   wipFiber: Fiber
   hookIndex: number
+  dependencies: Map<Function, any[]>
 }
 
 export interface Component {
   id: string
   root: Fiber
   context: Context
+  rerender: Function
+}
+
+export interface Ref<T> {
+  readonly current: T | null
 }
