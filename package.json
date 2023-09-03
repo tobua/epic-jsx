@@ -3,6 +3,7 @@
   "description": "JSX renderer.",
   "version": "0.0.0-development",
   "repository": "github:tobua/epic-jsx",
+  "homepage": "https://tobua.github.io/epic-jsx",
   "license": "CC-BY-NC-4.0",
   "author": "Matthias Giger",
   "scripts": {

@@ -7,6 +7,7 @@ React-compatible React rearchitecture based on [Didact](https://github.com/pombe
 - ⚙️ Extensible components
 - 🔄 Lifecycle access
 - 🌳 Navigatable tree
+- 💯 Optimizable Virtual DOM
 - 🏙️ ES Modules
 - 🎓 TypeScript source and built-in types
 - 🧪 Built-in testing framework

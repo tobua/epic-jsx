@@ -100,14 +100,15 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     ),
   ]
   State.context = undefined
-  reconcileChildren(context, fiber, children)
+  reconcileChildren(context, fiber, children.flat())
 }
 
 function updateHostComponent(context: Context, fiber: Fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
   }
-  reconcileChildren(context, fiber, fiber.props?.children)
+  // Flattening children to make arrays work.
+  reconcileChildren(context, fiber, fiber.props?.children.flat())
 }
 
 function performUnitOfWork(context: Context, fiber: Fiber) {
