@@ -97,6 +97,11 @@ export function commitWork(fiber: Fiber) {
     commitDeletion(fiber, domParent)
   }
 
+  if (fiber.afterListeners) {
+    fiber.afterListeners.forEach((callback) => callback.call(fiber.component))
+    fiber.afterListeners = []
+  }
+
   commitWork(fiber.child)
   commitWork(fiber.sibling)
 }

@@ -1,5 +1,6 @@
 import { Context, Fiber, State } from './types'
 import { commitWork, createDom } from './browser'
+import { getComponentRefsFromTree } from './helper'
 
 function commitRoot(context: Context) {
   context.deletions.forEach(commitWork)
@@ -82,23 +83,29 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
   context.hookIndex = 0
   context.wipFiber.hooks = []
   State.context = context
-  const children = [
-    fiber.type.call(
-      {
-        context,
-        rerender: () => {
-          // Same as setState
-          context.wipRoot = {
-            dom: context.currentRoot.dom,
-            props: context.currentRoot.props,
-            alternate: context.currentRoot,
-          }
-          context.nextUnitOfWork = context.wipRoot
-        },
-      },
-      fiber.props
-    ),
-  ]
+  fiber.afterListeners = []
+  fiber.component = {
+    id: '123', // TODO
+    root: fiber,
+    context,
+    rerender: () => {
+      // Same as setState
+      context.wipRoot = {
+        dom: context.currentRoot.dom,
+        props: context.currentRoot.props,
+        alternate: context.currentRoot,
+      }
+      context.nextUnitOfWork = context.wipRoot
+    },
+    // TODO memoize.
+    get refs() {
+      return getComponentRefsFromTree(fiber)
+    },
+    after(callback: () => void) {
+      fiber.afterListeners.push(callback)
+    },
+  }
+  const children = [fiber.type.call(fiber.component, fiber.props)]
   State.context = undefined
   reconcileChildren(context, fiber, children.flat())
 }
