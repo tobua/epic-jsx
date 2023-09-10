@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "@types/react": "^18.2.21",
-    "happy-dom": "^10.11.2",
+    "happy-dom": "^11.0.2",
     "padua": "^2.0.3",
-    "vitest": "^0.34.3"
+    "vitest": "^0.34.4"
   },
   "type": "module",
   "sideEffects": false,

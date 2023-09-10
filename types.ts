@@ -40,13 +40,17 @@ export interface Context {
   dependencies: Map<Function, any[]>
 }
 
+export type NestedHTMLElement = Array<HTMLElement | NestedHTMLElement>
+
 export interface Component {
   id: string
   root: Fiber
   context: Context
   rerender: Function
   after: (callback: () => void) => void
-  refs: HTMLElement[] // Flat vs. nested refs?
+  refs: HTMLElement[]
+  refsNested: NestedHTMLElement
+  refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]
 }
 
 export interface Ref<T> {

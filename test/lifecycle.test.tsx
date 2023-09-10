@@ -3,7 +3,7 @@
 import { test, expect, afterEach, vi } from 'vitest'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
-import { unmount } from './helper'
+import { mapNestedArray, unmount } from './helper'
 
 afterEach(unmount)
 
@@ -137,4 +137,137 @@ test('After lifecycle listeners will be called after render.', () => {
   expect(refs[1].id).toBe('second')
 
   expect(arrowFunctionContext.refs.length).toBe(2)
+})
+
+test('Nested refs are flattened out by default.', () => {
+  let context
+
+  function Component(this: React.Component) {
+    context = this
+    return (
+      <>
+        <div id="first">
+          <div id="second">
+            <div id="third">third</div>
+          </div>
+        </div>
+        <div id="fourth">fourth</div>
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual(
+    '<body><div id="first"><div id="second"><div id="third">third</div></div></div><div id="fourth">fourth</div></body>'
+  )
+
+  const { refs } = context
+
+  expect(refs.length).toBe(4)
+  // child elements before siblings.
+  expect(refs[0].id).toBe('first')
+  expect(refs[1].id).toBe('second')
+  expect(refs[2].id).toBe('third')
+  expect(refs[3].id).toBe('fourth')
+})
+
+test("Refs from inside child components aren't listed.", () => {
+  let context
+
+  const Second = () => <div id="second">second</div>
+
+  function Component(this: React.Component) {
+    context = this
+    return (
+      <>
+        <div id="first">
+          <Second />
+        </div>
+        <div id="third">third</div>
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual(
+    '<body><div id="first"><div id="second">second</div></div><div id="third">third</div></body>'
+  )
+
+  const { refs } = context
+
+  expect(refs.length).toBe(2)
+  expect(refs[0].id).toBe('first')
+  expect(refs[1].id).toBe('third')
+})
+
+test('Refs can be accessed nested.', () => {
+  let context
+
+  function Component(this: React.Component) {
+    context = this
+    return (
+      <>
+        <div id="first">
+          <div id="second">
+            <p id="third">third</p>
+          </div>
+        </div>
+        <span id="fourth">fourth</span>
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual(
+    '<body><div id="first"><div id="second"><p id="third">third</p></div></div><span id="fourth">fourth</span></body>'
+  )
+
+  const { refsNested } = context
+
+  expect(refsNested.length).toBe(3)
+  expect(refsNested[0].id).toBe('first')
+  expect(refsNested[2].id).toBe('fourth')
+  expect(refsNested[1][0].id).toBe('second')
+  expect(refsNested[1][1][0].id).toBe('third')
+
+  const tagsMapped = mapNestedArray(
+    refsNested,
+    (element: HTMLElement) => element.tagName?.toLowerCase()
+  )
+
+  expect(tagsMapped).toEqual(['div', ['div', ['p']], 'span'])
+})
+
+test('Refs can be accessed by a specific tag.', () => {
+  let context: React.Component | undefined
+
+  function Component(this: React.Component) {
+    context = this
+    return (
+      <>
+        <div id="first">
+          <div id="second">
+            <p id="third">third</p>
+          </div>
+        </div>
+        <span id="fourth">fourth</span>
+      </>
+    )
+  }
+
+  render(<Component />)
+
+  const divs = context?.refsByTag('div')
+  const paragraph = context?.refsByTag('p')
+  const span = context?.refsByTag('span')
+
+  expect(divs?.length).toBe(2)
+  expect(paragraph?.length).toBe(1)
+  expect(span?.length).toBe(1)
+
+  // @ts-ignore
+  expect(paragraph[0].tagName.toLowerCase()).toBe('p')
 })

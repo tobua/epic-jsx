@@ -24,12 +24,9 @@ function Form() {
   const [value, setValue] = useState('World!')
   return (
     <>
-      <input
-        placeholder="Hello?"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-      />
-      <p>Uppercase Value: {value.toUpperCase()} (currently only updates on blur...)</p>
+      {/* @ts-ignore */}
+      <input placeholder="Hello?" value={value} onInput={(event) => setValue(event.target.value)} />
+      <p>Uppercase Value: {value.toUpperCase()}</p>
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { Context, Fiber, State } from './types'
 import { commitWork, createDom } from './browser'
-import { getComponentRefsFromTree } from './helper'
+import { getComponentRefsFromTree, getComponentRefsFromTreeByTag } from './helper'
 
 function commitRoot(context: Context) {
   context.deletions.forEach(commitWork)
@@ -99,7 +99,13 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     },
     // TODO memoize.
     get refs() {
-      return getComponentRefsFromTree(fiber)
+      return getComponentRefsFromTree(fiber, [], true) as HTMLElement[]
+    },
+    get refsNested() {
+      return getComponentRefsFromTree(fiber, [], false)
+    },
+    refsByTag(tag: keyof HTMLElementTagNameMap) {
+      return getComponentRefsFromTreeByTag(fiber, [], tag)
     },
     after(callback: () => void) {
       fiber.afterListeners.push(callback)
