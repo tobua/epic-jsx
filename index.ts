@@ -1,9 +1,12 @@
 import { Fiber, Props, Context, Component } from './types'
 import { workLoop } from './render'
+import * as React from './jsx'
 
 export * from './jsx'
 export * from './hooks'
 export { Fiber, Props, Context, Component }
+
+export default React
 
 const roots = new Map<HTMLElement, Context>()
 
