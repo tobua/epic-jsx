@@ -72,7 +72,7 @@ export function render(element: JSX.Element, container?: HTMLElement | null) {
     props: {
       children: [element],
     },
-    alternate: context.currentRoot,
+    previous: context.currentRoot,
     unmount: () => unmount(container),
   }
   context.deletions = []

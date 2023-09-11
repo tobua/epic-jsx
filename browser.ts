@@ -1,4 +1,4 @@
-import { Fiber, Props } from './types'
+import { Change, Fiber, Props } from './types'
 
 const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
@@ -89,11 +89,11 @@ export function commitWork(fiber: Fiber) {
   }
   const domParent = domParentFiber.dom
 
-  if (fiber.effectTag === 'PLACEMENT' && fiber.dom) {
+  if (fiber.change === Change.add && fiber.dom) {
     domParent.appendChild(fiber.dom)
-  } else if (fiber.effectTag === 'UPDATE' && fiber.dom) {
-    updateDom(fiber.dom, fiber.alternate.props, fiber.props)
-  } else if (fiber.effectTag === 'DELETION') {
+  } else if (fiber.change === Change.update && fiber.dom) {
+    updateDom(fiber.dom, fiber.previous.props, fiber.props)
+  } else if (fiber.change === Change.delete) {
     commitDeletion(fiber, domParent)
   }
 

@@ -10,6 +10,12 @@ export interface Hook {
   queue: Action[]
 }
 
+export enum Change {
+  update,
+  add,
+  delete,
+}
+
 export type Props = { [key: string]: any }
 
 export type Type = keyof HTMLElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
@@ -25,8 +31,8 @@ export interface Fiber {
   hooks?: any[]
   afterListeners?: Function[]
   component?: Component
-  alternate: Fiber
-  effectTag?: 'DELETION' | 'PLACEMENT' | 'UPDATE'
+  previous?: Fiber
+  change?: Change
   unmount?: () => void
 }
 

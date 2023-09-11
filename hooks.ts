@@ -7,9 +7,9 @@ export function useState<T extends any>(initial: T) {
   }
 
   const oldHook =
-    State.context.wipFiber.alternate &&
-    State.context.wipFiber.alternate.hooks &&
-    State.context.wipFiber.alternate.hooks[State.context.hookIndex]
+    State.context.wipFiber.previous &&
+    State.context.wipFiber.previous.hooks &&
+    State.context.wipFiber.previous.hooks[State.context.hookIndex]
   const hook = {
     state: oldHook ? oldHook.state : initial,
   } as { state: T }
@@ -22,7 +22,7 @@ export function useState<T extends any>(initial: T) {
     context.wipRoot = {
       dom: context.currentRoot.dom,
       props: context.currentRoot.props,
-      alternate: context.currentRoot,
+      previous: context.currentRoot,
     }
     context.nextUnitOfWork = context.wipRoot
     context.deletions = []

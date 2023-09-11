@@ -1,4 +1,4 @@
-import { Context, Fiber, State } from './types'
+import { Change, Context, Fiber, State } from './types'
 import { commitWork, createDom } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag } from './helper'
 
@@ -17,7 +17,7 @@ function commitRoot(context: Context) {
 
 function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.Element[] = []) {
   let index = 0
-  let oldFiber = currentFiber.alternate && currentFiber.alternate.child
+  let oldFiber = currentFiber.previous && currentFiber.previous.child
   let prevSibling: Fiber
   let maxTries = 100
 
@@ -34,8 +34,8 @@ function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.
         props: element.props,
         dom: oldFiber.dom,
         parent: currentFiber,
-        alternate: oldFiber,
-        effectTag: 'UPDATE',
+        previous: oldFiber,
+        change: Change.update,
       }
     }
     if (element && !sameType) {
@@ -44,12 +44,12 @@ function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.
         props: element.props,
         dom: undefined,
         parent: currentFiber,
-        alternate: undefined,
-        effectTag: 'PLACEMENT',
+        previous: undefined,
+        change: Change.add,
       }
     }
     if (oldFiber && !sameType) {
-      oldFiber.effectTag = 'DELETION'
+      oldFiber.change = Change.delete
       context.deletions.push(oldFiber)
     }
 
@@ -93,7 +93,7 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
       context.wipRoot = {
         dom: context.currentRoot.dom,
         props: context.currentRoot.props,
-        alternate: context.currentRoot,
+        previous: context.currentRoot,
       }
       context.nextUnitOfWork = context.wipRoot
     },
