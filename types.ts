@@ -20,9 +20,10 @@ export type Props = { [key: string]: any }
 
 export type Type = keyof HTMLElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
 
+// JSX.IntrinsicElements includes list of all React tags with their respecitive props available.
+
 export interface Fiber {
-  // keyof HTMLElementTagNameMap
-  type?: Type // keyof JSX.IntrinsicElements // Coming from @types/react
+  type?: Type
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
@@ -62,3 +63,36 @@ export interface Component {
 export interface Ref<T> {
   readonly current: T | null
 }
+
+// Extracted from @types/react JSX.Element
+// Removed support for class based components.
+type Key = string | number | bigint
+
+interface ReactPortal extends ReactElement {
+  key: Key | null
+  children: ReactNode
+}
+
+type ReactNode =
+  | ReactElement
+  | string
+  | number
+  | Iterable<ReactNode>
+  | boolean
+  | null
+  | undefined
+  // Portal support unlikely any time soon.
+  | ReactPortal
+
+type JSXElementConstructor<P> = (props: P) => ReactNode
+
+interface ReactElement<
+  P = any,
+  T extends string | JSXElementConstructor<any> = string | JSXElementConstructor<any>,
+> {
+  type: T
+  props: P
+  key: Key | null
+}
+
+export interface JSX extends ReactElement<any, any> {}

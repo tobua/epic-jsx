@@ -1,4 +1,4 @@
-import { Change, Context, Fiber, State } from './types'
+import { Change, Context, Fiber, State, JSX } from './types'
 import { commitWork, createDom } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag } from './helper'
 
@@ -15,7 +15,7 @@ function commitRoot(context: Context) {
   }
 }
 
-function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX.Element[] = []) {
+function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX[] = []) {
   let index = 0
   let oldFiber = currentFiber.previous && currentFiber.previous.child
   let prevSibling: Fiber

@@ -1,4 +1,4 @@
-import { Fiber, Props, Context, Component } from './types'
+import { Fiber, Props, Context, Component, JSX } from './types'
 import { workLoop } from './render'
 import * as React from './jsx'
 
@@ -47,7 +47,7 @@ export const unmount = (container: HTMLElement) => {
 
 export const unmountAll = () => roots.forEach((_, container) => unmount(container))
 
-export function render(element: JSX.Element, container?: HTMLElement | null) {
+export function render(element: JSX, container?: HTMLElement | null) {
   if (!container) {
     // eslint-disable-next-line no-param-reassign
     container = document.body // Default assignment in args wouldn't override null.

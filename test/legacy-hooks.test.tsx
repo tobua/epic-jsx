@@ -3,7 +3,7 @@
 import { test, expect, afterEach, vi } from 'vitest'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
-import { getRoot, useRef, useState, useEffect } from '../index'
+import { getRoot, useRef, useState, useEffect, useCallback, useMemo } from '../index'
 import { unmount } from './helper'
 
 afterEach(unmount)
@@ -112,4 +112,29 @@ test('Multiple setState calls are batched into one render cycle.', () => {
   expect(renderCount).toBe(2)
 
   expect(serializeElement()).toEqual('<body><button type="button">Count: 2</button></body>')
+})
+
+test('useCallback is available.', () => {
+  function doubleMethod(value: number) {
+    return value * 2
+  }
+  function Component() {
+    const double = useCallback(doubleMethod)
+    return <div>{double(5)}</div>
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body><div>10</div></body>')
+})
+
+test('useMemo returnes the value returned by the callback.', () => {
+  function Component() {
+    const value = useMemo(() => 20)
+    return <div>{value}</div>
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body><div>20</div></body>')
 })

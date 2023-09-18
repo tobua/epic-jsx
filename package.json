@@ -35,9 +35,9 @@
     "logua": "^2.3.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.21",
-    "happy-dom": "^11.0.2",
-    "padua": "^2.0.3",
+    "@types/react": "^18.2.22",
+    "happy-dom": "^12.1.2",
+    "padua": "^2.0.4",
     "vitest": "^0.34.4"
   },
   "type": "module",
@@ -84,6 +84,6 @@
     "provenance": true
   },
   "engines": {
-    "node": ">= 16"
+    "node": ">= 18"
   }
 }

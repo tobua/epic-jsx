@@ -1,4 +1,4 @@
-import { Props, Type } from './types'
+import { Props, Type, JSX } from './types'
 
 function createTextElement(text: string) {
   return {
@@ -10,7 +10,7 @@ function createTextElement(text: string) {
   }
 }
 
-export function createElement(type: Type, props: Props, ...children: JSX.Element[]) {
+export function createElement(type: Type, props: Props, ...children: JSX[]) {
   // NOTE needed for browser JSX runtime
   if (props?.children) {
     // eslint-disable-next-line no-param-reassign

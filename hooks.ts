@@ -6,13 +6,8 @@ export function useState<T extends any>(initial: T) {
     log('Hooks can only be used inside a React component.', 'warning')
   }
 
-  const oldHook =
-    State.context.wipFiber.previous &&
-    State.context.wipFiber.previous.hooks &&
-    State.context.wipFiber.previous.hooks[State.context.hookIndex]
-  const hook = {
-    state: oldHook ? oldHook.state : initial,
-  } as { state: T }
+  const oldHook = State.context.wipFiber.previous?.hooks[State.context.hookIndex]
+  const hook = { state: oldHook ? oldHook.state : initial } as { state: T }
 
   const { context } = State
 
@@ -49,4 +44,15 @@ export function useEffect(callback: () => void, dependencies: any[] = []) {
   }
 
   State.context.dependencies.set(callback, dependencies)
+}
+
+export function useCallback<T extends (...args: any) => any>(
+  callback: T,
+  dependencies: any[] = []
+) {
+  return callback
+}
+
+export function useMemo<T extends any>(method: () => T, dependencies: any[] = []) {
+  return method()
 }

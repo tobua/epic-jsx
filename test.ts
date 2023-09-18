@@ -1,5 +1,5 @@
 import { render as baseRender } from 'epic-jsx'
-import { Fiber, Props, Type } from './types'
+import { Fiber, Props, Type, JSX } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
   const serializer = new XMLSerializer()
@@ -61,7 +61,7 @@ if (typeof requestIdleCallback === 'undefined') {
 }
 
 export function render(
-  element: JSX.Element,
+  element: JSX,
   { container, skipRun = false }: { container?: HTMLElement | null; skipRun?: boolean } = {}
 ) {
   const context = baseRender(element, container)
