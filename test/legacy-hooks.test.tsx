@@ -33,6 +33,59 @@ test('Renders a basic component and rerenders after state update.', () => {
   expect(serializeElement()).toEqual('<body><button type="button">Count: 2</button></body>')
 })
 
+test('Works with multiple instances of setState.', () => {
+  function Counter({ initialValue }: { initialValue: number }) {
+    const [firstCount, setFirstCount] = useState(initialValue)
+    const [secondCount, setSecondCount] = useState(initialValue + 4)
+
+    return (
+      <>
+        <button type="button" onClick={() => setFirstCount(firstCount + 1)}>
+          {firstCount}-{secondCount}
+        </button>
+        <button type="button" onClick={() => setSecondCount(secondCount + 1)}>
+          {firstCount}-{secondCount}
+        </button>
+      </>
+    )
+  }
+
+  const { tree, serialized } = render(
+    <div>
+      <Counter initialValue={1} />
+      <Counter initialValue={3} />
+    </div>
+  )
+
+  expect(serialized).toEqual(
+    '<body><div><button type="button">1-5</button><button type="button">1-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+  )
+
+  expect(tree.children[0].children[0].children[0].children[0].tag).toBe('button')
+  expect(tree.children[0].children[0].children[0].children[1].tag).toBe('button')
+
+  const firstButton =
+    tree.children[0].children[0].children[0].children[0].getElement() as HTMLButtonElement
+  const secondButton =
+    tree.children[0].children[0].children[0].children[1].getElement() as HTMLButtonElement
+
+  firstButton.click()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><div><button type="button">2-5</button><button type="button">2-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+  )
+
+  secondButton.click()
+  firstButton.click()
+
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><div><button type="button">3-6</button><button type="button">3-6</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+  )
+})
+
 test('Accessing the root will process the current work in progress before returning the context.', () => {
   function Counter() {
     const [count, setCount] = useState(1)

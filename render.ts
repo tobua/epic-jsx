@@ -80,7 +80,6 @@ function reconcileChildren(context: Context, currentFiber: Fiber, elements: JSX[
 function updateFunctionComponent(context: Context, fiber: Fiber) {
   if (typeof fiber.type !== 'function') return
   context.wipFiber = fiber
-  context.hookIndex = 0
   context.wipFiber.hooks = []
   State.context = context
   fiber.afterListeners = []

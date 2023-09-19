@@ -3,11 +3,12 @@ import { log, shallowArrayEqual } from './helper'
 
 export function useState<T extends any>(initial: T) {
   if (!State.context) {
-    log('Hooks can only be used inside a React component.', 'warning')
+    log('Hooks can only be used inside a JSX component.', 'warning')
   }
 
-  const oldHook = State.context.wipFiber.previous?.hooks[State.context.hookIndex]
-  const hook = { state: oldHook ? oldHook.state : initial } as { state: T }
+  // useState is only called during the render when the wipFiber matches the current component where the setState call is made.
+  const previousHook = State.context.wipFiber.previous?.hooks[State.context.wipFiber.hooks.length]
+  const hook = { state: previousHook ? previousHook.state : initial } as { state: T }
 
   const { context } = State
 
@@ -24,7 +25,7 @@ export function useState<T extends any>(initial: T) {
   }
 
   State.context.wipFiber.hooks.push(hook)
-  State.context.hookIndex += 1
+
   return [hook.state, setState] as const
 }
 
@@ -34,7 +35,7 @@ export function useRef<T extends HTMLElement>() {
 
 export function useEffect(callback: () => void, dependencies: any[] = []) {
   if (!State.context) {
-    log('Hooks can only be used inside a React component.', 'warning')
+    log('Hooks can only be used inside a JSX component.', 'warning')
   }
 
   const previousDependencies = State.context.dependencies.get(callback)

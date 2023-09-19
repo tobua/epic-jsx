@@ -19,6 +19,7 @@ export const getRoot = (container: HTMLElement) => {
   }
   return context
 }
+
 export const getRoots = () => {
   const contexts = [...roots.values()]
   // Ensure all work has passed.
@@ -42,7 +43,6 @@ export const unmount = (container: HTMLElement) => {
   root.wipRoot = undefined
   root.deletions = undefined
   root.wipFiber = undefined
-  root.hookIndex = undefined
 }
 
 export const unmountAll = () => roots.forEach((_, container) => unmount(container))
@@ -64,7 +64,6 @@ export function render(element: JSX, container?: HTMLElement | null) {
     wipRoot: undefined,
     deletions: undefined,
     wipFiber: undefined,
-    hookIndex: undefined,
     dependencies: new Map<Function, any[]>(),
   }
 
@@ -79,6 +78,7 @@ export function render(element: JSX, container?: HTMLElement | null) {
     unmount: () => unmount(container),
   }
   context.deletions = []
+  // TODO turn into queue
   context.nextUnitOfWork = context.wipRoot
 
   requestIdleCallback((deadline) => workLoop(deadline, context))

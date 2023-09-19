@@ -43,7 +43,6 @@ export interface Context {
   wipRoot?: Fiber
   deletions: Fiber[]
   wipFiber: Fiber
-  hookIndex: number
   dependencies: Map<Function, any[]>
 }
 
