@@ -3,9 +3,9 @@
 import { test, expect, afterEach, vi } from 'vitest'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
-import { mapNestedArray, unmount } from './helper'
+import { mapNestedArray } from './helper'
 
-afterEach(unmount)
+afterEach(React.unmountAll)
 
 test('Can trigger a component rerender.', () => {
   let count = 0

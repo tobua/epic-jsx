@@ -27,8 +27,8 @@ export function getComponentRefsFromTree(
     return result
   }
 
-  if (node.dom) {
-    result.push(node.dom)
+  if (node.native) {
+    result.push(node.native)
   }
 
   if (node.child) {
@@ -61,8 +61,8 @@ export function getComponentRefsFromTreeByTag(
     return result
   }
 
-  if (node.dom && node.dom.tagName.toLowerCase() === tagName.toLowerCase()) {
-    result.push(node.dom)
+  if (node.native && node.native.tagName.toLowerCase() === tagName.toLowerCase()) {
+    result.push(node.native)
   }
 
   // !root to ignore siblings of the component itself.

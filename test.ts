@@ -19,7 +19,7 @@ const getProps = (node: Fiber) => {
 }
 
 const getTag = (node: Fiber) => {
-  const htmlTag = node?.dom?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
+  const htmlTag = node?.native?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
 
   if (htmlTag) {
     return htmlTag
@@ -35,7 +35,7 @@ const getTag = (node: Fiber) => {
 export const toReadableTree = (node: Fiber) => {
   const result: ReadableNode = {
     children: [],
-    getElement: () => node?.dom,
+    getElement: () => node?.native,
     tag: getTag(node),
     props: getProps(node),
   }
@@ -70,8 +70,8 @@ export function render(
   }
   // NOTE make sure to not destruct context before run(), context not useful for user.
   return {
-    root: context.currentRoot,
-    tree: toReadableTree(context.currentRoot),
+    root: context.root,
+    tree: toReadableTree(context.root),
     serialized: serializeElement(),
   }
 }

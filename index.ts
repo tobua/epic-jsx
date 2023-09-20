@@ -1,6 +1,7 @@
 import { Fiber, Props, Context, Component, JSX } from './types'
-import { workLoop } from './render'
+import { process } from './render'
 import * as React from './jsx'
+import { log } from './helper'
 
 export * from './jsx'
 export * from './hooks'
@@ -14,8 +15,8 @@ export const getRoot = (container: HTMLElement) => {
   if (!roots.has(container)) return undefined
   const context = roots.get(container)
   // Ensure all work has passed.
-  if (context.wipRoot) {
-    workLoop({ timeRemaining: () => 10, didTimeout: false }, context)
+  if (context.pending.length || context.rendered.length) {
+    process({ timeRemaining: () => 10, didTimeout: false }, context)
   }
   return context
 }
@@ -24,25 +25,32 @@ export const getRoots = () => {
   const contexts = [...roots.values()]
   // Ensure all work has passed.
   contexts.forEach((context) => {
-    if (context.wipRoot) {
-      workLoop({ timeRemaining: () => 10, didTimeout: false }, context)
+    if (context.pending.length || context.rendered.length) {
+      process({ timeRemaining: () => 10, didTimeout: false }, context)
     }
   })
   return contexts
 }
 
 export const unmount = (container: HTMLElement) => {
+  if (!container) {
+    return log('Trying to unmount empty container')
+  }
+
   while (container.firstChild) {
     container.removeChild(container.firstChild)
   }
 
-  const root = getRoot(container)
+  const context = getRoot(container)
 
-  root.nextUnitOfWork = undefined
-  root.currentRoot = undefined
-  root.wipRoot = undefined
-  root.deletions = undefined
-  root.wipFiber = undefined
+  context.root = undefined
+  context.deletions = []
+  context.current = undefined
+  context.dependencies = new Map<Function, any[]>()
+  context.pending = []
+  context.rendered = []
+
+  roots.delete(container)
 }
 
 export const unmountAll = () => roots.forEach((_, container) => unmount(container))
@@ -54,34 +62,32 @@ export function render(element: JSX, container?: HTMLElement | null) {
   }
 
   if (roots.has(container)) {
-    const { wipRoot, currentRoot } = roots.get(container)
-    unmount(wipRoot?.dom ?? currentRoot?.dom)
+    unmount(container)
   }
 
-  const context = {
-    nextUnitOfWork: undefined,
-    currentRoot: undefined,
-    wipRoot: undefined,
-    deletions: undefined,
-    wipFiber: undefined,
+  const root = {
+    native: container,
+    props: {
+      children: [element],
+    },
+    previous: undefined,
+    unmount: () => unmount(container),
+  }
+
+  const context: Context = {
+    root,
+    deletions: [],
+    current: undefined,
     dependencies: new Map<Function, any[]>(),
+    pending: [root],
+    rendered: [],
   }
 
   roots.set(container, context)
 
-  context.wipRoot = {
-    dom: container,
-    props: {
-      children: [element],
-    },
-    previous: context.currentRoot,
-    unmount: () => unmount(container),
-  }
   context.deletions = []
-  // TODO turn into queue
-  context.nextUnitOfWork = context.wipRoot
 
-  requestIdleCallback((deadline) => workLoop(deadline, context))
+  requestIdleCallback((deadline) => process(deadline, context))
 
   return context
 }

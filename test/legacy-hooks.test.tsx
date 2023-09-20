@@ -4,9 +4,8 @@ import { test, expect, afterEach, vi } from 'vitest'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
 import { getRoot, useRef, useState, useEffect, useCallback, useMemo } from '../index'
-import { unmount } from './helper'
 
-afterEach(unmount)
+afterEach(React.unmountAll)
 
 test('Renders a basic component and rerenders after state update.', () => {
   function Counter() {

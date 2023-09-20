@@ -3,9 +3,8 @@
 import { test, expect, afterEach } from 'vitest'
 import { render } from '../test'
 import * as React from '../index'
-import { unmount } from './helper'
 
-afterEach(unmount)
+afterEach(React.unmountAll)
 
 test('Can render SVG as JSX.', () => {
   expect(React.getRoots().length).toBe(0)

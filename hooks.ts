@@ -1,5 +1,6 @@
 import { State, Ref } from './types'
 import { log, shallowArrayEqual } from './helper'
+import { process } from './render'
 
 export function useState<T extends any>(initial: T) {
   if (!State.context) {
@@ -7,29 +8,42 @@ export function useState<T extends any>(initial: T) {
   }
 
   // useState is only called during the render when the wipFiber matches the current component where the setState call is made.
-  const previousHook = State.context.wipFiber.previous?.hooks[State.context.wipFiber.hooks.length]
+  const previousHook = State.context.current.previous?.hooks[State.context.current.hooks.length]
   const hook = { state: previousHook ? previousHook.state : initial } as { state: T }
 
   const { context } = State
+  const {
+    context: { pending, current, deletions },
+  } = State
 
   const setState = (value: T) => {
     // NOTE new state will be returned on next render when useState is called again.
     hook.state = value
-    context.wipRoot = {
-      dom: context.currentRoot.dom,
-      props: context.currentRoot.props,
-      previous: context.currentRoot,
+
+    if (pending.find((value) => value.previous === current)) {
+      // Rerender already registered.
+      return
     }
-    context.nextUnitOfWork = context.wipRoot
-    context.deletions = []
+
+    pending.push({
+      native: current.native, // TODO components never have native elements
+      props: current.props,
+      type: current.type,
+      previous: current,
+    })
+
+    deletions.length = 0
+
+    requestIdleCallback((deadline) => process(deadline, context))
   }
 
-  State.context.wipFiber.hooks.push(hook)
+  current.hooks.push(hook)
 
   return [hook.state, setState] as const
 }
 
 export function useRef<T extends HTMLElement>() {
+  // TODO where does the ref come from... State.context.current.native
   return { current: undefined } as Ref<T>
 }
 

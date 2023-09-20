@@ -27,7 +27,7 @@ export interface Fiber {
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
-  dom: HTMLElement
+  native: HTMLElement
   props: Props
   hooks?: any[]
   afterListeners?: Function[]
@@ -38,11 +38,11 @@ export interface Fiber {
 }
 
 export interface Context {
-  nextUnitOfWork?: Fiber
-  currentRoot?: Fiber
-  wipRoot?: Fiber
+  pending: Fiber[] // Roots of trees to be rendered.
+  rendered: Fiber[] // Roots of rendered and reconciled trees to be committed.
+  root?: Fiber // Root fully committed to the view engine.
   deletions: Fiber[]
-  wipFiber: Fiber
+  current: Fiber
   dependencies: Map<Function, any[]>
 }
 
@@ -52,7 +52,7 @@ export interface Component {
   id: string
   root: Fiber
   context: Context
-  rerender: Function
+  rerender: () => void
   after: (callback: () => void) => void
   refs: HTMLElement[]
   refsNested: NestedHTMLElement

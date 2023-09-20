@@ -4,14 +4,15 @@ const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
-function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {}) {
+
+function updateNativeElement(element: HTMLElement, prevProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2)
-      dom.removeEventListener(eventType, prevProps[name])
+      element.removeEventListener(eventType, prevProps[name])
     })
 
   // Remove old properties
@@ -19,7 +20,7 @@ function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {
     .filter(isProperty)
     .filter(isGone(prevProps, nextProps))
     .forEach((name) => {
-      dom[name] = ''
+      element[name] = ''
     })
 
   // Set new or changed properties
@@ -28,17 +29,17 @@ function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
       if (name === 'ref') {
-        nextProps[name].current = dom
+        nextProps[name].current = element
         return
       }
-      if (dom.setAttribute) {
+      if (element.setAttribute) {
         if (name === 'style') {
-          Object.assign(dom.style, nextProps[name])
+          Object.assign(element.style, nextProps[name])
         } else {
-          dom.setAttribute(name, nextProps[name])
+          element.setAttribute(name, nextProps[name])
         }
       } else {
-        dom[name] = nextProps[name]
+        element[name] = nextProps[name]
       }
     })
 
@@ -48,28 +49,28 @@ function updateDom(dom: HTMLElement, prevProps: Props = {}, nextProps: Props = {
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2)
-      dom.addEventListener(eventType, nextProps[name])
+      element.addEventListener(eventType, nextProps[name])
     })
 }
 
-export function createDom(fiber: Fiber): HTMLElement {
+export function createNativeElement(fiber: Fiber): HTMLElement {
   if (!fiber.type) return undefined // Ignore fragments.
 
-  const dom =
+  const element =
     fiber.type === 'TEXT_ELEMENT'
       ? document.createTextNode('')
       : document.createElement(fiber.type as any)
 
-  updateDom(dom, {}, fiber.props)
+  updateNativeElement(element, {}, fiber.props)
 
-  return dom
+  return element
 }
 
-function commitDeletion(fiber: Fiber, domParent) {
-  if (fiber.dom) {
-    domParent.removeChild(fiber.dom)
+function commitDeletion(fiber: Fiber, nativeParent: HTMLElement) {
+  if (fiber.native) {
+    nativeParent.removeChild(fiber.native)
   } else {
-    commitDeletion(fiber.child, domParent)
+    commitDeletion(fiber.child, nativeParent)
   }
 }
 
@@ -78,23 +79,22 @@ export function commitWork(fiber: Fiber) {
     return
   }
 
-  let domParentFiber = fiber.parent
+  let parent = fiber.parent
   let maxTries = 100
-  while (!domParentFiber.dom && maxTries > 0) {
+  while (!parent.native && parent.parent && maxTries > 0) {
     maxTries -= 1
-    domParentFiber = domParentFiber.parent
+    parent = parent.parent
   }
   if (maxTries === 0) {
     console.error('Ran out of tries at commitWork.')
   }
-  const domParent = domParentFiber.dom
 
-  if (fiber.change === Change.add && fiber.dom) {
-    domParent.appendChild(fiber.dom)
-  } else if (fiber.change === Change.update && fiber.dom) {
-    updateDom(fiber.dom, fiber.previous.props, fiber.props)
+  if (fiber.change === Change.add && fiber.native) {
+    parent.native.appendChild(fiber.native)
+  } else if (fiber.change === Change.update && fiber.native) {
+    updateNativeElement(fiber.native, fiber.previous.props, fiber.props)
   } else if (fiber.change === Change.delete) {
-    commitDeletion(fiber, domParent)
+    commitDeletion(fiber, parent.native)
   }
 
   if (fiber.afterListeners) {

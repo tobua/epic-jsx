@@ -3,9 +3,8 @@
 import { test, expect, afterEach } from 'vitest'
 import { render, serializeElement } from '../test'
 import * as React from '../index'
-import { unmount } from './helper'
 
-afterEach(unmount)
+afterEach(React.unmountAll)
 
 test('Renders regular JSX tags.', () => {
   expect(React.getRoots().length).toBe(0)
@@ -99,10 +98,13 @@ test('Can render into different elements.', () => {
     render(<p>{name}</p>, { container: document.getElementById(name) })
   })
 
-  // TODO bug, <p>second</p> at first shouldn't be there.
   expect(serializeElement()).toEqual(
-    '<body><p>second</p><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>'
+    '<body><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>'
   )
+
+  while (document.body.firstChild) {
+    document.body.removeChild(document.body.firstChild)
+  }
 })
 
 test('Can render object styles as inline-styles.', () => {
