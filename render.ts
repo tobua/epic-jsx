@@ -1,15 +1,15 @@
 import { Change, Context, Fiber, State, JSX } from './types'
-import { commitWork, createNativeElement } from './browser'
+import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log } from './helper'
 
 function commit(context: Context, fiber: Fiber) {
-  context.deletions.forEach(commitWork)
-  commitWork(fiber.child)
+  context.deletions.forEach(commitFiber)
+  commitFiber(fiber.child)
 
   // TODO check if dependencies changed.
   if (State.effects.length) {
     State.effects.forEach((effect) => effect())
-    State.effects = []
+    State.effects.length = 0
   }
 }
 
@@ -187,6 +187,7 @@ export function process(deadline: IdleDeadline, context: Context) {
   // Yielded if context.current not empty.
   if (!context.current && context.rendered.length) {
     context.rendered.forEach((fiber) => commit(context, fiber))
+    context.rendered.length = 0
   }
 
   requestIdleCallback((nextDeadline) => process(nextDeadline, context))

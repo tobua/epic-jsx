@@ -74,7 +74,7 @@ function commitDeletion(fiber: Fiber, nativeParent: HTMLElement) {
   }
 }
 
-export function commitWork(fiber: Fiber) {
+export function commitFiber(fiber: Fiber) {
   if (!fiber) {
     return
   }
@@ -102,6 +102,6 @@ export function commitWork(fiber: Fiber) {
     fiber.afterListeners = []
   }
 
-  commitWork(fiber.child)
-  commitWork(fiber.sibling)
+  commitFiber(fiber.child)
+  commitFiber(fiber.sibling)
 }

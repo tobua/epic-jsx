@@ -132,6 +132,35 @@ test('A ref can be assigned to any tag and is accessible in the effect.', () => 
   expect(effectMock.mock.calls[0][0]).toBeInstanceOf(HTMLDivElement)
 })
 
+test('Ref stays present after rerenders.', () => {
+  const effectMock = vi.fn()
+  let rerender
+
+  function Component() {
+    const ref = useRef<HTMLDivElement>()
+    rerender = this.rerender
+    useEffect(() => {
+      effectMock(ref?.current)
+    })
+    return <div ref={ref}>Ref</div>
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body><div>Ref</div></body>')
+
+  expect(effectMock.mock.calls.length).toBe(1)
+  expect(effectMock.mock.calls[0][0]).toBeInstanceOf(HTMLDivElement)
+
+  rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div>Ref</div></body>')
+
+  expect(effectMock.mock.calls.length).toBe(2)
+  expect(effectMock.mock.calls[1][0]).toBeInstanceOf(HTMLDivElement)
+})
+
 test('Multiple setState calls are batched into one render cycle.', () => {
   let renderCount = 0
   function Counter() {
