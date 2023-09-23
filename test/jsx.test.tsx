@@ -16,7 +16,7 @@ test('Can render SVG as JSX.', () => {
   )
 
   expect(serialized).toEqual(
-    '<body><svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"></circle></svg></body>'
+    '<body><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"></circle></svg></body>'
   )
 })
 
@@ -63,3 +63,25 @@ test('Can return arrays in components.', () => {
 
   expect(serialized).toEqual('<body><p>first</p><p>second</p><p>third</p></body>')
 })
+
+test('Various empty elements are ignored.', () => {
+  expect(React.getRoots().length).toBe(0)
+
+  const { serialized } = render(
+    <>
+      <p>start</p>
+      {undefined}
+      {null}
+      {false}
+      {''}
+      <p>end</p>
+      <p>
+        Falsy numbers: {undefined}
+        {0} {-0} {NaN}
+      </p>
+    </>
+  )
+
+  expect(serialized).toEqual('<body><p>start</p><p>end</p><p>Falsy numbers: 0 0 NaN</p></body>')
+})
+

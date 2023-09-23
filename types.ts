@@ -27,7 +27,7 @@ export interface Fiber {
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
-  native: HTMLElement
+  native: HTMLElement | Text
   props: Props
   hooks?: any[]
   afterListeners?: Function[]
@@ -46,7 +46,7 @@ export interface Context {
   dependencies: Map<Function, any[]>
 }
 
-export type NestedHTMLElement = Array<HTMLElement | NestedHTMLElement>
+export type NestedHTMLElement = Array<HTMLElement | Text | NestedHTMLElement>
 
 export interface Component {
   id: string

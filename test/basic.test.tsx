@@ -147,3 +147,11 @@ test('Tree includes all nodes.', () => {
   expect(tree.children[0].children[2].children[2].props).toEqual({ placeholder: 'World' })
   expect(tree.children[0].children[2].children[2].children[0].tag).toBe('input')
 })
+
+test('Number based sizes are converted to pixels.', () => {
+  const { serialized } = render(<div style={{ width: 50, height: 50, flexGrow: 1 }}>Square</div>)
+
+  expect(serialized).toEqual(
+    '<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>'
+  )
+})

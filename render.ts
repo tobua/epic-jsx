@@ -1,6 +1,7 @@
 import { Change, Context, Fiber, State, JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log } from './helper'
+import { toReadableTree } from './test'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)
@@ -17,7 +18,7 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
   let index = 0
   let previous = current.previous?.child
   let prevSibling: Fiber
-  let maxTries = 100
+  let maxTries = 500
 
   while ((index < elements.length || previous) && maxTries > 0) {
     maxTries -= 1
@@ -33,6 +34,7 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
         native: previous.native,
         parent: current,
         previous: previous,
+        hooks: previous.hooks,
         change: Change.update,
       }
     }
@@ -45,6 +47,7 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
         native: undefined,
         parent: current,
         previous: undefined,
+        hooks: typeof element.type === 'function' ? previous.hooks : undefined,
         change: Change.add,
       }
     }
@@ -56,6 +59,7 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
         native: undefined,
         parent: current,
         previous: undefined,
+        hooks: typeof element.type === 'function' ? [] : undefined,
         change: Change.add,
       }
     }
@@ -95,12 +99,16 @@ function rerender(context: Context, fiber: Fiber) {
     props: fiber.props,
     type: fiber.type,
     previous: fiber,
+    parent: fiber.parent,
   })
 }
 
 function updateFunctionComponent(context: Context, fiber: Fiber) {
   if (typeof fiber.type !== 'function') return
-  fiber.hooks = []
+  if (typeof fiber.hooks === 'undefined') {
+    fiber.hooks = []
+  }
+  fiber.hooks.length = 0
   State.context = context
   fiber.afterListeners = []
   fiber.component = {
@@ -144,7 +152,7 @@ function render(context: Context, fiber: Fiber) {
   }
   if (fiber.child) return fiber.child
   let nextFiber: Fiber | undefined = fiber
-  let maxTries = 100
+  let maxTries = 500
   while (nextFiber && maxTries > 0) {
     maxTries -= 1
     if (nextFiber.sibling) return nextFiber.sibling
@@ -167,7 +175,7 @@ export function process(deadline: IdleDeadline, context: Context) {
   }
 
   let shouldYield = false
-  let maxTries = 100
+  let maxTries = 500
   while (context.current && !shouldYield && maxTries > 0) {
     maxTries -= 1
     // Render current fiber.

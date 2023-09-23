@@ -32,6 +32,47 @@ test('Renders a basic component and rerenders after state update.', () => {
   expect(serializeElement()).toEqual('<body><button type="button">Count: 2</button></body>')
 })
 
+test('Elements can be conditionally rendered.', () => {
+  function Counter() {
+    const [count, setCount] = useState(1)
+    return (
+      <>
+        <p id="first">first</p>
+        <button type="button" onClick={() => setCount(count + 1)}>
+          Count: {count}
+        </button>
+        {count % 2 === 0 ? <p id="second">second</p> : undefined}
+        <p id="third">third</p>
+      </>
+    )
+  }
+
+  const { tree, serialized } = render(<Counter />)
+
+  expect(serialized).toEqual(
+    '<body><p id="first">first</p><button type="button">Count: 1</button><p id="third">third</p></body>'
+  )
+
+  expect(tree.tag).toBe('body')
+  expect(tree.children[0].children[0].children[1].tag).toBe('button')
+
+  const heading = tree.children[0].children[0].children[1].getElement() as HTMLButtonElement
+
+  heading.click()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><p id="first">first</p><button type="button">Count: 2</button><p id="second">second</p><p id="third">third</p></body>'
+  )
+
+  heading.click()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><p id="first">first</p><button type="button">Count: 3</button><p id="third">third</p></body>'
+  )
+})
+
 test('Works with multiple instances of setState.', () => {
   function Counter({ initialValue }: { initialValue: number }) {
     const [firstCount, setFirstCount] = useState(initialValue)

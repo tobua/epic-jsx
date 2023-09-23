@@ -7,9 +7,13 @@ export function useState<T extends any>(initial: T) {
     log('Hooks can only be used inside a JSX component.', 'warning')
   }
 
+  const hookIndex = State.context.current.hooks.length
   // useState is only called during the render when the wipFiber matches the current component where the setState call is made.
   const previousHook = State.context.current.previous?.hooks[State.context.current.hooks.length]
-  const hook = { state: previousHook ? previousHook.state : initial } as { state: T }
+  const hook = { state: previousHook ? previousHook.state : initial } as {
+    state: T
+    setState: (value: T) => void
+  }
 
   const { context } = State
   const {
@@ -17,6 +21,10 @@ export function useState<T extends any>(initial: T) {
   } = State
 
   const setState = (value: T) => {
+    // Ensure newest version of setState is called.
+    if (setState !== current.hooks[hookIndex].setState) {
+      return current.hooks[hookIndex].setState(value)
+    }
     // NOTE new state will be returned on next render when useState is called again.
     hook.state = value
 
@@ -26,10 +34,12 @@ export function useState<T extends any>(initial: T) {
     }
 
     pending.push({
-      native: current.native, // TODO components never have native elements
+      native: current.native, // TODO components never have native elements, make optional.
       props: current.props,
       type: current.type,
+      hooks: [],
       previous: current,
+      parent: current.parent,
     })
 
     deletions.length = 0
@@ -37,13 +47,13 @@ export function useState<T extends any>(initial: T) {
     requestIdleCallback((deadline) => process(deadline, context))
   }
 
+  hook.setState = setState
   current.hooks.push(hook)
 
   return [hook.state, setState] as const
 }
 
 export function useRef<T extends HTMLElement>() {
-  // TODO where does the ref come from... State.context.current.native
   return { current: undefined } as Ref<T>
 }
 

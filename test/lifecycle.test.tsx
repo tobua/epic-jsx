@@ -271,3 +271,36 @@ test('Refs can be accessed by a specific tag.', () => {
   // @ts-ignore
   expect(paragraph[0].tagName.toLowerCase()).toBe('p')
 })
+
+test('Elements can be conditionally rendered.', () => {
+  let context: React.Component | undefined
+  let counter = 0
+
+  function Component(this: React.Component) {
+    context = this
+    counter++
+    return (
+      <>
+        <p id="first">first</p>
+        {counter % 2 === 0 ? <p id="second">second</p> : undefined}
+        <p id="third">third</p>
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body><p id="first">first</p><p id="third">third</p></body>')
+
+  context?.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><p id="first">first</p><p id="second">second</p><p id="third">third</p></body>'
+  )
+
+  context?.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><p id="first">first</p><p id="third">third</p></body>')
+})

@@ -61,8 +61,12 @@ export function getComponentRefsFromTreeByTag(
     return result
   }
 
-  if (node.native && node.native.tagName.toLowerCase() === tagName.toLowerCase()) {
-    result.push(node.native)
+  if (
+    node.native &&
+    (node.native as HTMLElement).tagName &&
+    (node.native as HTMLElement).tagName.toLowerCase() === tagName.toLowerCase()
+  ) {
+    result.push(node.native as HTMLElement)
   }
 
   // !root to ignore siblings of the component itself.

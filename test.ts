@@ -8,7 +8,7 @@ export const serializeElement = (node: Element = document.body) => {
 
 type ReadableNode = {
   tag?: Type
-  getElement: () => Element
+  getElement: () => HTMLElement | Text
   props?: Props
   children: ReadableNode[]
 }
@@ -19,7 +19,9 @@ const getProps = (node: Fiber) => {
 }
 
 const getTag = (node: Fiber) => {
-  const htmlTag = node?.native?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
+  const htmlTag = (
+    node?.native as HTMLElement
+  )?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
 
   if (htmlTag) {
     return htmlTag

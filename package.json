@@ -32,7 +32,8 @@
     }
   },
   "dependencies": {
-    "logua": "^2.3.0"
+    "logua": "^2.3.0",
+    "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.22",

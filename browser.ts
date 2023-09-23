@@ -1,11 +1,50 @@
+import { svgTagNames } from 'svg-tag-names'
 import { Change, Fiber, Props } from './types'
+
+const sizeStyleProperties = [
+  'width',
+  'height',
+  'border',
+  'margin',
+  'padding',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'gap',
+  'rowGap',
+  'columnGap',
+]
+
+function startsWithSizeProperty(propertyName: string) {
+  return sizeStyleProperties.some((prop) => propertyName.startsWith(prop))
+}
+
+function convertStylesToPixels(styleObject: CSSStyleDeclaration) {
+  const convertedStyles = {}
+  for (const key in styleObject) {
+    if (styleObject.hasOwnProperty(key)) {
+      const value = styleObject[key]
+      if (typeof value === 'number' && startsWithSizeProperty(key)) {
+        convertedStyles[key] = `${value}px`
+      } else {
+        convertedStyles[key] = value
+      }
+    }
+  }
+  return convertedStyles
+}
 
 const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
 
-function updateNativeElement(element: HTMLElement, prevProps: Props = {}, nextProps: Props = {}) {
+function updateNativeElement(
+  element: HTMLElement | Text,
+  prevProps: Props = {},
+  nextProps: Props = {}
+) {
   // Remove old or changed event listeners
   Object.keys(prevProps)
     .filter(isEvent)
@@ -32,11 +71,11 @@ function updateNativeElement(element: HTMLElement, prevProps: Props = {}, nextPr
         nextProps[name].current = element
         return
       }
-      if (element.setAttribute) {
+      if (typeof (element as HTMLElement).setAttribute === 'function') {
         if (name === 'style') {
-          Object.assign(element.style, nextProps[name])
+          Object.assign((element as HTMLElement).style, convertStylesToPixels(nextProps[name]))
         } else {
-          element.setAttribute(name, nextProps[name])
+          ;(element as HTMLElement).setAttribute(name, nextProps[name])
         }
       } else {
         element[name] = nextProps[name]
@@ -53,20 +92,26 @@ function updateNativeElement(element: HTMLElement, prevProps: Props = {}, nextPr
     })
 }
 
-export function createNativeElement(fiber: Fiber): HTMLElement {
+export function createNativeElement(fiber: Fiber) {
   if (!fiber.type) return undefined // Ignore fragments.
 
-  const element =
-    fiber.type === 'TEXT_ELEMENT'
-      ? document.createTextNode('')
-      : document.createElement(fiber.type as any)
+  let element: HTMLElement | Text
+
+  if (fiber.type === 'TEXT_ELEMENT') {
+    element = document.createTextNode('')
+  } else if (svgTagNames.includes(fiber.type as any)) {
+    // Necessary to properly render SVG elements, createElement will not work.
+    element = document.createElementNS('http://www.w3.org/2000/svg', fiber.type as any)
+  } else {
+    element = document.createElement(fiber.type as any)
+  }
 
   updateNativeElement(element, {}, fiber.props)
 
   return element
 }
 
-function commitDeletion(fiber: Fiber, nativeParent: HTMLElement) {
+function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   if (fiber.native) {
     nativeParent.removeChild(fiber.native)
   } else {
@@ -80,7 +125,7 @@ export function commitFiber(fiber: Fiber) {
   }
 
   let parent = fiber.parent
-  let maxTries = 100
+  let maxTries = 500
   while (!parent.native && parent.parent && maxTries > 0) {
     maxTries -= 1
     parent = parent.parent
