@@ -1,7 +1,7 @@
 import { Fiber, Props, Context, Component, JSX } from './types'
 import { process } from './render'
 import * as React from './jsx'
-import { log } from './helper'
+import { log, schedule } from './helper'
 
 export * from './jsx'
 export * from './hooks'
@@ -87,7 +87,7 @@ export function render(element: JSX, container?: HTMLElement | null) {
 
   context.deletions = []
 
-  requestIdleCallback((deadline) => process(deadline, context))
+  schedule((deadline) => process(deadline, context))
 
   return context
 }

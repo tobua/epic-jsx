@@ -1,6 +1,6 @@
 import { Change, Context, Fiber, State, JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
-import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log } from './helper'
+import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)
@@ -215,6 +215,6 @@ export function process(deadline: IdleDeadline, context: Context) {
   }
 
   if (context.current || context.pending.length) {
-    requestIdleCallback((nextDeadline) => process(nextDeadline, context))
+    schedule((nextDeadline) => process(nextDeadline, context))
   }
 }

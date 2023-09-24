@@ -1,5 +1,5 @@
 import { State, Ref } from './types'
-import { log, shallowArrayEqual } from './helper'
+import { log, schedule, shallowArrayEqual } from './helper'
 import { process } from './render'
 
 export function useState<T extends any>(initial: T) {
@@ -44,7 +44,7 @@ export function useState<T extends any>(initial: T) {
       parent: current.parent,
     })
 
-    requestIdleCallback((deadline) => process(deadline, context))
+    schedule((deadline) => process(deadline, context))
   }
 
   hook.setState = setState

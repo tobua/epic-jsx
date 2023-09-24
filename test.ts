@@ -55,6 +55,7 @@ export const toReadableTree = (node: Fiber) => {
 // eslint-disable-next-line import/no-mutable-exports
 export let run: Function
 
+// Manually callable polyfill for requestIdleCallback usually not present in testing environments.
 if (typeof requestIdleCallback === 'undefined') {
   global.requestIdleCallback = (callback: IdleRequestCallback) => {
     run = () => callback({ timeRemaining: () => 10, didTimeout: false })

@@ -89,3 +89,35 @@ export function getComponentRefsFromTreeByTag(
 
   return result
 }
+
+export function schedule(callback: IdleRequestCallback) {
+  if (window.requestIdleCallback) {
+    return window.requestIdleCallback(callback)
+  }
+
+  // requestIdleCallback polyfill (not supported in Safari)
+  // https://github.com/pladaria/requestidlecallback-polyfill
+  // See react scheduler for better implementation.
+  window.requestIdleCallback =
+    window.requestIdleCallback ||
+    function (innerCallback: IdleRequestCallback, options?: IdleRequestOptions) {
+      var start = Date.now()
+      setTimeout(function () {
+        innerCallback({
+          didTimeout: false,
+          timeRemaining: function () {
+            return Math.max(0, 50 - (Date.now() - start))
+          },
+        })
+      }, 1)
+      return 0
+    }
+
+  window.cancelIdleCallback =
+    window.cancelIdleCallback ||
+    function (id) {
+      clearTimeout(id)
+    }
+
+  schedule(callback)
+}
