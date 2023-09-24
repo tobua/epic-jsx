@@ -304,3 +304,46 @@ test('Elements can be conditionally rendered.', () => {
 
   expect(serializeElement()).toEqual('<body><p id="first">first</p><p id="third">third</p></body>')
 })
+
+test('Elements and components no longer present will be removed.', () => {
+  const NestedComponent = ({ children }) => <p>{children}</p>
+  let context: React.Component | undefined
+  let counter = 0
+
+  function Component(this: React.Component) {
+    context = this
+    counter++
+    return (
+      <>
+        <p>first</p>
+        {counter % 2 === 0 ? <p>second</p> : undefined}
+        {counter % 2 === 1 ? <p>third</p> : undefined}
+        {counter % 2 === 0 ? <p>fourth</p> : undefined}
+        {counter % 2 === 0 ? <NestedComponent>fifth</NestedComponent> : undefined}
+        {counter % 2 === 1 ? (
+          <svg>
+            <path />
+          </svg>
+        ) : undefined}
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body><p>first</p><p>third</p><svg><path></path></svg></body>')
+
+  context?.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><p>first</p><p>second</p><p>fourth</p><p>fifth</p></body>'
+  )
+
+  context?.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><p>first</p><p>third</p><svg><path></path></svg></body>'
+  )
+})

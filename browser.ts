@@ -114,7 +114,11 @@ export function createNativeElement(fiber: Fiber) {
 function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   if (fiber.native) {
     nativeParent.removeChild(fiber.native)
-  } else {
+    fiber.change = undefined
+  } else if (fiber.child) {
+    // Avoid another delete when visiting though siblings.
+    fiber.change = undefined
+    fiber.child.change = Change.delete
     commitDeletion(fiber.child, nativeParent)
   }
 }

@@ -17,6 +17,15 @@ export function shallowArrayEqual(first: any[], second: any[]) {
   return true
 }
 
+// NOTE unused.
+export function getAllFiberSiblings(node: Fiber, result = []) {
+  if (node && node.sibling) {
+    result.push(node.sibling)
+    return getAllFiberSiblings(node.sibling)
+  }
+  return result
+}
+
 export function getComponentRefsFromTree(
   node: Fiber,
   result: NestedHTMLElement,

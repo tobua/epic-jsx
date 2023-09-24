@@ -1,16 +1,25 @@
 import { Change, Context, Fiber, State, JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log } from './helper'
-import { toReadableTree } from './test'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)
+  context.deletions.length = 0
   commitFiber(fiber.child)
 
   // TODO check if dependencies changed.
   if (State.effects.length) {
     State.effects.forEach((effect) => effect())
     State.effects.length = 0
+  }
+}
+
+function deleteAllFiberSibling(context: Context, node: Fiber) {
+  node.change = Change.delete
+  context.deletions.push(node)
+
+  if (node && node.sibling) {
+    deleteAllFiberSibling(context, node.sibling)
   }
 }
 
@@ -84,6 +93,9 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
 
     // NOTE added to prevent endless loop after state update to component.
     if (index > elements.length) {
+      if (previous) {
+        deleteAllFiberSibling(context, previous)
+      }
       previous = undefined
     }
   }

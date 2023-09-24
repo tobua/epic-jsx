@@ -17,7 +17,7 @@ export function useState<T extends any>(initial: T) {
 
   const { context } = State
   const {
-    context: { pending, current, deletions },
+    context: { pending, current },
   } = State
 
   const setState = (value: T) => {
@@ -41,8 +41,6 @@ export function useState<T extends any>(initial: T) {
       previous: current,
       parent: current.parent,
     })
-
-    deletions.length = 0
 
     requestIdleCallback((deadline) => process(deadline, context))
   }
