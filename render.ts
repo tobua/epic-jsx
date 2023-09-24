@@ -14,32 +14,35 @@ function commit(context: Context, fiber: Fiber) {
   }
 }
 
-function deleteAllFiberSibling(context: Context, node: Fiber) {
+function deleteAllFiberSiblings(context: Context, node: Fiber) {
   node.change = Change.delete
   context.deletions.push(node)
 
   if (node && node.sibling) {
-    deleteAllFiberSibling(context, node.sibling)
+    deleteAllFiberSiblings(context, node.sibling)
   }
 }
 
-function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = []) {
+// Loops flat through all the siblings of the previous child of the node passed.
+function reconcileChildren(context: Context, current: Fiber, children: JSX[] = []) {
   let index = 0
   let previous = current.previous?.child
   let prevSibling: Fiber
   let maxTries = 500
 
-  while ((index < elements.length || previous) && maxTries > 0) {
+  // TODO compare children.length to previous element length.
+  while ((index < children.length || previous) && maxTries > 0) {
     maxTries -= 1
-    const element = elements[index]
+    const element = children[index]
     let newFiber: Fiber
 
+    // TODO also compare props.
     const sameType = element?.type === previous?.type
 
     if (sameType && previous) {
       newFiber = {
         type: previous.type,
-        props: element.props,
+        props: element?.props ?? previous?.props,
         native: previous.native,
         parent: current,
         previous: previous,
@@ -78,6 +81,8 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
       context.deletions.push(previous)
     }
 
+    const item = previous
+
     if (previous) {
       previous = previous.sibling
     }
@@ -92,16 +97,15 @@ function reconcileChildren(context: Context, current: Fiber, elements: JSX[] = [
     index += 1
 
     // NOTE added to prevent endless loop after state update to component.
-    if (index > elements.length) {
-      if (previous) {
-        deleteAllFiberSibling(context, previous)
-      }
+    if (index > children.length) {
+      // Remove additional nodes no longer present in tree.
+      deleteAllFiberSiblings(context, previous ?? item)
       previous = undefined
     }
   }
 
   if (maxTries === 0) {
-    console.error('Ran out of tries at reconcileChildren.', elements)
+    console.error('Ran out of tries at reconcileChildren.', children)
   }
 }
 
@@ -210,5 +214,7 @@ export function process(deadline: IdleDeadline, context: Context) {
     context.rendered.length = 0
   }
 
-  requestIdleCallback((nextDeadline) => process(nextDeadline, context))
+  if (context.current || context.pending.length) {
+    requestIdleCallback((nextDeadline) => process(nextDeadline, context))
+  }
 }

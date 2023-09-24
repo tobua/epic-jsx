@@ -38,7 +38,7 @@ function Button(props) {
   )
 }
 
-function TextArea({ value, ...props }) {
+function TextArea(props) {
   return (
     <textarea
       style={{
@@ -52,9 +52,7 @@ function TextArea({ value, ...props }) {
         fontFamily: 'sans-serif',
       }}
       {...props}
-    >
-      {value}
-    </textarea>
+    />
   )
 }
 
@@ -63,11 +61,21 @@ export function ContactForm() {
   const [message, setMessage] = useState('')
   const [verifying, setVerifying] = useState(false)
   const [confirming, setConfirming] = useState(false)
-  const [timer, setTimer] = useState(11)
+  const [submitted, setSubmitted] = useState(false)
+  const [timer, setTimer] = useState(10)
 
   const handleSubmit = useCallback(
     function handleClick(event: MouseEvent) {
       event.preventDefault()
+      if (confirming) {
+        setSubmitted(true)
+        setTimer(10)
+        setConfirming(false)
+        setName('')
+        setMessage('')
+        return
+      }
+      setSubmitted(false)
       setVerifying(true)
       setTimer(timer - 1)
 
@@ -76,7 +84,7 @@ export function ContactForm() {
       const intervalId = setInterval(() => {
         setTimer(--current)
 
-        if (current === 1) {
+        if (current === 0) {
           clearInterval(intervalId)
           setVerifying(false)
           setConfirming(true)
@@ -121,26 +129,29 @@ export function ContactForm() {
         rows={4}
         value={message}
         onInput={(event) => setMessage(event.target.value)}
-      >
-        {message}
-      </TextArea>
+      />
       <Button type="submit" onClick={handleSubmit} inactive={verifying}>
         {verifying ? 'Please wait...' : confirming ? 'Confirm' : 'Submit'}
       </Button>
       {verifying && (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
           <p
             style={{
               animation: 'pulsate 3s ease-out',
               animationIterationCount: 'infinite',
               opacity: 0.5,
+              margin: 0,
             }}
           >
-            Checking connection <span>{timer}</span>
+            Checking connection:{' '}
+            <span style={{ fontWeight: 'bold', background: 'gray', padding: 10, borderRadius: 10 }}>
+              {timer}
+            </span>
           </p>
           <Globe />
-        </>
+        </div>
       )}
+      {submitted && <p style={{ margin: 0 }}>Message submitted!</p>}
     </form>
   )
 }

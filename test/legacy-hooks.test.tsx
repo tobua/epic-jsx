@@ -24,9 +24,9 @@ test('Renders a basic component and rerenders after state update.', () => {
   expect(tree.tag).toBe('body')
   expect(tree.children[0].children[0].tag).toBe('button')
 
-  const heading = tree.children[0].children[0].getElement() as HTMLButtonElement
+  const button = tree.children[0].children[0].getElement() as HTMLButtonElement
 
-  heading.click()
+  button.click()
   run()
 
   expect(serializeElement()).toEqual('<body><button type="button">Count: 2</button></body>')
@@ -259,4 +259,63 @@ test('useMemo returnes the value returned by the callback.', () => {
   const { serialized } = render(<Component />)
 
   expect(serialized).toEqual('<body><div>20</div></body>')
+})
+
+test('Additional components can dynamically be rendered.', async () => {
+  const NestedComponent = ({ children }) => <p>{children}</p>
+  function Counter() {
+    const [count, setCount] = useState(1)
+    const handleIncrement = useCallback(() => {
+      setCount(count + 1)
+
+      setTimeout(() => {
+        // Using outdated setCount.
+        setCount(count + 2)
+      }, 50)
+    })
+    const handleReset = useCallback(() => {
+      setCount(1)
+    })
+    return (
+      <>
+        <button onClick={handleIncrement}>{count}</button>
+        <button onClick={handleReset}>Reset</button>
+        {count > 1 && <p>hey</p>}
+        {count > 1 && (
+          <>
+            <p>fragment</p>
+            <NestedComponent>nested</NestedComponent>
+          </>
+        )}
+      </>
+    )
+  }
+
+  const { tree, serialized } = render(<Counter />)
+
+  expect(serialized).toEqual('<body><button>1</button><button>Reset</button></body>')
+
+  expect(tree.tag).toBe('body')
+  expect(tree.children[0].children[0].children[0].tag).toBe('button')
+
+  const incrementButton = tree.children[0].children[0].children[0].getElement() as HTMLButtonElement
+  const resetButton = tree.children[0].children[0].children[0].getElement() as HTMLButtonElement
+
+  incrementButton.click()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><button>2</button><button>Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>'
+  )
+
+  await new Promise((done) => setTimeout(done, 200))
+
+  expect(serializeElement()).toEqual(
+    '<body><button>2</button><button>Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>'
+  )
+
+  resetButton.click()
+  run()
+
+  expect(serialized).toEqual('<body><button>1</button><button>Reset</button></body>')
 })

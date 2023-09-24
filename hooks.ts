@@ -9,7 +9,7 @@ export function useState<T extends any>(initial: T) {
 
   const hookIndex = State.context.current.hooks.length
   // useState is only called during the render when the wipFiber matches the current component where the setState call is made.
-  const previousHook = State.context.current.previous?.hooks[State.context.current.hooks.length]
+  const previousHook = State.context.current.previous?.hooks[hookIndex]
   const hook = { state: previousHook ? previousHook.state : initial } as {
     state: T
     setState: (value: T) => void
@@ -22,9 +22,11 @@ export function useState<T extends any>(initial: T) {
 
   const setState = (value: T) => {
     // Ensure newest version of setState is called.
-    if (setState !== current.hooks[hookIndex].setState) {
+    // TODO recursively travels through whole chain.
+    if (current.hooks[hookIndex] && setState !== current.hooks[hookIndex].setState) {
       return current.hooks[hookIndex].setState(value)
     }
+
     // NOTE new state will be returned on next render when useState is called again.
     hook.state = value
 
@@ -47,6 +49,10 @@ export function useState<T extends any>(initial: T) {
 
   hook.setState = setState
   current.hooks.push(hook)
+  // Also update previous hooks to get the most recent one from old scopes.
+  if (State.context.current.previous) {
+    State.context.current.previous.hooks[hookIndex] = hook
+  }
 
   return [hook.state, setState] as const
 }

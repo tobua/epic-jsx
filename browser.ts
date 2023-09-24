@@ -71,6 +71,10 @@ function updateNativeElement(
         nextProps[name].current = element
         return
       }
+      if (name === 'value') {
+        ;(element as HTMLInputElement).value = nextProps[name]
+        return
+      }
       if (typeof (element as HTMLElement).setAttribute === 'function') {
         if (name === 'style') {
           Object.assign((element as HTMLElement).style, convertStylesToPixels(nextProps[name]))
