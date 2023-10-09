@@ -1,11 +1,11 @@
-import { Fiber, Props, Context, Component, JSX } from './types'
+import { Fiber, Props, Context, Component, JSX, Renderer } from './types'
 import { process } from './render'
 import * as React from './jsx'
 import { log, schedule } from './helper'
 
 export * from './jsx'
 export * from './hooks'
-export { Fiber, Props, Context, Component }
+export { Fiber, Props, Context, Component, Renderer }
 
 export default React
 
@@ -34,7 +34,8 @@ export const getRoots = () => {
 
 export const unmount = (container: HTMLElement) => {
   if (!container) {
-    return log('Trying to unmount empty container')
+    log('Trying to unmount empty container', 'warning')
+    return
   }
 
   while (container.firstChild) {

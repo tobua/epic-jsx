@@ -1,4 +1,4 @@
-import { Change, Context, Fiber, State, JSX } from './types'
+import { Change, Context, Fiber, Renderer, JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
 
@@ -8,9 +8,9 @@ function commit(context: Context, fiber: Fiber) {
   commitFiber(fiber.child)
 
   // TODO check if dependencies changed.
-  if (State.effects.length) {
-    State.effects.forEach((effect) => effect())
-    State.effects.length = 0
+  if (Renderer.effects.length) {
+    Renderer.effects.forEach((effect) => effect())
+    Renderer.effects.length = 0
   }
 }
 
@@ -45,14 +45,14 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
         props: element?.props ?? previous?.props,
         native: previous.native,
         parent: current,
-        previous: previous,
+        previous,
         hooks: previous.hooks,
         change: Change.update,
       }
     }
 
     // Newly added (possibly unnecessary).
-    if (sameType && !previous) {
+    if (element && sameType && !previous) {
       newFiber = {
         type: element.type,
         props: element.props,
@@ -125,7 +125,7 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     fiber.hooks = []
   }
   fiber.hooks.length = 0
-  State.context = context
+  Renderer.context = context
   fiber.afterListeners = []
   fiber.component = {
     id: '123', // TODO
@@ -146,8 +146,10 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
       fiber.afterListeners.push(callback)
     },
   }
+  Renderer.current = fiber
   const children = [fiber.type.call(fiber.component, fiber.props)]
-  State.context = undefined
+  Renderer.current = undefined
+  Renderer.context = undefined
   reconcileChildren(context, fiber, children.flat())
 }
 
@@ -182,7 +184,8 @@ function render(context: Context, fiber: Fiber) {
 
 export function process(deadline: IdleDeadline, context: Context) {
   if (!context.current && context.pending.length === 0) {
-    return log('Trying to process an empty queue')
+    log('Trying to process an empty queue')
+    return
   }
 
   if (!context.current) {

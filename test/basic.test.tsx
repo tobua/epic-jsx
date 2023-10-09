@@ -12,7 +12,7 @@ test('Renders regular JSX tags.', () => {
   const { serialized } = render(
     <div>
       <p>Hello</p> World
-    </div>
+    </div>,
   )
 
   expect(serialized).toEqual('<body><div><p>Hello</p> World</div></body>')
@@ -25,11 +25,11 @@ test('Renders DOM attributes.', () => {
         Hello
       </button>{' '}
       World
-    </div>
+    </div>,
   )
 
   expect(serialized).toEqual(
-    '<body><div aria-label="labelled"><button type="button" tabindex="-1">Hello</button> World</div></body>'
+    '<body><div aria-label="labelled"><button type="button" tabindex="-1">Hello</button> World</div></body>',
   )
 })
 
@@ -41,7 +41,7 @@ test('Works with fragments.', () => {
         <p>second</p>
         <p>third</p>
       </>
-    </>
+    </>,
   )
 
   expect(serialized).toEqual('<body><p>first</p><p>second</p><p>third</p></body>')
@@ -63,11 +63,11 @@ test('Works with nested components.', () => {
       <First />
       <Second />
       <Third />
-    </div>
+    </div>,
   )
 
   expect(serialized).toEqual(
-    '<body><div><p>first</p><p>second<span>nested</span></p><p>third</p></div></body>'
+    '<body><div><p>first</p><p>second<span>nested</span></p><p>third</p></div></body>',
   )
 })
 
@@ -99,7 +99,7 @@ test('Can render into different elements.', () => {
   })
 
   expect(serializeElement()).toEqual(
-    '<body><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>'
+    '<body><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>',
   )
 
   while (document.body.firstChild) {
@@ -110,7 +110,7 @@ test('Can render into different elements.', () => {
 test('Can render object styles as inline-styles.', () => {
   const { serialized } = render(<div style={{ display: 'flex', justifyContent: 'center' }} />)
   expect(serialized).toEqual(
-    '<body><div style="display: flex; justify-content: center;"></div></body>'
+    '<body><div style="display: flex; justify-content: center;"></div></body>',
   )
 })
 
@@ -129,7 +129,7 @@ test('Tree includes all nodes.', () => {
         <button type="button">fourth</button>
         <MyInput placeholder="World" />
       </>
-    </div>
+    </div>,
   )
 
   expect(tree.tag).toBe('body')
@@ -152,6 +152,6 @@ test('Number based sizes are converted to pixels.', () => {
   const { serialized } = render(<div style={{ width: 50, height: 50, flexGrow: 1 }}>Square</div>)
 
   expect(serialized).toEqual(
-    '<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>'
+    '<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>',
   )
 })

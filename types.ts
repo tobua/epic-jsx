@@ -1,6 +1,7 @@
-export const State: { context: Context | null; effects: Function[] } = {
-  context: null,
+export const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
+  context: undefined,
   effects: [],
+  current: undefined,
 }
 
 export type Action = (value: any) => any

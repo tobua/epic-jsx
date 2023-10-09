@@ -22,8 +22,9 @@ function startsWithSizeProperty(propertyName: string) {
 
 function convertStylesToPixels(styleObject: CSSStyleDeclaration) {
   const convertedStyles = {}
+  // eslint-disable-next-line no-restricted-syntax
   for (const key in styleObject) {
-    if (styleObject.hasOwnProperty(key)) {
+    if (Object.hasOwn(styleObject, key)) {
       const value = styleObject[key]
       if (typeof value === 'number' && startsWithSizeProperty(key)) {
         convertedStyles[key] = `${value}px`
@@ -43,7 +44,7 @@ const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
 function updateNativeElement(
   element: HTMLElement | Text,
   prevProps: Props = {},
-  nextProps: Props = {}
+  nextProps: Props = {},
 ) {
   // Remove old or changed event listeners
   Object.keys(prevProps)
@@ -132,7 +133,7 @@ export function commitFiber(fiber: Fiber) {
     return
   }
 
-  let parent = fiber.parent
+  let { parent } = fiber
   let maxTries = 500
   while (!parent.native && parent.parent && maxTries > 0) {
     maxTries -= 1

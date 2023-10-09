@@ -19,9 +19,10 @@ export function createElement(type: Type, props: Props, ...children: JSX[]) {
   }
 
   // Clear out falsy values.
+  // eslint-disable-next-line no-param-reassign
   children = children.filter(
     // @ts-ignore
-    (item) => item !== undefined && item !== null && item !== false && item !== ''
+    (item) => item !== undefined && item !== null && item !== false && item !== '',
   )
 
   return {
@@ -29,7 +30,7 @@ export function createElement(type: Type, props: Props, ...children: JSX[]) {
     props: {
       ...props,
       children: children.map((child) =>
-        typeof child === 'object' ? child : createTextElement(child)
+        typeof child === 'object' ? child : createTextElement(child),
       ),
     },
   }

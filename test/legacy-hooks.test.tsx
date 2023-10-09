@@ -50,7 +50,7 @@ test('Elements can be conditionally rendered.', () => {
   const { tree, serialized } = render(<Counter />)
 
   expect(serialized).toEqual(
-    '<body><p id="first">first</p><button type="button">Count: 1</button><p id="third">third</p></body>'
+    '<body><p id="first">first</p><button type="button">Count: 1</button><p id="third">third</p></body>',
   )
 
   expect(tree.tag).toBe('body')
@@ -62,14 +62,14 @@ test('Elements can be conditionally rendered.', () => {
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><p id="first">first</p><button type="button">Count: 2</button><p id="second">second</p><p id="third">third</p></body>'
+    '<body><p id="first">first</p><button type="button">Count: 2</button><p id="second">second</p><p id="third">third</p></body>',
   )
 
   heading.click()
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><p id="first">first</p><button type="button">Count: 3</button><p id="third">third</p></body>'
+    '<body><p id="first">first</p><button type="button">Count: 3</button><p id="third">third</p></body>',
   )
 })
 
@@ -94,11 +94,11 @@ test('Works with multiple instances of setState.', () => {
     <div>
       <Counter initialValue={1} />
       <Counter initialValue={3} />
-    </div>
+    </div>,
   )
 
   expect(serialized).toEqual(
-    '<body><div><button type="button">1-5</button><button type="button">1-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+    '<body><div><button type="button">1-5</button><button type="button">1-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>',
   )
 
   expect(tree.children[0].children[0].children[0].children[0].tag).toBe('button')
@@ -113,7 +113,7 @@ test('Works with multiple instances of setState.', () => {
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><div><button type="button">2-5</button><button type="button">2-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+    '<body><div><button type="button">2-5</button><button type="button">2-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>',
   )
 
   secondButton.click()
@@ -122,7 +122,7 @@ test('Works with multiple instances of setState.', () => {
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><div><button type="button">3-6</button><button type="button">3-6</button><button type="button">3-7</button><button type="button">3-7</button></div></body>'
+    '<body><div><button type="button">3-6</button><button type="button">3-6</button><button type="button">3-7</button><button type="button">3-7</button></div></body>',
   )
 })
 
@@ -262,7 +262,7 @@ test('useMemo returnes the value returned by the callback.', () => {
 })
 
 test('Additional components can dynamically be rendered.', async () => {
-  const NestedComponent = ({ children }) => <p>{children}</p>
+  const NestedComponent = ({ children }: { children: any }) => <p>{children}</p>
   function Counter() {
     const [count, setCount] = useState(1)
     const handleIncrement = useCallback(() => {
@@ -278,8 +278,12 @@ test('Additional components can dynamically be rendered.', async () => {
     })
     return (
       <>
-        <button onClick={handleIncrement}>{count}</button>
-        <button onClick={handleReset}>Reset</button>
+        <button type="button" onClick={handleIncrement}>
+          {count}
+        </button>
+        <button type="button" onClick={handleReset}>
+          Reset
+        </button>
         {count > 1 && <p>hey</p>}
         {count > 1 && (
           <>
@@ -293,7 +297,9 @@ test('Additional components can dynamically be rendered.', async () => {
 
   const { tree, serialized } = render(<Counter />)
 
-  expect(serialized).toEqual('<body><button>1</button><button>Reset</button></body>')
+  expect(serialized).toEqual(
+    '<body><button type="button">1</button><button type="button">Reset</button></body>',
+  )
 
   expect(tree.tag).toBe('body')
   expect(tree.children[0].children[0].children[0].tag).toBe('button')
@@ -305,17 +311,21 @@ test('Additional components can dynamically be rendered.', async () => {
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><button>2</button><button>Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>'
+    '<body><button type="button">2</button><button type="button">Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>',
   )
 
-  await new Promise((done) => setTimeout(done, 200))
+  await new Promise((done) => {
+    setTimeout(done, 200)
+  })
 
   expect(serializeElement()).toEqual(
-    '<body><button>2</button><button>Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>'
+    '<body><button type="button">2</button><button type="button">Reset</button><p>hey</p><p>fragment</p><p>nested</p></body>',
   )
 
   resetButton.click()
   run()
 
-  expect(serialized).toEqual('<body><button>1</button><button>Reset</button></body>')
+  expect(serialized).toEqual(
+    '<body><button type="button">1</button><button type="button">Reset</button></body>',
+  )
 })

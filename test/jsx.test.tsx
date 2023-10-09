@@ -12,11 +12,11 @@ test('Can render SVG as JSX.', () => {
   const { serialized } = render(
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width={100} height={100}>
       <circle cx="50" cy="50" r="40" fill="red" />
-    </svg>
+    </svg>,
   )
 
   expect(serialized).toEqual(
-    '<body><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"></circle></svg></body>'
+    '<body><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"></circle></svg></body>',
   )
 })
 
@@ -25,7 +25,7 @@ test('Can pass elements as children to a component.', () => {
   const { serialized } = render(
     <PassChildren>
       <p>hello</p>
-    </PassChildren>
+    </PassChildren>,
   )
 
   expect(serialized).toEqual('<body><div><p>hello</p></div></body>')
@@ -37,7 +37,7 @@ test('Can render elements as an array.', () => {
       {['first', 'second', 'third'].map((item) => (
         <p>{item}</p>
       ))}
-    </div>
+    </div>,
   )
 
   expect(serialized).toEqual('<body><div><p>first</p><p>second</p><p>third</p></div></body>')
@@ -73,15 +73,26 @@ test('Various empty elements are ignored.', () => {
       {undefined}
       {null}
       {false}
+      {/* eslint-disable-next-line react/jsx-curly-brace-presence */}
       {''}
       <p>end</p>
       <p>
         Falsy numbers: {undefined}
         {0} {-0} {NaN}
       </p>
-    </>
+    </>,
   )
 
   expect(serialized).toEqual('<body><p>start</p><p>end</p><p>Falsy numbers: 0 0 NaN</p></body>')
+})
+
+test('Component can return nothing.', () => {
+  function Component() {
+    return null
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual('<body></body>')
 })
 
