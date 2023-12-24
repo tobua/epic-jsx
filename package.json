@@ -32,14 +32,14 @@
     }
   },
   "dependencies": {
-    "logua": "^3.0.2",
+    "logua": "^3.0.3",
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.27",
-    "happy-dom": "^12.9.1",
-    "padua": "^2.0.6",
-    "vitest": "^0.34.6"
+    "@types/react": "^18.2.45",
+    "happy-dom": "^12.10.3",
+    "padua": "^2.0.7",
+    "vitest": "^1.1.0"
   },
   "type": "module",
   "sideEffects": false,

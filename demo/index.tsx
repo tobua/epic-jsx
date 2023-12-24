@@ -42,6 +42,7 @@ render(
     <h1>epic-jsx Demo</h1>
     <div>
       Hello <button>World</button>
+      <a href="https://google.com">Links aren't showing up!</a>
     </div>
     <Form />
     <div aria-label="labelled">
@@ -77,5 +78,5 @@ render(
         <img src={logo} alt="epic-jsx Logo" style={{ width: 50, height: 50 }} />
       </div>
     </aside>
-  </div>
+  </div>,
 )
