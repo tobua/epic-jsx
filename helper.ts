@@ -30,7 +30,7 @@ export function getComponentRefsFromTree(
   node: Fiber,
   result: NestedHTMLElement,
   flat: boolean,
-  root = true
+  root = true,
 ) {
   if (node.type === 'TEXT_ELEMENT' || (!root && typeof node.type === 'function')) {
     return result
@@ -64,7 +64,7 @@ export function getComponentRefsFromTreeByTag(
   node: Fiber,
   result: HTMLElement[],
   tagName: keyof HTMLElementTagNameMap,
-  root = true
+  root = true,
 ) {
   if (node.type === 'TEXT_ELEMENT' || (!root && typeof node.type === 'function')) {
     return result
@@ -100,12 +100,16 @@ export function schedule(callback: IdleRequestCallback) {
   // See react scheduler for better implementation.
   window.requestIdleCallback =
     window.requestIdleCallback ||
-    function (innerCallback: IdleRequestCallback, options?: IdleRequestOptions) {
-      var start = Date.now()
-      setTimeout(function () {
+    function idleCallbackPolyfill(
+      innerCallback: IdleRequestCallback,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      options?: IdleRequestOptions,
+    ) {
+      const start = Date.now()
+      setTimeout(() => {
         innerCallback({
           didTimeout: false,
-          timeRemaining: function () {
+          timeRemaining() {
             return Math.max(0, 50 - (Date.now() - start))
           },
         })
@@ -115,9 +119,9 @@ export function schedule(callback: IdleRequestCallback) {
 
   window.cancelIdleCallback =
     window.cancelIdleCallback ||
-    function (id) {
+    function cancelIdleCallbackPolyfill(id) {
       clearTimeout(id)
     }
 
-  schedule(callback)
+  return schedule(callback)
 }

@@ -96,3 +96,22 @@ test('Component can return nothing.', () => {
   expect(serialized).toEqual('<body></body>')
 })
 
+test('Can render HTML anchor tags.', () => {
+  expect(React.getRoots().length).toBe(0)
+
+  const { serialized, root } = render(
+    <div>
+      <a href="https://google.com">Go to Google!</a>
+    </div>,
+  )
+
+  expect(serialized).toEqual(
+    '<body><div><a href="https://google.com">Go to Google!</a></div></body>',
+  )
+
+  // a is also valid inside SVG and therefore subject to be rendered in the wrong namespace.
+  // This will lead to the tag not showing up in the browser.
+  const nativeAnchorTag = root.child.child.native
+  expect(nativeAnchorTag.tagName).toBe('A')
+  expect(nativeAnchorTag.namespaceURI).toBe('http://www.w3.org/1999/xhtml')
+})

@@ -41,8 +41,7 @@ render(
     />
     <h1>epic-jsx Demo</h1>
     <div>
-      Hello <button>World</button>
-      <a href="https://google.com">Links aren't showing up!</a>
+      Hello <button>World</button> Links <a href="https://google.com">are</a> showing up! 😊
     </div>
     <Form />
     <div aria-label="labelled">
