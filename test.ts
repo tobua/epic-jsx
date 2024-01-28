@@ -11,6 +11,7 @@ type ReadableNode = {
   getElement: () => HTMLElement | Text
   props?: Props
   children: ReadableNode[]
+  text?: string
 }
 
 const getProps = (node: Fiber) => {
@@ -31,25 +32,47 @@ const getTag = (node: Fiber) => {
     return node.type
   }
 
+  if (node?.type === 'TEXT_ELEMENT') {
+    return node.type
+  }
+
   return undefined
 }
 
-export const toReadableTree = (node: Fiber) => {
-  const result: ReadableNode = {
+export const toReadableTree = (
+  node: Fiber,
+  options = { skipFragments: true },
+  parent?: ReadableNode,
+) => {
+  let result: ReadableNode = {
     children: [],
     getElement: () => node?.native,
     tag: getTag(node),
     props: getProps(node),
   }
 
+  if (result.tag === 'TEXT_ELEMENT') {
+    result.text = result.props.nodeValue
+  }
+
   let currentChild = node?.child
+  let skipped = false
+
+  if (!result.tag && options.skipFragments && parent) {
+    result = parent
+    skipped = true
+  }
 
   while (currentChild) {
-    result.children.push(toReadableTree(currentChild))
+    const nextNode = toReadableTree(currentChild, options, result)
+    if (nextNode) {
+      result.children.push(nextNode)
+    }
     currentChild = currentChild.sibling
   }
 
-  return result
+  if (!skipped) return result
+  return null
 }
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -65,7 +88,11 @@ if (typeof requestIdleCallback === 'undefined') {
 
 export function render(
   element: JSX,
-  { container, skipRun = false }: { container?: HTMLElement | null; skipRun?: boolean } = {}
+  {
+    container,
+    skipRun = false,
+    skipFragments = true,
+  }: { container?: HTMLElement | null; skipRun?: boolean; skipFragments?: boolean } = {},
 ) {
   const context = baseRender(element, container)
   if (!skipRun) {
@@ -74,7 +101,7 @@ export function render(
   // NOTE make sure to not destruct context before run(), context not useful for user.
   return {
     root: context.root,
-    tree: toReadableTree(context.root),
+    tree: toReadableTree(context.root, { skipFragments }) as ReadableNode,
     serialized: serializeElement(),
   }
 }

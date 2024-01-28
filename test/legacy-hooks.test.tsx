@@ -54,9 +54,10 @@ test('Elements can be conditionally rendered.', () => {
   )
 
   expect(tree.tag).toBe('body')
-  expect(tree.children[0].children[0].children[1].tag).toBe('button')
+  const counterComponent = tree.children[0]
+  expect(counterComponent.children[1].tag).toBe('button')
 
-  const heading = tree.children[0].children[0].children[1].getElement() as HTMLButtonElement
+  const heading = counterComponent.children[1].getElement() as HTMLButtonElement
 
   heading.click()
   run()
@@ -100,14 +101,12 @@ test('Works with multiple instances of setState.', () => {
   expect(serialized).toEqual(
     '<body><div><button type="button">1-5</button><button type="button">1-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>',
   )
+  const counterComponent = tree.children[0]
+  expect(counterComponent.children[0].children[0].tag).toBe('button')
+  expect(counterComponent.children[0].children[1].tag).toBe('button')
 
-  expect(tree.children[0].children[0].children[0].children[0].tag).toBe('button')
-  expect(tree.children[0].children[0].children[0].children[1].tag).toBe('button')
-
-  const firstButton =
-    tree.children[0].children[0].children[0].children[0].getElement() as HTMLButtonElement
-  const secondButton =
-    tree.children[0].children[0].children[0].children[1].getElement() as HTMLButtonElement
+  const firstButton = counterComponent.children[0].children[0].getElement() as HTMLButtonElement
+  const secondButton = counterComponent.children[0].children[1].getElement() as HTMLButtonElement
 
   firstButton.click()
   run()
@@ -301,11 +300,12 @@ test('Additional components can dynamically be rendered.', async () => {
     '<body><button type="button">1</button><button type="button">Reset</button></body>',
   )
 
+  const counterComponent = tree.children[0]
   expect(tree.tag).toBe('body')
-  expect(tree.children[0].children[0].children[0].tag).toBe('button')
+  expect(counterComponent.children[0].tag).toBe('button')
 
-  const incrementButton = tree.children[0].children[0].children[0].getElement() as HTMLButtonElement
-  const resetButton = tree.children[0].children[0].children[0].getElement() as HTMLButtonElement
+  const incrementButton = counterComponent.children[0].getElement() as HTMLButtonElement
+  const resetButton = counterComponent.children[0].getElement() as HTMLButtonElement
 
   incrementButton.click()
   run()

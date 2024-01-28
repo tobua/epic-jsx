@@ -36,10 +36,10 @@
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.46",
-    "happy-dom": "^12.10.3",
-    "padua": "^2.0.8",
-    "vitest": "^1.1.1"
+    "@types/react": "^18.2.48",
+    "happy-dom": "^13.3.1",
+    "padua": "^2.0.9",
+    "vitest": "^1.2.2"
   },
   "type": "module",
   "sideEffects": false,

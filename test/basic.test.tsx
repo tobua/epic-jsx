@@ -135,17 +135,21 @@ test('Tree includes all nodes.', () => {
   expect(tree.tag).toBe('body')
   expect(tree.children.length).toBe(1)
   expect(tree.children[0].tag).toBe('div')
-  expect(tree.children[0].children.length).toBe(3) // p, span, <>
+  expect(tree.children[0].children.length).toBe(5) // p, span, p, button, MyInput
+  expect(tree.children[0].children[0].tag).toBe('p')
+  expect(tree.children[0].children[0].children[0].text).toBe('first')
   expect(tree.children[0].children[1].tag).toBe('span')
-  expect(tree.children[0].children[2].tag).toBe(undefined) // <>
-  expect(tree.children[0].children[2].children.length).toBe(3)
-  expect(tree.children[0].children[2].children[1].tag).toBe('button')
-  expect(typeof tree.children[0].children[2].children[2].tag).toBe('function')
-  expect(tree.children[0].children[2].children[2].props).toEqual({
+  expect(tree.children[0].children[1].children[0].text).toBe('second')
+  expect(tree.children[0].children[2].tag).toBe('p')
+  expect(tree.children[0].children[2].children[0].text).toBe('third')
+  expect(tree.children[0].children[3].tag).toBe('button')
+  expect(tree.children[0].children[3].children[0].text).toBe('fourth')
+  expect(typeof tree.children[0].children[4].tag).toBe('function')
+  expect(tree.children[0].children[4].props).toEqual({
     placeholder: 'World',
   })
-  expect(tree.children[0].children[2].children[2].props).toEqual({ placeholder: 'World' })
-  expect(tree.children[0].children[2].children[2].children[0].tag).toBe('input')
+  expect(tree.children[0].children[4].props).toEqual({ placeholder: 'World' })
+  expect(tree.children[0].children[4].children[0].tag).toBe('input')
 })
 
 test('Number based sizes are converted to pixels.', () => {
@@ -154,4 +158,37 @@ test('Number based sizes are converted to pixels.', () => {
   expect(serialized).toEqual(
     '<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>',
   )
+})
+
+test('Fragments are removed from the tree by default.', () => {
+  const Second = () => <span>second</span>
+  const { tree } = render(
+    <>
+      <p>first</p>
+      <Second />
+      {/* eslint-disable-next-line react/jsx-no-useless-fragment */}
+      <>
+        <p>third</p>
+        {/* eslint-disable-next-line react/jsx-no-useless-fragment */}
+        <>
+          <p>fourth</p>
+        </>
+      </>
+    </>,
+  )
+
+  expect(tree.tag).toBe('body')
+  expect(tree.children.length).toBe(4)
+
+  const [first, second, third, fourth] = tree.children
+
+  expect(first.tag).toBe('p')
+  expect(first.children[0].tag).toBe('TEXT_ELEMENT')
+  expect(first.children[0].text).toBe('first')
+  expect(second.children[0].children[0].tag).toBe('TEXT_ELEMENT')
+  expect(second.children[0].children[0].text).toBe('second')
+  expect(third.children[0].tag).toBe('TEXT_ELEMENT')
+  expect(third.children[0].text).toBe('third')
+  expect(fourth.children[0].tag).toBe('TEXT_ELEMENT')
+  expect(fourth.children[0].text).toBe('fourth')
 })
