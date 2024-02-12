@@ -1,6 +1,5 @@
-// @vitest-environment happy-dom
-
-import { test, expect, afterEach, vi } from 'vitest'
+import './setup-dom'
+import { test, expect, afterEach, mock } from 'bun:test'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
 import { mapNestedArray } from './helper'
@@ -105,7 +104,7 @@ test('Component can access refs.', () => {
 
 test('After lifecycle listeners will be called after render.', () => {
   let context
-  const afterMock = vi.fn(function AfterMock() {
+  const afterMock = mock(function AfterMock() {
     context = this
   })
   let arrowFunctionContext
@@ -234,9 +233,8 @@ test('Refs can be accessed nested.', () => {
   expect(refsNested[1][0].id).toBe('second')
   expect(refsNested[1][1][0].id).toBe('third')
 
-  const tagsMapped = mapNestedArray(
-    refsNested,
-    (element: HTMLElement) => element.tagName?.toLowerCase(),
+  const tagsMapped = mapNestedArray(refsNested, (element: HTMLElement) =>
+    element.tagName?.toLowerCase(),
   )
 
   expect(tagsMapped).toEqual(['div', ['div', ['p']], 'span'])
@@ -375,7 +373,7 @@ test('Currently rendered component is reflected on the Renderer.', () => {
     return <p>{name}</p>
   }
 
-  expect(Renderer.current).toBe(undefined)
+  expect(Renderer.current).not.toBeDefined()
 
   render(
     <>
@@ -393,7 +391,7 @@ test('Currently rendered component is reflected on the Renderer.', () => {
     </>,
   )
 
-  expect(Renderer.current).toBe(undefined)
+  expect(Renderer.current).not.toBeDefined()
 
   // Same result after rerender.
   context?.rerender()

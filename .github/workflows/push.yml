@@ -11,24 +11,26 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
       - name: 🚧 Build
-        run: npm run build
+        run: bun run build
+      - name: 🔗 Symlink React for Bun runtime (workaround for now)
+        run: bun symlink
       - name: 🧪 Test
-        run: npm test
+        run: bun test
       - name: 🛠️ Build Documentation
         run: |
           cd demo
-          npm install
-          npx papua build
+          bun install
+          bunx papua build
       - name: 🚀 Publish Documentation
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: publish
           folder: demo/dist
-      - run: npm install -g npm@latest
       - name: 📢 Release
-        uses: tobua/release-npm-action@v2
+        uses: tobua/release-npm-action@v3
         with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

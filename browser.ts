@@ -1,5 +1,5 @@
 import { svgTagNames } from 'svg-tag-names'
-import { Change, Fiber, Props } from './types'
+import { Change, type Fiber, type Props } from './types'
 
 const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
 

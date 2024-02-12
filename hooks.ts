@@ -1,4 +1,4 @@
-import { Renderer, Ref } from './types'
+import { Renderer, type Ref } from './types'
 import { log, schedule, shallowArrayEqual } from './helper'
 import { process } from './render'
 

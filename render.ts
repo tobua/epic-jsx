@@ -1,4 +1,4 @@
-import { Change, Context, Fiber, Renderer, JSX } from './types'
+import { Change, type Context, type Fiber, Renderer, type JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
 

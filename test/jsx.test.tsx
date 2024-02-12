@@ -1,6 +1,5 @@
-// @vitest-environment happy-dom
-
-import { test, expect, afterEach } from 'vitest'
+import './setup-dom'
+import { test, expect, afterEach } from 'bun:test'
 import { render } from '../test'
 import * as React from '../index'
 

@@ -1,4 +1,4 @@
-import { Fiber, Props, Context, Component, JSX, Renderer } from './types'
+import { type Fiber, type Props, type Context, type Component, type JSX, Renderer } from './types'
 import { process } from './render'
 import * as React from './jsx'
 import { log, schedule } from './helper'
@@ -10,6 +10,9 @@ export { Fiber, Props, Context, Component, Renderer }
 export default React
 
 const roots = new Map<HTMLElement, Context>()
+
+// Imported by regular React runtime, implementation is guess.
+export const Fragment = undefined // Symbol.for('react.fragment')
 
 export const getRoot = (container: HTMLElement) => {
   if (!roots.has(container)) return undefined

@@ -1,4 +1,4 @@
-import { Props, Type, JSX } from './types'
+import type { Props, Type, JSX } from './types'
 
 function createTextElement(text: string) {
   return {

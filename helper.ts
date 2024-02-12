@@ -1,5 +1,5 @@
 import { create } from 'logua'
-import { Fiber, NestedHTMLElement } from './types'
+import type { Fiber, NestedHTMLElement } from './types'
 
 export const log = create('epic-jsx', 'blue')
 

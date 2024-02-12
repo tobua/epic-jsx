@@ -9,7 +9,7 @@
   "scripts": {
     "build": "padua build",
     "start": "padua watch",
-    "test": "vitest run --config test/vitest.config.ts"
+    "symlink": "ln -s ./.. ./node_modules/react"
   },
   "padua": {
     "entry": [
@@ -36,26 +36,22 @@
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.48",
-    "happy-dom": "^13.3.1",
-    "padua": "^2.0.9",
-    "vitest": "^1.2.2"
+    "@happy-dom/global-registrator": "^13.3.8",
+    "@types/bun": "^1.0.5",
+    "@types/react": "^18.2.55",
+    "padua": "^2.0.9"
   },
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
   "exports": {
     ".": {
-      "default": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./test": {
-      "default": {
-        "types": "./dist/test.d.ts",
-        "default": "./dist/test.js"
-      }
+      "types": "./dist/test.d.ts",
+      "default": "./dist/test.js"
     },
     "./jsx-runtime": "./dist/index.js",
     "./jsx-dev-runtime": "./dist/index.js"

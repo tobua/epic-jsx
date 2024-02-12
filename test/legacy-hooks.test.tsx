@@ -1,6 +1,5 @@
-// @vitest-environment happy-dom
-
-import { test, expect, afterEach, vi } from 'vitest'
+import './setup-dom'
+import { test, expect, afterEach, mock } from 'bun:test'
 import { render, run, serializeElement } from '../test'
 import * as React from '../index'
 import { getRoot, useRef, useState, useEffect, useCallback, useMemo } from '../index'
@@ -154,7 +153,7 @@ test('Accessing the root will process the current work in progress before return
 })
 
 test('A ref can be assigned to any tag and is accessible in the effect.', () => {
-  const effectMock = vi.fn()
+  const effectMock = mock()
 
   function Component() {
     const ref = useRef<HTMLDivElement>()
@@ -173,7 +172,7 @@ test('A ref can be assigned to any tag and is accessible in the effect.', () => 
 })
 
 test('Ref stays present after rerenders.', () => {
-  const effectMock = vi.fn()
+  const effectMock = mock()
   let rerender
 
   function Component() {
