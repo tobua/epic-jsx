@@ -9,7 +9,8 @@
   "scripts": {
     "build": "padua build",
     "start": "padua watch",
-    "symlink": "ln -s ./.. ./node_modules/react"
+    "symlink": "ln -s ./.. ./node_modules/react",
+    "types": "tsc"
   },
   "padua": {
     "entry": [
@@ -26,6 +27,9 @@
         "paths": {
           "react": [
             "."
+          ],
+          "react/jsx-dev-runtime": [
+            "."
           ]
         }
       }
@@ -36,10 +40,10 @@
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^13.3.8",
-    "@types/bun": "^1.0.5",
-    "@types/react": "^18.2.55",
-    "padua": "^2.0.9"
+    "@happy-dom/global-registrator": "^14.12.3",
+    "@types/bun": "^1.1.5",
+    "@types/react": "^18.3.3",
+    "padua": "^4.0.1"
   },
   "type": "module",
   "sideEffects": false,

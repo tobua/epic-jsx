@@ -11,3 +11,16 @@ React-compatible React rearchitecture based on [Didact](https://github.com/pombe
 - 🏙️ ES Modules
 - 🎓 TypeScript source and built-in types
 - 🧪 Built-in testing framework
+
+# Usage
+
+```jsx
+import { render, useState } from 'epic-jsx'
+
+function App() {
+  const [count, setCount] = useState(1)
+  return <button onClick={() => setCount(count + 1)}>Increment</button>
+}
+
+render(<App />)
+```

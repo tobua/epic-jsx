@@ -8,5 +8,8 @@
   },
   "localDependencies": {
     "react": ".."
-  }
+  },
+  "trustedDependencies": [
+    "papua"
+  ]
 }

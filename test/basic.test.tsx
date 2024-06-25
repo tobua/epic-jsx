@@ -15,6 +15,7 @@ test('Renders regular JSX tags.', () => {
   )
 
   expect(serialized).toEqual('<body><div><p>Hello</p> World</div></body>')
+  expect(React.getRoots().length).toBe(1)
 })
 
 test('Renders DOM attributes.', () => {
