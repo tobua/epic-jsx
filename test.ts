@@ -1,4 +1,4 @@
-import { render as baseRender } from './index'
+import { render as baseRender } from 'epic-jsx'
 import type { Fiber, Props, Type, JSX } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
