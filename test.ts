@@ -1,4 +1,4 @@
-import { render as baseRender } from 'epic-jsx'
+import { render as baseRender, unmount } from 'epic-jsx'
 import type { Fiber, Props, Type, JSX } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
@@ -104,4 +104,8 @@ export function render(
     tree: toReadableTree(context.root, { skipFragments }) as ReadableNode,
     serialized: serializeElement(),
   }
+}
+
+export function clear(container: HTMLElement = document.body) {
+  unmount(container)
 }

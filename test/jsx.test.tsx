@@ -1,6 +1,6 @@
 import './setup-dom'
 import { test, expect, afterEach } from 'bun:test'
-import { render } from '../test'
+import { render, clear, serializeElement } from '../test'
 import * as React from '../index'
 
 afterEach(React.unmountAll)
@@ -110,7 +110,21 @@ test('Can render HTML anchor tags.', () => {
 
   // a is also valid inside SVG and therefore subject to be rendered in the wrong namespace.
   // This will lead to the tag not showing up in the browser.
-  const nativeAnchorTag = root.child.child.native
+  const nativeAnchorTag = root?.child?.child?.native as HTMLElement
   expect(nativeAnchorTag.tagName).toBe('A')
   expect(nativeAnchorTag.namespaceURI).toBe('http://www.w3.org/1999/xhtml')
+})
+
+test('Can unmount existing rendered content using test helpers.', () => {
+  expect(React.getRoots().length).toBe(0)
+
+  const { serialized } = render(<p>Hello</p>)
+
+  expect(serialized).toEqual('<body><p>Hello</p></body>')
+  expect(React.getRoots().length).toBe(1)
+
+  clear()
+
+  expect(React.getRoots().length).toBe(0)
+  expect(serializeElement()).toBe('<body></body>')
 })

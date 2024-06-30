@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^14.12.3",
-    "@types/bun": "^1.1.5",
+    "@types/bun": "^1.1.6",
     "@types/react": "^18.3.3",
     "padua": "^4.0.1"
   },
