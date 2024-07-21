@@ -1,4 +1,4 @@
-import type { Props, Type, JSX } from './types'
+import type { JSX, Props, Type } from './types'
 
 function createTextElement(text: string) {
   return {
@@ -13,30 +13,29 @@ function createTextElement(text: string) {
 export function createElement(type: Type, props: Props, ...children: JSX[]) {
   // NOTE needed for browser JSX runtime
   if (props?.children) {
-    // eslint-disable-next-line no-param-reassign
+    // biome-ignore lint/style/noParameterAssign: Much easier in this case.
     children = Array.isArray(props.children) ? props.children : [props.children]
-    delete props.children
+    props.children = undefined
   }
-
-  // Clear out falsy values.
-  // eslint-disable-next-line no-param-reassign
-  children = children.filter(
-    // @ts-ignore
-    (item) => item !== undefined && item !== null && item !== false && item !== '',
-  )
 
   return {
     type,
     props: {
       ...props,
-      children: children.map((child) =>
-        typeof child === 'object' ? child : createTextElement(child),
-      ),
+      children: children
+        // Clear out falsy values.
+        .filter(
+          // @ts-ignore
+          (item) => item !== undefined && item !== null && item !== false && item !== '',
+        )
+        // Add text elements.
+        .map((child) => (typeof child === 'object' ? child : createTextElement(child))),
     },
   }
 }
 
 // JSX environment specific runtime aliases.
+// biome-ignore lint/style/useNamingConvention: React default for compatibility.
 export const jsxDEV = createElement
 export const jsx = createElement
 export const jsxs = createElement

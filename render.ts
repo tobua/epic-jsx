@@ -1,24 +1,31 @@
-import { Change, type Context, type Fiber, Renderer, type JSX } from './types'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
+import { Change, type Context, type Fiber, type JSX, Renderer } from './types'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)
   context.deletions.length = 0
-  commitFiber(fiber.child)
+  if (fiber.child) {
+    commitFiber(fiber.child)
+  }
 
   // TODO check if dependencies changed.
   if (Renderer.effects.length) {
-    Renderer.effects.forEach((effect) => effect())
+    for (const effect of Renderer.effects) {
+      effect()
+    }
     Renderer.effects.length = 0
   }
 }
 
-function deleteAllFiberSiblings(context: Context, node: Fiber) {
-  node.change = Change.delete
+function deleteAllFiberSiblings(context: Context, node?: Fiber) {
+  if (!node) {
+    return
+  }
+  node.change = Change.Delete
   context.deletions.push(node)
 
-  if (node && node.sibling) {
+  if (node?.sibling) {
     deleteAllFiberSiblings(context, node.sibling)
   }
 }
@@ -27,14 +34,14 @@ function deleteAllFiberSiblings(context: Context, node: Fiber) {
 function reconcileChildren(context: Context, current: Fiber, children: JSX[] = []) {
   let index = 0
   let previous = current.previous?.child
-  let prevSibling: Fiber
+  let prevSibling: Fiber | undefined
   let maxTries = 500
 
   // TODO compare children.length to previous element length.
   while ((index < children.length || previous) && maxTries > 0) {
     maxTries -= 1
     const element = children[index]
-    let newFiber: Fiber
+    let newFiber: Fiber | undefined
 
     // TODO also compare props.
     const sameType = element?.type === previous?.type
@@ -47,7 +54,7 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
         parent: current,
         previous,
         hooks: previous.hooks,
-        change: Change.update,
+        change: Change.Update,
       }
     }
 
@@ -59,8 +66,9 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
         native: undefined,
         parent: current,
         previous: undefined,
+        // @ts-ignore TODO previous type is not inferred, probably becuase of later reassignment or parse issues.
         hooks: typeof element.type === 'function' ? previous.hooks : undefined,
-        change: Change.add,
+        change: Change.Add,
       }
     }
 
@@ -72,12 +80,12 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
         parent: current,
         previous: undefined,
         hooks: typeof element.type === 'function' ? [] : undefined,
-        change: Change.add,
+        change: Change.Add,
       }
     }
 
     if (previous && !sameType) {
-      previous.change = Change.delete
+      previous.change = Change.Delete
       context.deletions.push(previous)
     }
 
@@ -89,7 +97,7 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
 
     if (index === 0) {
       current.child = newFiber
-    } else if (element) {
+    } else if (element && prevSibling) {
       prevSibling.sibling = newFiber
     }
 
@@ -120,7 +128,9 @@ function rerender(context: Context, fiber: Fiber) {
 }
 
 function updateFunctionComponent(context: Context, fiber: Fiber) {
-  if (typeof fiber.type !== 'function') return
+  if (typeof fiber.type !== 'function') {
+    return
+  }
   if (typeof fiber.hooks === 'undefined') {
     fiber.hooks = []
   }
@@ -143,7 +153,7 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
       return getComponentRefsFromTreeByTag(fiber, [], tag)
     },
     after(callback: () => void) {
-      fiber.afterListeners.push(callback)
+      fiber.afterListeners?.push(callback)
     },
   }
   Renderer.current = fiber
@@ -168,12 +178,16 @@ function render(context: Context, fiber: Fiber) {
   } else {
     updateHostComponent(context, fiber)
   }
-  if (fiber.child) return fiber.child
+  if (fiber.child) {
+    return fiber.child
+  }
   let nextFiber: Fiber | undefined = fiber
   let maxTries = 500
   while (nextFiber && maxTries > 0) {
     maxTries -= 1
-    if (nextFiber.sibling) return nextFiber.sibling
+    if (nextFiber.sibling) {
+      return nextFiber.sibling
+    }
     nextFiber = nextFiber.parent
   }
   if (maxTries === 0) {
@@ -190,7 +204,9 @@ export function process(deadline: IdleDeadline, context: Context) {
 
   if (!context.current) {
     context.current = context.pending.shift()
-    context.rendered.push(context.current) // Rendered state only final when current empty.
+    if (context.current) {
+      context.rendered.push(context.current) // Rendered state only final when current empty.
+    }
   }
 
   let shouldYield = false
@@ -202,7 +218,9 @@ export function process(deadline: IdleDeadline, context: Context) {
     // Add next fiber if previous tree finished.
     if (!context.current && context.pending.length) {
       context.current = context.pending.shift()
-      context.rendered.push(context.current)
+      if (context.current) {
+        context.rendered.push(context.current)
+      }
     }
     // Yield current rendering cycle if out of time.
     shouldYield = deadline.timeRemaining() < 1
@@ -213,7 +231,9 @@ export function process(deadline: IdleDeadline, context: Context) {
 
   // Yielded if context.current not empty.
   if (!context.current && context.rendered.length) {
-    context.rendered.forEach((fiber) => commit(context, fiber))
+    for (const fiber of context.rendered) {
+      commit(context, fiber)
+    }
     context.rendered.length = 0
   }
 

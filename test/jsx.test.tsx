@@ -1,7 +1,7 @@
-import './setup-dom'
-import { test, expect, afterEach } from 'bun:test'
-import { render, clear, serializeElement } from '../test'
+import './helper'
+import { afterEach, expect, test } from 'bun:test'
 import * as React from '../index'
+import { clear, render, serializeElement } from '../test'
 
 afterEach(React.unmountAll)
 
@@ -72,12 +72,11 @@ test('Various empty elements are ignored.', () => {
       {undefined}
       {null}
       {false}
-      {/* eslint-disable-next-line react/jsx-curly-brace-presence */}
       {''}
       <p>end</p>
       <p>
         Falsy numbers: {undefined}
-        {0} {-0} {NaN}
+        {0} {-0} {Number.NaN}
       </p>
     </>,
   )
@@ -104,9 +103,7 @@ test('Can render HTML anchor tags.', () => {
     </div>,
   )
 
-  expect(serialized).toEqual(
-    '<body><div><a href="https://google.com">Go to Google!</a></div></body>',
-  )
+  expect(serialized).toEqual('<body><div><a href="https://google.com">Go to Google!</a></div></body>')
 
   // a is also valid inside SVG and therefore subject to be rendered in the wrong namespace.
   // This will lead to the tag not showing up in the browser.

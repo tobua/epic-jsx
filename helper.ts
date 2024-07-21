@@ -18,20 +18,15 @@ export function shallowArrayEqual(first: any[], second: any[]) {
 }
 
 // NOTE unused.
-export function getAllFiberSiblings(node: Fiber, result = []) {
-  if (node && node.sibling) {
+export function getAllFiberSiblings(node: Fiber, result: Fiber[] = []) {
+  if (node?.sibling) {
     result.push(node.sibling)
     return getAllFiberSiblings(node.sibling)
   }
   return result
 }
 
-export function getComponentRefsFromTree(
-  node: Fiber,
-  result: NestedHTMLElement,
-  flat: boolean,
-  root = true,
-) {
+export function getComponentRefsFromTree(node: Fiber, result: NestedHTMLElement, flat: boolean, root = true) {
   if (node.type === 'TEXT_ELEMENT' || (!root && typeof node.type === 'function')) {
     return result
   }
@@ -60,21 +55,12 @@ export function getComponentRefsFromTree(
   return result
 }
 
-export function getComponentRefsFromTreeByTag(
-  node: Fiber,
-  result: HTMLElement[],
-  tagName: keyof HTMLElementTagNameMap,
-  root = true,
-) {
+export function getComponentRefsFromTreeByTag(node: Fiber, result: HTMLElement[], tagName: keyof HTMLElementTagNameMap, root = true) {
   if (node.type === 'TEXT_ELEMENT' || (!root && typeof node.type === 'function')) {
     return result
   }
 
-  if (
-    node.native &&
-    (node.native as HTMLElement).tagName &&
-    (node.native as HTMLElement).tagName.toLowerCase() === tagName.toLowerCase()
-  ) {
+  if (node.native && (node.native as HTMLElement).tagName && (node.native as HTMLElement).tagName.toLowerCase() === tagName.toLowerCase()) {
     result.push(node.native as HTMLElement)
   }
 
@@ -102,7 +88,7 @@ export function schedule(callback: IdleRequestCallback) {
     window.requestIdleCallback ||
     function idleCallbackPolyfill(
       innerCallback: IdleRequestCallback,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // biome-ignore lint/correctness/noUnusedVariables: Default API, might be needed.
       options?: IdleRequestOptions,
     ) {
       const start = Date.now()

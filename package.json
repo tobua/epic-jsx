@@ -7,65 +7,36 @@
   "license": "CC-BY-NC-4.0",
   "author": "Matthias Giger",
   "scripts": {
-    "build": "padua build",
-    "start": "padua watch",
-    "symlink": "ln -s ./.. ./node_modules/react",
+    "check": "biome check --write .",
     "types": "tsc"
-  },
-  "padua": {
-    "entry": [
-      "index.ts",
-      "test.ts"
-    ],
-    "esbuild": {
-      "external": [
-        "epic-jsx"
-      ]
-    },
-    "tsconfig": {
-      "compilerOptions": {
-        "paths": {
-          "react": [
-            "."
-          ],
-          "react/jsx-dev-runtime": [
-            "."
-          ],
-          "epic-jsx": [
-            "./index.ts"
-          ]
-        }
-      }
-    }
   },
   "dependencies": {
     "logua": "^3.0.3",
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
     "@happy-dom/global-registrator": "^14.12.3",
     "@types/bun": "^1.1.6",
     "@types/react": "^18.3.3",
-    "padua": "^4.0.1"
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.3",
+    "zero-configuration": "^0.17.1"
   },
+  "trustedDependencies": [
+    "zero-configuration"
+  ],
   "type": "module",
   "sideEffects": false,
-  "main": "./dist/index.js",
+  "main": "./index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.js"
-    },
-    "./jsx-runtime": "./dist/index.js",
-    "./jsx-dev-runtime": "./dist/index.js"
+    ".": "./index.ts",
+    "./test": "./test.ts",
+    "./jsx-runtime": "./index.ts",
+    "./jsx-dev-runtime": "./index.ts"
   },
-  "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "*.ts"
   ],
   "keywords": [
     "renderer",
@@ -73,21 +44,67 @@
     "react",
     "client"
   ],
-  "prettier": "padua/configuration/.prettierrc.json",
-  "eslintConfig": {
-    "extends": "./node_modules/padua/configuration/eslint.cjs",
-    "rules": {
-      "jsx-a11y/click-events-have-key-events": 0,
-      "jsx-a11y/no-noninteractive-element-interactions": 0,
-      "react/function-component-definition": 0,
-      "react/no-deprecated": 0,
-      "react/no-this-in-sfc": 0
-    }
-  },
   "publishConfig": {
     "provenance": true
   },
-  "engines": {
-    "node": ">= 18"
+  "configuration": {
+    "gitignore": "bundle",
+    "vscode": "biome",
+    "license": "commercial",
+    "biome": {
+      "extends": "recommended",
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useJsxKeyInIterable": "off"
+          },
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          },
+          "complexity": {
+            "noBannedTypes": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      },
+      "files": {
+        "ignore": [
+          "demo"
+        ]
+      }
+    },
+    "typescript": [
+      {
+        "extends": "plugin",
+        "compilerOptions": {
+          "jsx": "react-jsx"
+        },
+        "files": [
+          "index.ts",
+          "test.ts"
+        ]
+      },
+      {
+        "extends": "plugin",
+        "folder": "test",
+        "compilerOptions": {
+          "strict": false,
+          "jsx": "react-jsx",
+          "paths": {
+            "react": [
+              "./.."
+            ],
+            "react/jsx-dev-runtime": [
+              "./.."
+            ],
+            "epic-jsx": [
+              "./../index.ts"
+            ]
+          }
+        }
+      }
+    ]
   }
 }

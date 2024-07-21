@@ -1,5 +1,5 @@
 import { render, useState, useRef, useEffect } from 'react'
-import logo from './logo.svg'
+import logo from '../logo.svg'
 import { ContactForm } from './ContactForm'
 
 const randomHexValue = () =>

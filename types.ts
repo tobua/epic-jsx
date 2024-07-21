@@ -6,15 +6,16 @@ export const Renderer: { context?: Context; effects: Function[]; current?: Fiber
 
 export type Action = (value: any) => any
 
+// TODO unused
 export interface Hook {
   state: any
   queue: Action[]
 }
 
 export enum Change {
-  update,
-  add,
-  delete,
+  Update = 0,
+  Add = 1,
+  Delete = 2,
 }
 
 export type Props = { [key: string]: any }
@@ -28,7 +29,7 @@ export interface Fiber {
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
-  native: HTMLElement | Text
+  native?: HTMLElement | Text
   props: Props
   hooks?: any[]
   afterListeners?: Function[]
@@ -43,7 +44,7 @@ export interface Context {
   rendered: Fiber[] // Roots of rendered and reconciled trees to be committed.
   root?: Fiber // Root fully committed to the view engine.
   deletions: Fiber[]
-  current: Fiber
+  current?: Fiber
   dependencies: Map<Function, any[]>
 }
 
@@ -84,15 +85,15 @@ type ReactNode =
   // Portal support unlikely any time soon.
   | ReactPortal
 
-type JSXElementConstructor<P> = (props: P) => ReactNode
+type JsxElementConstructor<P> = (props: P) => ReactNode
 
-interface ReactElement<
-  P = any,
-  T extends string | JSXElementConstructor<any> = string | JSXElementConstructor<any>,
-> {
+interface ReactElement<P = any, T extends string | JsxElementConstructor<any> = string | JsxElementConstructor<any>> {
   type: T
   props: P
   key: Key | null
 }
 
 export interface JSX extends ReactElement<any, any> {}
+
+// biome-ignore lint/style/useNamingConvention: React default.
+export type CSSProperties = { [key in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[key] extends string ? string | number : never }

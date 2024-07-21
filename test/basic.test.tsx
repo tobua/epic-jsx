@@ -1,7 +1,7 @@
-import './setup-dom'
-import { test, expect, afterEach } from 'bun:test'
-import { render, serializeElement } from '../test'
+import './helper'
+import { afterEach, expect, test } from 'bun:test'
 import * as React from '../index'
+import { render, serializeElement } from '../test'
 
 afterEach(React.unmountAll)
 
@@ -28,9 +28,7 @@ test('Renders DOM attributes.', () => {
     </div>,
   )
 
-  expect(serialized).toEqual(
-    '<body><div aria-label="labelled"><button type="button" tabindex="-1">Hello</button> World</div></body>',
-  )
+  expect(serialized).toEqual('<body><div aria-label="labelled"><button type="button" tabindex="-1">Hello</button> World</div></body>')
 })
 
 test('Works with fragments.', () => {
@@ -66,9 +64,7 @@ test('Works with nested components.', () => {
     </div>,
   )
 
-  expect(serialized).toEqual(
-    '<body><div><p>first</p><p>second<span>nested</span></p><p>third</p></div></body>',
-  )
+  expect(serialized).toEqual('<body><div><p>first</p><p>second<span>nested</span></p><p>third</p></div></body>')
 })
 
 test('null as the container will also lead to fallback being used.', () => {
@@ -91,16 +87,14 @@ test('Can render multiple times.', () => {
 })
 
 test('Can render into different elements.', () => {
-  ;['first', 'second'].forEach((name) => {
+  for (const name of ['first', 'second']) {
     const div = document.createElement('div')
     div.id = name
     document.body.appendChild(div)
     render(<p>{name}</p>, { container: document.getElementById(name) })
-  })
+  }
 
-  expect(serializeElement()).toEqual(
-    '<body><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>',
-  )
+  expect(serializeElement()).toEqual('<body><div id="first"><p>first</p></div><div id="second"><p>second</p></div></body>')
 
   while (document.body.firstChild) {
     document.body.removeChild(document.body.firstChild)
@@ -109,21 +103,16 @@ test('Can render into different elements.', () => {
 
 test('Can render object styles as inline-styles.', () => {
   const { serialized } = render(<div style={{ display: 'flex', justifyContent: 'center' }} />)
-  expect(serialized).toEqual(
-    '<body><div style="display: flex; justify-content: center;"></div></body>',
-  )
+  expect(serialized).toEqual('<body><div style="display: flex; justify-content: center;"></div></body>')
 })
 
 test('Tree includes all nodes.', () => {
-  const MyInput = ({ placeholder }: { placeholder: string }) => (
-    <input value="Hello" placeholder={placeholder} />
-  )
+  const MyInput = ({ placeholder }: { placeholder: string }) => <input value="Hello" placeholder={placeholder} />
 
   const { tree } = render(
     <div>
       <p>first</p>
       <span>second</span>
-      {/* eslint-disable-next-line react/jsx-no-useless-fragment */}
       <>
         <p>third</p>
         <button type="button">fourth</button>
@@ -134,30 +123,28 @@ test('Tree includes all nodes.', () => {
 
   expect(tree.tag).toBe('body')
   expect(tree.children.length).toBe(1)
-  expect(tree.children[0].tag).toBe('div')
-  expect(tree.children[0].children.length).toBe(5) // p, span, p, button, MyInput
-  expect(tree.children[0].children[0].tag).toBe('p')
-  expect(tree.children[0].children[0].children[0].text).toBe('first')
-  expect(tree.children[0].children[1].tag).toBe('span')
-  expect(tree.children[0].children[1].children[0].text).toBe('second')
-  expect(tree.children[0].children[2].tag).toBe('p')
-  expect(tree.children[0].children[2].children[0].text).toBe('third')
-  expect(tree.children[0].children[3].tag).toBe('button')
-  expect(tree.children[0].children[3].children[0].text).toBe('fourth')
-  expect(typeof tree.children[0].children[4].tag).toBe('function')
-  expect(tree.children[0].children[4].props).toEqual({
+  expect(tree.children[0]?.tag).toBe('div')
+  expect(tree.children[0]?.children.length).toBe(5) // p, span, p, button, MyInput
+  expect(tree.children[0]?.children[0]?.tag).toBe('p')
+  expect(tree.children[0]?.children[0]?.children[0]?.text).toBe('first')
+  expect(tree.children[0]?.children[1]?.tag).toBe('span')
+  expect(tree.children[0]?.children[1]?.children[0]?.text).toBe('second')
+  expect(tree.children[0]?.children[2]?.tag).toBe('p')
+  expect(tree.children[0]?.children[2]?.children[0]?.text).toBe('third')
+  expect(tree.children[0]?.children[3]?.tag).toBe('button')
+  expect(tree.children[0]?.children[3]?.children[0]?.text).toBe('fourth')
+  expect(typeof tree.children[0]?.children[4]?.tag).toBe('function')
+  expect(tree.children[0]?.children[4]?.props).toEqual({
     placeholder: 'World',
   })
-  expect(tree.children[0].children[4].props).toEqual({ placeholder: 'World' })
-  expect(tree.children[0].children[4].children[0].tag).toBe('input')
+  expect(tree.children[0]?.children[4]?.props).toEqual({ placeholder: 'World' })
+  expect(tree.children[0]?.children[4]?.children[0]?.tag).toBe('input')
 })
 
 test('Number based sizes are converted to pixels.', () => {
   const { serialized } = render(<div style={{ width: 50, height: 50, flexGrow: 1 }}>Square</div>)
 
-  expect(serialized).toEqual(
-    '<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>',
-  )
+  expect(serialized).toEqual('<body><div style="width: 50px; height: 50px; flex-grow: 1;">Square</div></body>')
 })
 
 test('Fragments are removed from the tree by default.', () => {
@@ -166,10 +153,8 @@ test('Fragments are removed from the tree by default.', () => {
     <>
       <p>first</p>
       <Second />
-      {/* eslint-disable-next-line react/jsx-no-useless-fragment */}
       <>
         <p>third</p>
-        {/* eslint-disable-next-line react/jsx-no-useless-fragment */}
         <>
           <p>fourth</p>
         </>
@@ -182,13 +167,13 @@ test('Fragments are removed from the tree by default.', () => {
 
   const [first, second, third, fourth] = tree.children
 
-  expect(first.tag).toBe('p')
-  expect(first.children[0].tag).toBe('TEXT_ELEMENT')
-  expect(first.children[0].text).toBe('first')
-  expect(second.children[0].children[0].tag).toBe('TEXT_ELEMENT')
-  expect(second.children[0].children[0].text).toBe('second')
-  expect(third.children[0].tag).toBe('TEXT_ELEMENT')
-  expect(third.children[0].text).toBe('third')
-  expect(fourth.children[0].tag).toBe('TEXT_ELEMENT')
-  expect(fourth.children[0].text).toBe('fourth')
+  expect(first?.tag).toBe('p')
+  expect(first?.children[0]?.tag).toBe('TEXT_ELEMENT')
+  expect(first?.children[0]?.text).toBe('first')
+  expect(second?.children[0]?.children[0]?.tag).toBe('TEXT_ELEMENT')
+  expect(second?.children[0]?.children[0]?.text).toBe('second')
+  expect(third?.children[0]?.tag).toBe('TEXT_ELEMENT')
+  expect(third?.children[0]?.text).toBe('third')
+  expect(fourth?.children[0]?.tag).toBe('TEXT_ELEMENT')
+  expect(fourth?.children[0]?.text).toBe('fourth')
 })

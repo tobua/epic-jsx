@@ -14,10 +14,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
       - run: bun install
-      - name: 🚧 Build
-        run: bun run build
-      - name: 🔗 Symlink React for Bun runtime (workaround for now)
-        run: bun symlink
+      - run: bun check
+      - run: bun types
       - name: 🧪 Test
         run: bun test
       - name: 🛠️ Build Documentation

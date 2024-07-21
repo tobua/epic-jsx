@@ -1,8 +1,8 @@
-import './setup-dom'
-import { test, expect, afterEach, mock } from 'bun:test'
-import { render, run, serializeElement } from '../test'
+import './helper'
+import { afterEach, expect, mock, test } from 'bun:test'
 import * as React from '../index'
-import { getRoot, useRef, useState, useEffect, useCallback, useMemo } from '../index'
+import { getRoot, useCallback, useEffect, useMemo, useRef, useState } from '../index'
+import { render, run, serializeElement } from '../test'
 
 afterEach(React.unmountAll)
 
@@ -21,9 +21,9 @@ test('Renders a basic component and rerenders after state update.', () => {
   expect(serialized).toEqual('<body><button type="button">Count: 1</button></body>')
 
   expect(tree.tag).toBe('body')
-  expect(tree.children[0].children[0].tag).toBe('button')
+  expect(tree.children[0]?.children[0]?.tag).toBe('button')
 
-  const button = tree.children[0].children[0].getElement() as HTMLButtonElement
+  const button = tree.children[0]?.children[0]?.getElement() as HTMLButtonElement
 
   button.click()
   run()
@@ -48,15 +48,13 @@ test('Elements can be conditionally rendered.', () => {
 
   const { tree, serialized } = render(<Counter />)
 
-  expect(serialized).toEqual(
-    '<body><p id="first">first</p><button type="button">Count: 1</button><p id="third">third</p></body>',
-  )
+  expect(serialized).toEqual('<body><p id="first">first</p><button type="button">Count: 1</button><p id="third">third</p></body>')
 
   expect(tree.tag).toBe('body')
   const counterComponent = tree.children[0]
-  expect(counterComponent.children[1].tag).toBe('button')
+  expect(counterComponent?.children[1]?.tag).toBe('button')
 
-  const heading = counterComponent.children[1].getElement() as HTMLButtonElement
+  const heading = counterComponent?.children[1]?.getElement() as HTMLButtonElement
 
   heading.click()
   run()
@@ -68,9 +66,7 @@ test('Elements can be conditionally rendered.', () => {
   heading.click()
   run()
 
-  expect(serializeElement()).toEqual(
-    '<body><p id="first">first</p><button type="button">Count: 3</button><p id="third">third</p></body>',
-  )
+  expect(serializeElement()).toEqual('<body><p id="first">first</p><button type="button">Count: 3</button><p id="third">third</p></body>')
 })
 
 test('Works with multiple instances of setState.', () => {
@@ -101,11 +97,11 @@ test('Works with multiple instances of setState.', () => {
     '<body><div><button type="button">1-5</button><button type="button">1-5</button><button type="button">3-7</button><button type="button">3-7</button></div></body>',
   )
   const counterComponent = tree.children[0]
-  expect(counterComponent.children[0].children[0].tag).toBe('button')
-  expect(counterComponent.children[0].children[1].tag).toBe('button')
+  expect(counterComponent?.children[0]?.children[0]?.tag).toBe('button')
+  expect(counterComponent?.children[0]?.children[1]?.tag).toBe('button')
 
-  const firstButton = counterComponent.children[0].children[0].getElement() as HTMLButtonElement
-  const secondButton = counterComponent.children[0].children[1].getElement() as HTMLButtonElement
+  const firstButton = counterComponent?.children[0]?.children[0]?.getElement() as HTMLButtonElement
+  const secondButton = counterComponent?.children[0]?.children[1]?.getElement() as HTMLButtonElement
 
   firstButton.click()
   run()
@@ -139,9 +135,9 @@ test('Accessing the root will process the current work in progress before return
   expect(serialized).toEqual('<body><button type="button">Count: 1</button></body>')
 
   expect(tree.tag).toBe('body')
-  expect(tree.children[0].children[0].tag).toBe('button')
+  expect(tree.children[0]?.children[0]?.tag).toBe('button')
 
-  const heading = tree.children[0].children[0].getElement() as HTMLButtonElement
+  const heading = tree.children[0]?.children[0]?.getElement() as HTMLButtonElement
 
   heading.click()
 
@@ -173,7 +169,7 @@ test('A ref can be assigned to any tag and is accessible in the effect.', () => 
 
 test('Ref stays present after rerenders.', () => {
   const effectMock = mock()
-  let rerender
+  let rerender: () => void
 
   function Component() {
     const ref = useRef<HTMLDivElement>()
@@ -224,7 +220,7 @@ test('Multiple setState calls are batched into one render cycle.', () => {
 
   expect(renderCount).toBe(1)
 
-  const button = tree.children[0].children[0].getElement() as HTMLButtonElement
+  const button = tree.children[0]?.children[0]?.getElement() as HTMLButtonElement
 
   button.click()
   run()
@@ -295,16 +291,14 @@ test('Additional components can dynamically be rendered.', async () => {
 
   const { tree, serialized } = render(<Counter />)
 
-  expect(serialized).toEqual(
-    '<body><button type="button">1</button><button type="button">Reset</button></body>',
-  )
+  expect(serialized).toEqual('<body><button type="button">1</button><button type="button">Reset</button></body>')
 
   const counterComponent = tree.children[0]
   expect(tree.tag).toBe('body')
-  expect(counterComponent.children[0].tag).toBe('button')
+  expect(counterComponent?.children[0]?.tag).toBe('button')
 
-  const incrementButton = counterComponent.children[0].getElement() as HTMLButtonElement
-  const resetButton = counterComponent.children[0].getElement() as HTMLButtonElement
+  const incrementButton = counterComponent?.children[0]?.getElement() as HTMLButtonElement
+  const resetButton = counterComponent?.children[0]?.getElement() as HTMLButtonElement
 
   incrementButton.click()
   run()
@@ -324,7 +318,5 @@ test('Additional components can dynamically be rendered.', async () => {
   resetButton.click()
   run()
 
-  expect(serialized).toEqual(
-    '<body><button type="button">1</button><button type="button">Reset</button></body>',
-  )
+  expect(serialized).toEqual('<body><button type="button">1</button><button type="button">Reset</button></body>')
 })

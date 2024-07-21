@@ -1,11 +1,11 @@
-import { type Fiber, type Props, type Context, type Component, type JSX, Renderer } from './types'
-import { process } from './render'
-import * as React from './jsx'
 import { log, schedule } from './helper'
+import * as React from './jsx'
+import { process } from './render'
+import { type Component, type Context, type Fiber, type JSX, type Props, Renderer } from './types'
 
 export * from './jsx'
 export * from './hooks'
-export { Fiber, Props, Context, Component, Renderer }
+export { type Fiber, type Props, type Context, type Component, Renderer }
 
 export default React
 
@@ -15,10 +15,12 @@ const roots = new Map<HTMLElement, Context>()
 export const Fragment = undefined // Symbol.for('react.fragment')
 
 export const getRoot = (container: HTMLElement) => {
-  if (!roots.has(container)) return undefined
+  if (!roots.has(container)) {
+    return
+  }
   const context = roots.get(container)
   // Ensure all work has passed.
-  if (context.pending.length || context.rendered.length) {
+  if (context?.pending.length || context?.rendered.length) {
     process({ timeRemaining: () => 10, didTimeout: false }, context)
   }
   return context
@@ -27,11 +29,11 @@ export const getRoot = (container: HTMLElement) => {
 export const getRoots = () => {
   const contexts = [...roots.values()]
   // Ensure all work has passed.
-  contexts.forEach((context) => {
+  for (const context of contexts) {
     if (context.pending.length || context.rendered.length) {
       process({ timeRemaining: () => 10, didTimeout: false }, context)
     }
-  })
+  }
   return contexts
 }
 
@@ -47,6 +49,10 @@ export const unmount = (container: HTMLElement) => {
 
   const context = getRoot(container)
 
+  if (!context) {
+    return
+  }
+
   context.root = undefined
   context.deletions = []
   context.current = undefined
@@ -61,7 +67,7 @@ export const unmountAll = () => roots.forEach((_, container) => unmount(containe
 
 export function render(element: JSX, container?: HTMLElement | null) {
   if (!container) {
-    // eslint-disable-next-line no-param-reassign
+    // biome-ignore lint/style/noParameterAssign: Why wouldn't a method default work?
     container = document.body // Default assignment in args wouldn't override null.
   }
 

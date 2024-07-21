@@ -1,5 +1,5 @@
-import { render as baseRender, unmount } from 'epic-jsx'
-import type { Fiber, Props, Type, JSX } from './types'
+import { render as baseRender, unmount } from './index'
+import type { Fiber, JSX, Props, Type } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
   const serializer = new XMLSerializer()
@@ -8,7 +8,7 @@ export const serializeElement = (node: Element = document.body) => {
 
 type ReadableNode = {
   tag?: Type
-  getElement: () => HTMLElement | Text
+  getElement: () => HTMLElement | Text | undefined
   props?: Props
   children: ReadableNode[]
   text?: string
@@ -20,9 +20,7 @@ const getProps = (node: Fiber) => {
 }
 
 const getTag = (node: Fiber) => {
-  const htmlTag = (
-    node?.native as HTMLElement
-  )?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
+  const htmlTag = (node?.native as HTMLElement)?.tagName?.toLowerCase() as keyof HTMLElementTagNameMap
 
   if (htmlTag) {
     return htmlTag
@@ -39,11 +37,7 @@ const getTag = (node: Fiber) => {
   return undefined
 }
 
-export const toReadableTree = (
-  node: Fiber,
-  options = { skipFragments: true },
-  parent?: ReadableNode,
-) => {
+export const toReadableTree = (node: Fiber, options = { skipFragments: true }, parent?: ReadableNode) => {
   let result: ReadableNode = {
     children: [],
     getElement: () => node?.native,
@@ -52,7 +46,7 @@ export const toReadableTree = (
   }
 
   if (result.tag === 'TEXT_ELEMENT') {
-    result.text = result.props.nodeValue
+    result.text = result.props?.nodeValue
   }
 
   let currentChild = node?.child
@@ -71,11 +65,12 @@ export const toReadableTree = (
     currentChild = currentChild.sibling
   }
 
-  if (!skipped) return result
+  if (!skipped) {
+    return result
+  }
   return null
 }
 
-// eslint-disable-next-line import/no-mutable-exports
 export let run: Function
 
 // Manually callable polyfill for requestIdleCallback usually not present in testing environments.
@@ -88,15 +83,14 @@ if (typeof requestIdleCallback === 'undefined') {
 
 export function render(
   element: JSX,
-  {
-    container,
-    skipRun = false,
-    skipFragments = true,
-  }: { container?: HTMLElement | null; skipRun?: boolean; skipFragments?: boolean } = {},
+  { container, skipRun = false, skipFragments = true }: { container?: HTMLElement | null; skipRun?: boolean; skipFragments?: boolean } = {},
 ) {
   const context = baseRender(element, container)
   if (!skipRun) {
     run() // requestIdleCallback
+  }
+  if (!context.root) {
+    return
   }
   // NOTE make sure to not destruct context before run(), context not useful for user.
   return {

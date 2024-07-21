@@ -1,12 +1,16 @@
 import { svgTagNames } from 'svg-tag-names'
-import { Change, type Fiber, type Props } from './types'
+import { type CSSProperties, Change, type Fiber, type Props } from './types'
 
 const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
 
 // TODO this is a workaround, better to pass SVG context down the fiber tree as soon as an SVG tag is encountered.
 const isSvgTag = (tag: string) => {
-  if (!svgTagNames.includes(tag)) return false
-  if (svgAndRegularTags.includes(tag)) return false
+  if (!svgTagNames.includes(tag)) {
+    return false
+  }
+  if (svgAndRegularTags.includes(tag)) {
+    return false
+  }
   return true
 }
 
@@ -30,8 +34,7 @@ function startsWithSizeProperty(propertyName: string) {
 }
 
 function convertStylesToPixels(styleObject: CSSStyleDeclaration) {
-  const convertedStyles = {}
-  // eslint-disable-next-line no-restricted-syntax
+  const convertedStyles: CSSProperties = {}
   for (const key in styleObject) {
     if (Object.hasOwn(styleObject, key)) {
       const value = styleObject[key]
@@ -50,12 +53,9 @@ const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
 
-function updateNativeElement(
-  element: HTMLElement | Text,
-  prevProps: Props = {},
-  nextProps: Props = {},
-) {
+function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
+  // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
@@ -65,14 +65,17 @@ function updateNativeElement(
     })
 
   // Remove old properties
+  // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(prevProps)
     .filter(isProperty)
     .filter(isGone(prevProps, nextProps))
     .forEach((name) => {
+      // @ts-ignore Filtered for valid properties, maybe more checks necessary.
       element[name] = ''
     })
 
   // Set new or changed properties
+  // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(nextProps)
     .filter(isProperty)
     .filter(isNew(prevProps, nextProps))
@@ -92,11 +95,13 @@ function updateNativeElement(
           ;(element as HTMLElement).setAttribute(name, nextProps[name])
         }
       } else {
+        // @ts-ignore Filtered for valid properties, maybe more checks necessary.
         element[name] = nextProps[name]
       }
     })
 
   // Add event listeners
+  // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(nextProps)
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
@@ -107,7 +112,9 @@ function updateNativeElement(
 }
 
 export function createNativeElement(fiber: Fiber) {
-  if (!fiber.type) return undefined // Ignore fragments.
+  if (!fiber.type) {
+    return undefined // Ignore fragments.
+  }
 
   let element: HTMLElement | Text
 
@@ -132,7 +139,7 @@ function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   } else if (fiber.child) {
     // Avoid another delete when visiting though siblings.
     fiber.change = undefined
-    fiber.child.change = Change.delete
+    fiber.child.change = Change.Delete
     commitDeletion(fiber.child, nativeParent)
   }
 }
@@ -144,7 +151,7 @@ export function commitFiber(fiber: Fiber) {
 
   let { parent } = fiber
   let maxTries = 500
-  while (!parent.native && parent.parent && maxTries > 0) {
+  while (!parent?.native && parent?.parent && maxTries > 0) {
     maxTries -= 1
     parent = parent.parent
   }
@@ -152,19 +159,27 @@ export function commitFiber(fiber: Fiber) {
     console.error('Ran out of tries at commitWork.')
   }
 
-  if (fiber.change === Change.add && fiber.native) {
-    parent.native.appendChild(fiber.native)
-  } else if (fiber.change === Change.update && fiber.native) {
-    updateNativeElement(fiber.native, fiber.previous.props, fiber.props)
-  } else if (fiber.change === Change.delete) {
-    commitDeletion(fiber, parent.native)
+  if (fiber.change === Change.Add && fiber.native) {
+    parent?.native?.appendChild(fiber.native)
+  } else if (fiber.change === Change.Update && fiber.native) {
+    updateNativeElement(fiber.native, fiber.previous?.props, fiber.props)
+  } else if (fiber.change === Change.Delete && parent) {
+    if (parent.native) {
+      commitDeletion(fiber, parent.native)
+    }
   }
 
   if (fiber.afterListeners) {
-    fiber.afterListeners.forEach((callback) => callback.call(fiber.component))
+    for (const callback of fiber.afterListeners) {
+      callback.call(fiber.component)
+    }
     fiber.afterListeners = []
   }
 
-  commitFiber(fiber.child)
-  commitFiber(fiber.sibling)
+  if (fiber.child) {
+    commitFiber(fiber.child)
+  }
+  if (fiber.sibling) {
+    commitFiber(fiber.sibling)
+  }
 }
