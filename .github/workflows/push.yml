@@ -22,7 +22,7 @@ jobs:
         run: |
           cd demo
           bun install
-          bunx papua build
+          bun rsbuild build
       - name: 🚀 Publish Documentation
         uses: JamesIves/github-pages-deploy-action@v4
         with:
