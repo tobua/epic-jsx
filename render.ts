@@ -241,3 +241,5 @@ export function process(deadline: IdleDeadline, context: Context) {
     schedule((nextDeadline) => process(nextDeadline, context))
   }
 }
+
+export const processNow = (context: Context) => process({ timeRemaining: () => 99999, didTimeout: false }, context)

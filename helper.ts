@@ -1,5 +1,5 @@
 import { create } from 'logua'
-import type { Fiber, NestedHTMLElement } from './types'
+import type { Fiber, NestedHtmlElement } from './types'
 
 export const log = create('epic-jsx', 'blue')
 
@@ -26,7 +26,7 @@ export function getAllFiberSiblings(node: Fiber, result: Fiber[] = []) {
   return result
 }
 
-export function getComponentRefsFromTree(node: Fiber, result: NestedHTMLElement, flat: boolean, root = true) {
+export function getComponentRefsFromTree(node: Fiber, result: NestedHtmlElement, flat: boolean, root = true) {
   if (node.type === 'TEXT_ELEMENT' || (!root && typeof node.type === 'function')) {
     return result
   }

@@ -1,11 +1,11 @@
 import { log, schedule } from './helper'
 import * as React from './jsx'
-import { process } from './render'
-import { type Component, type Context, type Fiber, type JSX, type Props, Renderer } from './types'
+import { process, processNow } from './render'
+import { type CSSProperties, type Component, type Context, type Fiber, type JSX, type Props, Renderer } from './types'
 
 export * from './jsx'
 export * from './hooks'
-export { type Fiber, type Props, type Context, type Component, Renderer }
+export { type Fiber, type Props, type Context, type Component, Renderer, type CSSProperties }
 
 export default React
 
@@ -21,7 +21,7 @@ export const getRoot = (container: HTMLElement) => {
   const context = roots.get(container)
   // Ensure all work has passed.
   if (context?.pending.length || context?.rendered.length) {
-    process({ timeRemaining: () => 10, didTimeout: false }, context)
+    processNow(context)
   }
   return context
 }
@@ -31,7 +31,7 @@ export const getRoots = () => {
   // Ensure all work has passed.
   for (const context of contexts) {
     if (context.pending.length || context.rendered.length) {
-      process({ timeRemaining: () => 10, didTimeout: false }, context)
+      processNow(context)
     }
   }
   return contexts

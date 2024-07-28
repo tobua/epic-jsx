@@ -48,7 +48,7 @@ export interface Context {
   dependencies: Map<Function, any[]>
 }
 
-export type NestedHTMLElement = Array<HTMLElement | Text | NestedHTMLElement>
+export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
 
 export interface Component {
   id: string
@@ -57,7 +57,7 @@ export interface Component {
   rerender: () => void
   after: (callback: () => void) => void
   refs: HTMLElement[]
-  refsNested: NestedHTMLElement
+  refsNested: NestedHtmlElement
   refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]
 }
 

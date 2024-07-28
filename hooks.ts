@@ -89,10 +89,10 @@ export function useEffect(callback: () => void, dependencies: any[] = []) {
   currentDependencies?.set(callback, dependencies)
 }
 
-export function useCallback<T extends (...args: any) => any>(callback: T, dependencies: any[] = []) {
+export function useCallback<T extends (...args: any) => any>(callback: T, _dependencies: any[] = []) {
   return callback
 }
 
-export function useMemo<T>(method: () => T, dependencies: any[] = []) {
+export function useMemo<T>(method: () => T, _dependencies: any[] = []) {
   return method()
 }

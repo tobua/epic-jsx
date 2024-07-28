@@ -1,4 +1,5 @@
 import { render as baseRender, unmount } from './index'
+import { processNow } from './render'
 import type { Fiber, JSX, Props, Type } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
@@ -87,7 +88,11 @@ export function render(
 ) {
   const context = baseRender(element, container)
   if (!skipRun) {
-    run() // requestIdleCallback
+    if (run) {
+      run() // requestIdleCallback
+    } else {
+      processNow(context)
+    }
   }
   if (!context.root) {
     return
