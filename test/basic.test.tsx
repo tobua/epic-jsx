@@ -1,12 +1,12 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import * as React from '../index'
+import { getRoots, unmountAll } from '../index'
 import { render, serializeElement } from '../test'
 
-afterEach(React.unmountAll)
+afterEach(unmountAll)
 
 test('Renders regular JSX tags.', () => {
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
 
   const { serialized } = render(
     <div>
@@ -15,7 +15,7 @@ test('Renders regular JSX tags.', () => {
   )
 
   expect(serialized).toEqual('<body><div><p>Hello</p> World</div></body>')
-  expect(React.getRoots().length).toBe(1)
+  expect(getRoots().length).toBe(1)
 })
 
 test('Renders DOM attributes.', () => {

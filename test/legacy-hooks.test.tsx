@@ -1,10 +1,10 @@
 import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
-import * as React from '../index'
+import { unmountAll } from '../index'
 import { getRoot, useCallback, useEffect, useMemo, useRef, useState } from '../index'
 import { render, run, serializeElement } from '../test'
 
-afterEach(React.unmountAll)
+afterEach(unmountAll)
 
 test('Renders a basic component and rerenders after state update.', () => {
   function Counter() {

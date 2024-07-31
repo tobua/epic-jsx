@@ -1,14 +1,14 @@
 import { afterEach, expect, mock, test } from 'bun:test'
-import * as React from '../index'
+import { type Component, unmountAll } from '../index'
 import { Renderer } from '../index'
 import { render, run, serializeElement } from '../test'
 import { mapNestedArray } from './helper'
 
-afterEach(React.unmountAll)
+afterEach(unmountAll)
 
 test('Can trigger a component rerender.', () => {
   let count = 0
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     return (
       <div>
         Count: {count}
@@ -42,9 +42,9 @@ test('Can trigger a component rerender.', () => {
 })
 
 test('Component can access refs.', () => {
-  let context: React.Component
+  let context: Component
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -67,9 +67,9 @@ test('Component can access refs.', () => {
 })
 
 test('Component can access refs.', () => {
-  let context: React.Component
+  let context: Component
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -96,9 +96,9 @@ test('After lifecycle listeners will be called after render.', () => {
   const afterMock = mock(function AfterMock() {
     context = this
   })
-  let arrowFunctionContext: React.Component
+  let arrowFunctionContext: Component
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     this.after(afterMock)
     this.after(() => {
       arrowFunctionContext = this
@@ -130,9 +130,9 @@ test('After lifecycle listeners will be called after render.', () => {
 })
 
 test('Nested refs are flattened out by default.', () => {
-  let context: React.Component
+  let context: Component
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -163,11 +163,11 @@ test('Nested refs are flattened out by default.', () => {
 })
 
 test("Refs from inside child components aren't listed.", () => {
-  let context: React.Component
+  let context: Component
 
   const Second = () => <div id="second">second</div>
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -191,9 +191,9 @@ test("Refs from inside child components aren't listed.", () => {
 })
 
 test('Refs can be accessed nested.', () => {
-  let context: React.Component
+  let context: Component
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -227,9 +227,9 @@ test('Refs can be accessed nested.', () => {
 })
 
 test('Refs can be accessed by a specific tag.', () => {
-  let context: React.Component | undefined
+  let context: Component | undefined
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     return (
       <>
@@ -258,10 +258,10 @@ test('Refs can be accessed by a specific tag.', () => {
 })
 
 test('Elements can be conditionally rendered.', () => {
-  let context: React.Component | undefined
+  let context: Component | undefined
   let counter = 0
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     counter += 1
     return (
@@ -290,10 +290,10 @@ test('Elements can be conditionally rendered.', () => {
 
 test('Elements and components no longer present will be removed.', () => {
   const NestedComponent = ({ children }: { children: any }) => <p>{children}</p>
-  let context: React.Component | undefined
+  let context: Component | undefined
   let counter = 0
 
-  function Component(this: React.Component) {
+  function Component(this: Component) {
     context = this
     counter += 1
     return (
@@ -328,9 +328,9 @@ test('Elements and components no longer present will be removed.', () => {
 })
 
 test('Currently rendered component is reflected on the Renderer.', () => {
-  let context: React.Component | undefined
+  let context: Component | undefined
 
-  function Component(this: React.Component, { name, check, children }: { name: string; check: Function; children?: any }) {
+  function Component(this: Component, { name, check, children }: { name: string; check: Function; children?: any }) {
     context = this
     check()
     return (
@@ -341,7 +341,7 @@ test('Currently rendered component is reflected on the Renderer.', () => {
     )
   }
 
-  function NestedComponent(this: React.Component, { name, check }: { name: string; check: Function }) {
+  function NestedComponent(this: Component, { name, check }: { name: string; check: Function }) {
     context = this
     check()
     return <p>{name}</p>

@@ -1,3 +1,8 @@
+declare global {
+  // Avoids loading plugin multiple times in development mode.
+  var __epicJsx: boolean
+}
+
 export const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
   context: undefined,
   effects: [],
@@ -93,6 +98,7 @@ interface ReactElement<P = any, T extends string | JsxElementConstructor<any> = 
   key: Key | null
 }
 
+// biome-ignore lint/style/useNamingConvention: React default.
 export interface JSX extends ReactElement<any, any> {}
 
 // biome-ignore lint/style/useNamingConvention: React default.

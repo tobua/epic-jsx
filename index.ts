@@ -1,12 +1,15 @@
-import { log, schedule } from './helper'
+import { log, multipleInstancesWarning, schedule } from './helper'
+import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
+// biome-ignore lint/style/noNamespaceImport: React compatibility.
 import * as React from './jsx'
+import { createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import { type CSSProperties, type Component, type Context, type Fiber, type JSX, type Props, Renderer } from './types'
+import { type CSSProperties, type Component, type Context, type Fiber, type JSX, type Props, Renderer, type Type } from './types'
 
-export * from './jsx'
-export * from './hooks'
-export { type Fiber, type Props, type Context, type Component, Renderer, type CSSProperties }
+export { createElement, jsx, jsxDEV, jsxs, useState, useRef, useEffect, useCallback, useMemo, Renderer }
+export type { Fiber, Props, Context, Component, CSSProperties, Type }
 
+// biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React
 
 const roots = new Map<HTMLElement, Context>()
@@ -101,3 +104,5 @@ export function render(element: JSX, container?: HTMLElement | null) {
 
   return context
 }
+
+multipleInstancesWarning()

@@ -1,12 +1,12 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import * as React from '../index'
+import { type JSX, getRoots, unmountAll } from '../index'
 import { clear, render, serializeElement } from '../test'
 
-afterEach(React.unmountAll)
+afterEach(unmountAll)
 
 test('Can render SVG as JSX.', () => {
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
 
   const { serialized } = render(
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width={100} height={100}>
@@ -64,7 +64,7 @@ test('Can return arrays in components.', () => {
 })
 
 test('Various empty elements are ignored.', () => {
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
 
   const { serialized } = render(
     <>
@@ -95,7 +95,7 @@ test('Component can return nothing.', () => {
 })
 
 test('Can render HTML anchor tags.', () => {
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
 
   const { serialized, root } = render(
     <div>
@@ -113,15 +113,15 @@ test('Can render HTML anchor tags.', () => {
 })
 
 test('Can unmount existing rendered content using test helpers.', () => {
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
 
   const { serialized } = render(<p>Hello</p>)
 
   expect(serialized).toEqual('<body><p>Hello</p></body>')
-  expect(React.getRoots().length).toBe(1)
+  expect(getRoots().length).toBe(1)
 
   clear()
 
-  expect(React.getRoots().length).toBe(0)
+  expect(getRoots().length).toBe(0)
   expect(serializeElement()).toBe('<body></body>')
 })
