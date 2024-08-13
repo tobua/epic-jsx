@@ -4,10 +4,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 import * as React from './jsx'
 import { createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import { type CSSProperties, type Component, type Context, type Fiber, type JSX, type Props, Renderer, type Type } from './types'
+import {
+  type CSSProperties,
+  type Component,
+  type Context,
+  type CssProperties,
+  type Fiber,
+  type JSX,
+  type Props,
+  Renderer,
+  type Type,
+} from './types'
 
-export { createElement, jsx, jsxDEV, jsxs, useState, useRef, useEffect, useCallback, useMemo, Renderer }
-export type { Fiber, Props, Context, Component, CSSProperties, Type }
+export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer }
+export type { Fiber, Props, Context, Component, CSSProperties, CssProperties, Type, JSX }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React

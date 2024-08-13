@@ -1,6 +1,6 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import { getRoots, unmountAll } from '../index'
+import { type JSX, getRoots, unmountAll } from '../index'
 import { render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -176,4 +176,24 @@ test('Fragments are removed from the tree by default.', () => {
   expect(third?.children[0]?.text).toBe('third')
   expect(fourth?.children[0]?.tag).toBe('TEXT_ELEMENT')
   expect(fourth?.children[0]?.text).toBe('fourth')
+})
+
+test('JSX type is compatible with regular editor ReactElement types.', () => {
+  function App({ children }: { children: JSX }) {
+    const insert: JSX = <p>inserted</p>
+    return (
+      <div>
+        {children}
+        {insert}
+      </div>
+    )
+  }
+
+  const { serialized } = render(
+    <App>
+      <p>inner</p>
+    </App>,
+  )
+
+  expect(serialized).toEqual('<body><div><p>inner</p><p>inserted</p></div></body>')
 })

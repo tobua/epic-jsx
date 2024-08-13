@@ -216,8 +216,8 @@ test('Refs can be accessed nested.', () => {
   const { refsNested } = context
 
   expect(refsNested.length).toBe(3)
-  expect(refsNested[0].id).toBe('first')
-  expect(refsNested[2].id).toBe('fourth')
+  expect((refsNested[0] as HTMLElement).id).toBe('first')
+  expect((refsNested[2] as HTMLElement).id).toBe('fourth')
   expect(refsNested[1][0].id).toBe('second')
   expect(refsNested[1][1][0].id).toBe('third')
 

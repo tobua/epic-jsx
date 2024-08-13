@@ -8,7 +8,7 @@
   "author": "Matthias Giger",
   "scripts": {
     "check": "biome check --write .",
-    "types": "tsc"
+    "types": "tsc && tsc  --noEmit --project ./test/tsconfig.json"
   },
   "dependencies": {
     "logua": "^3.0.3",
@@ -48,7 +48,7 @@
     "provenance": true
   },
   "configuration": {
-    "gitignore": "bundle",
+    "gitignore": "recommended",
     "vscode": "biome",
     "license": "commercial",
     "biome": {

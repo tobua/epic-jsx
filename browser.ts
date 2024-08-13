@@ -1,5 +1,6 @@
 import { svgTagNames } from 'svg-tag-names'
-import { type CSSProperties, Change, type Fiber, type Props } from './types'
+import { log } from './helper'
+import { Change, type CssProperties, type Fiber, type Props } from './types'
 
 const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
 
@@ -34,7 +35,7 @@ function startsWithSizeProperty(propertyName: string) {
 }
 
 function convertStylesToPixels(styleObject: CSSStyleDeclaration) {
-  const convertedStyles: CSSProperties = {}
+  const convertedStyles: CssProperties = {}
   for (const key in styleObject) {
     if (Object.hasOwn(styleObject, key)) {
       const value = styleObject[key]

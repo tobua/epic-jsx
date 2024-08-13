@@ -5,10 +5,10 @@
     "types": "tsc"
   },
   "dependencies": {
-    "@rsbuild/core": "^1.0.1-beta.3",
-    "@rsbuild/plugin-react": "^1.0.1-beta.3",
-    "typescript": "^5.5.3",
-    "zero-configuration": "^0.17.1"
+    "@rsbuild/core": "^1.0.1-beta.11",
+    "@rsbuild/plugin-react": "^1.0.1-beta.11",
+    "typescript": "^5.5.4",
+    "zero-configuration": "^0.17.2"
   },
   "localDependencies": {
     "react": ".."
