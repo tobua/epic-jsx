@@ -2,7 +2,7 @@ import { log, multipleInstancesWarning, schedule } from './helper'
 import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 // biome-ignore lint/style/noNamespaceImport: React compatibility.
 import * as React from './jsx'
-import { createElement, jsx, jsxDEV, jsxs } from './jsx'
+import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
 import {
   type CSSProperties,

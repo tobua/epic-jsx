@@ -1,4 +1,4 @@
-import type { JSX, Props, Type } from './types'
+import type { JSX, Props, ReactNode, Type } from './types'
 
 function createTextElement(text: string) {
   return {
@@ -39,3 +39,16 @@ export function createElement(type: Type, props: Props, ...children: JSX[]) {
 export const jsxDEV = createElement
 export const jsx = createElement
 export const jsxs = createElement
+// Should be compatible with React.cloneElement.
+export function cloneElement(element: JSX, props?: Partial<any>, ...children: ReactNode[]) {
+  const newProps = {
+    ...element.props,
+    ...props,
+    children: children.length > 0 ? children : element.props.children,
+  }
+
+  return {
+    ...element,
+    props: newProps,
+  }
+}

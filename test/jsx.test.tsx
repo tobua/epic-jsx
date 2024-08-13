@@ -1,6 +1,6 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import { type JSX, getRoots, unmountAll } from '../index'
+import { type JSX, cloneElement, getRoots, unmountAll } from '../index'
 import { clear, render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -124,4 +124,13 @@ test('Can unmount existing rendered content using test helpers.', () => {
 
   expect(getRoots().length).toBe(0)
   expect(serializeElement()).toBe('<body></body>')
+})
+
+test('Elements can be cloned with cloneElement.', () => {
+  expect(cloneElement(<div>test</div>)).toEqual(<div>test</div>)
+  const element = <div>test</div>
+  const clone = cloneElement(element)
+  expect(element).not.toBe(clone)
+
+  expect(cloneElement(element, { className: 'new-class' }).props.className).toBe('new-class')
 })
