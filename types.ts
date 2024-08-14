@@ -5,12 +5,6 @@ declare global {
   var __epicJsx: boolean
 }
 
-export const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
-  context: undefined,
-  effects: [],
-  current: undefined,
-}
-
 export type Action = (value: any) => any
 
 // TODO unused
@@ -26,6 +20,8 @@ export enum Change {
 }
 
 export type Props = { [key: string]: any }
+// biome-ignore lint/correctness/noUnusedVariables: Not yet specified.
+export type ComponentPropsWithoutRef<T = 'div'> = { [key: string]: any }
 
 export type Type = keyof HTMLElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
 
@@ -132,3 +128,10 @@ interface ReactElement<P = any, T extends string | ReactJSXElementConstructor<an
 }
 // biome-ignore lint/style/useNamingConvention: React default.
 export interface JSX extends ReactElement<any, any> {}
+
+export interface FunctionComponent<P = {}> {
+  (props: P, deprecatedLegacyContext?: any): ReactNode
+  displayName?: string | undefined
+}
+// biome-ignore lint/style/useNamingConvention: React default.
+export type FC<P = {}> = FunctionComponent<P>

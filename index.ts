@@ -4,20 +4,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 import * as React from './jsx'
 import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import {
-  type CSSProperties,
-  type Component,
-  type Context,
-  type CssProperties,
-  type Fiber,
-  type JSX,
-  type Props,
-  Renderer,
-  type Type,
+import type {
+  CSSProperties,
+  Component,
+  ComponentPropsWithoutRef,
+  Context,
+  CssProperties,
+  FC,
+  Fiber,
+  FunctionComponent,
+  JSX,
+  Props,
+  Type,
 } from './types'
 
+const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
+  context: undefined,
+  effects: [],
+  current: undefined,
+}
+
 export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer }
-export type { Fiber, Props, Context, Component, CSSProperties, CssProperties, Type, JSX }
+export type { Fiber, Props, Context, Component, CSSProperties, CssProperties, Type, JSX, ComponentPropsWithoutRef, FunctionComponent, FC }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React

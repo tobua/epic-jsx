@@ -8,9 +8,10 @@
   "author": "Matthias Giger",
   "scripts": {
     "check": "biome check --write .",
-    "types": "tsc && tsc  --noEmit --project ./test/tsconfig.json"
+    "types": "tsc && tsc --noEmit --project ./test/tsconfig.json"
   },
   "dependencies": {
+    "csstype": "^3.1.3",
     "logua": "^3.0.3",
     "svg-tag-names": "^3.0.1"
   },

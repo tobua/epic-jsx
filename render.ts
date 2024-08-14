@@ -1,6 +1,7 @@
+import { Renderer } from '.'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
-import { Change, type Context, type Fiber, type JSX, Renderer } from './types'
+import { Change, type Context, type Fiber, type JSX } from './types'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)

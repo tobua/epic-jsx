@@ -1,6 +1,7 @@
+import { Renderer } from '.'
 import { log, schedule, shallowArrayEqual } from './helper'
 import { process } from './render'
-import { type Ref, Renderer } from './types'
+import type { Ref } from './types'
 
 export function useState<T>(initial: T) {
   if (!Renderer.context) {
