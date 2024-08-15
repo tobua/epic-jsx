@@ -5,8 +5,8 @@
     "types": "tsc"
   },
   "dependencies": {
-    "@rsbuild/core": "^1.0.1-beta.13",
-    "@rsbuild/plugin-react": "^1.0.1-beta.13",
+    "@rsbuild/core": "^1.0.1-beta.14",
+    "@rsbuild/plugin-react": "^1.0.1-beta.14",
     "typescript": "^5.5.4",
     "zero-configuration": "^0.17.2"
   },

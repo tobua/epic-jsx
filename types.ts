@@ -121,7 +121,7 @@ type ReactJSXElementConstructor<P> =
       deprecatedLegacyContext?: any,
     ) => ReactComponent<any, any>)
 
-interface ReactElement<P = any, T extends string | ReactJSXElementConstructor<any> = string | ReactJSXElementConstructor<any>> {
+export interface ReactElement<P = any, T extends string | ReactJSXElementConstructor<any> = string | ReactJSXElementConstructor<any>> {
   type: T
   props: P
   key: string | null

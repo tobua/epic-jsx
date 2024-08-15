@@ -15,6 +15,8 @@ import type {
   FunctionComponent,
   JSX,
   Props,
+  ReactElement,
+  ReactNode,
   Type,
 } from './types'
 
@@ -25,7 +27,21 @@ const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
 }
 
 export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer }
-export type { Fiber, Props, Context, Component, CSSProperties, CssProperties, Type, JSX, ComponentPropsWithoutRef, FunctionComponent, FC }
+export type {
+  Fiber,
+  Props,
+  Context,
+  Component,
+  CSSProperties,
+  CssProperties,
+  Type,
+  JSX,
+  ComponentPropsWithoutRef,
+  FunctionComponent,
+  FC,
+  ReactNode,
+  ReactElement,
+}
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React
