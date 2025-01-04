@@ -9,13 +9,13 @@ test('Can render SVG as JSX.', () => {
   expect(getRoots().length).toBe(0)
 
   const { serialized } = render(
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width={100} height={100}>
+    <svg viewBox="0 0 10 10" width={100} height={100}>
       <circle cx="50" cy="50" r="40" fill="red" />
     </svg>,
   )
 
   expect(serialized).toEqual(
-    '<body><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"></circle></svg></body>',
+    '<body><svg viewBox="0 0 10 10" width="100" height="100"><circle cx="50" cy="50" r="40" fill="red"/></svg></body>',
   )
 })
 

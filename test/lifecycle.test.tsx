@@ -314,7 +314,7 @@ test('Elements and components no longer present will be removed.', () => {
 
   const { serialized } = render(<Component />)
 
-  expect(serialized).toEqual('<body><p>first</p><p>third</p><svg><path></path></svg></body>')
+  expect(serialized).toEqual('<body><p>first</p><p>third</p><svg><path/></svg></body>')
 
   context?.rerender()
   run()
@@ -324,7 +324,7 @@ test('Elements and components no longer present will be removed.', () => {
   context?.rerender()
   run()
 
-  expect(serializeElement()).toEqual('<body><p>first</p><p>third</p><svg><path></path></svg></body>')
+  expect(serializeElement()).toEqual('<body><p>first</p><p>third</p><svg><path/></svg></body>')
 })
 
 test('Currently rendered component is reflected on the Renderer.', () => {

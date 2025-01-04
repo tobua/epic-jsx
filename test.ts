@@ -4,7 +4,8 @@ import type { Fiber, JSX, Props, Type } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
   const serializer = new XMLSerializer()
-  return serializer.serializeToString(node)
+  const serialized = serializer.serializeToString(node)
+  return serialized.replaceAll(/\s+xmlns="[^"]*"/g, '') // Remove newly added XHTML default definition.
 }
 
 type ReadableNode = {

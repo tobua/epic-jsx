@@ -16,13 +16,11 @@
     "svg-tag-names": "^3.0.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.3",
-    "@happy-dom/global-registrator": "^14.12.3",
-    "@types/bun": "^1.1.6",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "typescript": "^5.5.4",
-    "zero-configuration": "^0.17.2"
+    "@biomejs/biome": "^1.9.4",
+    "@happy-dom/global-registrator": "^16.3.0",
+    "@types/bun": "^1.1.14",
+    "typescript": "^5.7.2",
+    "zero-configuration": "^0.17.6"
   },
   "trustedDependencies": [
     "zero-configuration"
@@ -72,7 +70,8 @@
       },
       "files": {
         "ignore": [
-          "demo"
+          "demo",
+          "types"
         ]
       }
     },
