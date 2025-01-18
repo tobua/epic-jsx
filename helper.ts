@@ -38,7 +38,7 @@ export function getComponentRefsFromTree(node: Fiber, result: NestedHtmlElement,
   if (node.child) {
     const nested = getComponentRefsFromTree(node.child, flat ? result : [], flat, false)
 
-    if (!flat && nested.length) {
+    if (!flat && nested.length > 0) {
       if (result.length > 0) {
         result.push(nested)
       } else {
@@ -89,7 +89,7 @@ export function schedule(callback: IdleRequestCallback) {
     function idleCallbackPolyfill(
       innerCallback: IdleRequestCallback,
       // biome-ignore lint/correctness/noUnusedVariables: Default API, might be needed.
-      options?: IdleRequestOptions,
+      _options?: IdleRequestOptions,
     ) {
       const start = Date.now()
       setTimeout(() => {

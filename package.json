@@ -36,7 +36,8 @@
     "./jsx-dev-runtime": "./index.ts"
   },
   "files": [
-    "*.ts"
+    "*.ts",
+    "types/*.d.ts"
   ],
   "keywords": [
     "renderer",

@@ -11,7 +11,7 @@ function commit(context: Context, fiber: Fiber) {
   }
 
   // TODO check if dependencies changed.
-  if (Renderer.effects.length) {
+  if (Renderer.effects.length > 0) {
     for (const effect of Renderer.effects) {
       effect()
     }
@@ -115,7 +115,7 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
   }
 
   if (maxTries === 0) {
-    console.error('Ran out of tries at reconcileChildren.', children)
+    log('Ran out of tries at reconcileChildren.', 'warning')
   }
 }
 
@@ -193,7 +193,7 @@ function render(context: Context, fiber: Fiber) {
     nextFiber = nextFiber.parent
   }
   if (maxTries === 0) {
-    console.error('Ran out of tries at render.')
+    log('Ran out of tries at render.', 'warning')
   }
   return undefined
 }
@@ -218,7 +218,7 @@ export function process(deadline: IdleDeadline, context: Context) {
     // Render current fiber.
     context.current = render(context, context.current)
     // Add next fiber if previous tree finished.
-    if (!context.current && context.pending.length) {
+    if (!context.current && context.pending.length > 0) {
       context.current = context.pending.shift()
       if (context.current) {
         context.rendered.push(context.current)
@@ -228,18 +228,18 @@ export function process(deadline: IdleDeadline, context: Context) {
     shouldYield = deadline.timeRemaining() < 1
   }
   if (maxTries === 0) {
-    console.error('Ran out of tries at process.')
+    log('Ran out of tries at process.', 'warning')
   }
 
   // Yielded if context.current not empty.
-  if (!context.current && context.rendered.length) {
+  if (!context.current && context.rendered.length > 0) {
     for (const fiber of context.rendered) {
       commit(context, fiber)
     }
     context.rendered.length = 0
   }
 
-  if (context.current || context.pending.length) {
+  if (context.current || context.pending.length > 0) {
     schedule((nextDeadline) => process(nextDeadline, context))
   }
 }

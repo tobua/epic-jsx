@@ -175,7 +175,7 @@ export function commitFiber(fiber: Fiber) {
     parent = parent.parent
   }
   if (maxTries === 0) {
-    console.error('Ran out of tries at commitWork.')
+    log('Ran out of tries at commitFiber.', 'warning')
   }
 
   if (fiber.change === Change.Add && fiber.native) {
