@@ -61,7 +61,7 @@ export const getRoot = (container: HTMLElement) => {
   }
   const context = roots.get(container)
   // Ensure all work has passed.
-  if (context?.pending.length > 0 || context?.rendered.length > 0) {
+  if (context && (context.pending.length > 0 || context.rendered.length > 0)) {
     processNow(context)
   }
   return context

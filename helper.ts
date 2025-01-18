@@ -86,11 +86,7 @@ export function schedule(callback: IdleRequestCallback) {
   // See react scheduler for better implementation.
   window.requestIdleCallback =
     window.requestIdleCallback ||
-    function idleCallbackPolyfill(
-      innerCallback: IdleRequestCallback,
-      // biome-ignore lint/correctness/noUnusedVariables: Default API, might be needed.
-      _options?: IdleRequestOptions,
-    ) {
+    function idleCallbackPolyfill(innerCallback: IdleRequestCallback, _options?: IdleRequestOptions) {
       const start = Date.now()
       setTimeout(() => {
         innerCallback({
