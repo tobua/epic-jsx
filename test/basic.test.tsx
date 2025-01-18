@@ -155,6 +155,7 @@ test('Fragments are removed from the tree by default.', () => {
       <Second />
       <>
         <p>third</p>
+        {/* biome-ignore lint/complexity/noUselessFragments: Necessary for testing purposes! */}
         <>
           <p>fourth</p>
         </>
