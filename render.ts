@@ -45,7 +45,8 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
     let newFiber: Fiber | undefined
 
     // TODO also compare props.
-    const sameType = element?.type === previous?.type
+    const fragment = element === null || previous === null
+    const sameType = !fragment && element?.type === previous?.type
 
     if (sameType && previous) {
       newFiber = {

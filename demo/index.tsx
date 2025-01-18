@@ -1,5 +1,5 @@
 /// <reference types="@rsbuild/core/types" />
-import { render, useState, useRef, useEffect } from 'react'
+import { render, useEffect, useRef, useState } from 'react'
 import logo from '../logo.svg'
 import { ContactForm } from './ContactForm'
 
@@ -35,11 +35,7 @@ function Form() {
 
 render(
   <div style={{ fontFamily: 'sans-serif', display: 'flex', gap: '10px', flexDirection: 'column' }}>
-    <img
-      src={logo}
-      alt="epic-jsx Logo"
-      style={{ width: '10vw', height: '10vw', alignSelf: 'center' }}
-    />
+    <img src={logo} alt="epic-jsx Logo" style={{ width: '10vw', height: '10vw', alignSelf: 'center' }} />
     <h1>epic-jsx Demo</h1>
     <div>
       Hello <button>World</button> Links <a href="https://google.com">are</a> showing up! 😊

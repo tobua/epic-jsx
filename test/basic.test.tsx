@@ -179,8 +179,8 @@ test('Fragments are removed from the tree by default.', () => {
 })
 
 test('JSX type is compatible with regular editor ReactElement types.', () => {
-  function App({ children }: { children: JSX }) {
-    const insert: JSX = <p>inserted</p>
+  function App({ children }: { children: JSX.Element }) {
+    const insert: JSX.Element = <p>inserted</p>
     return (
       <div>
         {children}
@@ -196,4 +196,18 @@ test('JSX type is compatible with regular editor ReactElement types.', () => {
   )
 
   expect(serialized).toEqual('<body><div><p>inner</p><p>inserted</p></div></body>')
+})
+
+test('Classes are applied properly.', () => {
+  const { serialized } = render(
+    <>
+      <div class="regular-class">regular</div>
+      {/* biome-ignore lint/suspicious/noReactSpecificProps: For testing purposes! */}
+      <div className="name-class">name</div>
+    </>,
+  )
+
+  // TODO class should be part of the JSX types.
+
+  expect(serialized).toEqual('<body><div class="regular-class">regular</div><div class="name-class">name</div></body>')
 })

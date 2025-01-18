@@ -1,4 +1,6 @@
 import type { JSX, Props, ReactNode, Type } from './types'
+import type { jsxDEV as jsxDevType } from './types/jsx-dev-runtime'
+import type { jsx as jsxType, jsxs as jsxsType } from './types/jsx-runtime'
 
 function createTextElement(text: string) {
   return {
@@ -36,9 +38,9 @@ export function createElement(type: Type, props: Props, ...children: JSX[]) {
 
 // JSX environment specific runtime aliases.
 // biome-ignore lint/style/useNamingConvention: React default for compatibility.
-export const jsxDEV = createElement
-export const jsx = createElement
-export const jsxs = createElement
+export const jsxDEV = createElement as unknown as typeof jsxDevType
+export const jsx = createElement as unknown as typeof jsxType
+export const jsxs = createElement as unknown as typeof jsxsType
 // Should be compatible with React.cloneElement.
 export function cloneElement(element: JSX, props?: Partial<any>, ...children: ReactNode[]) {
   const newProps = {

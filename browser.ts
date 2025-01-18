@@ -112,10 +112,23 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
     })
 }
 
+function mapLegacyProps(fiber: Fiber) {
+  if (Object.hasOwn(fiber.props, 'className')) {
+    if (Object.hasOwn(fiber.props, 'class')) {
+      fiber.props.class = `${fiber.props.class} ${fiber.props.className}`
+    } else {
+      fiber.props.class = fiber.props.className
+    }
+    fiber.props.className = undefined
+  }
+}
+
 export function createNativeElement(fiber: Fiber) {
   if (!fiber.type) {
     return undefined // Ignore fragments.
   }
+
+  mapLegacyProps(fiber)
 
   let element: HTMLElement | Text
 
@@ -135,7 +148,12 @@ export function createNativeElement(fiber: Fiber) {
 
 function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   if (fiber.native) {
-    nativeParent.removeChild(fiber.native)
+    try {
+      nativeParent.removeChild(fiber.native)
+    } catch (_error) {
+      // NOTE indicates a plugin error, should not happen.
+      log('Failed to remove node from the DOM', 'warning')
+    }
     fiber.change = undefined
   } else if (fiber.child) {
     // Avoid another delete when visiting though siblings.

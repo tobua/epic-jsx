@@ -91,7 +91,7 @@ export function ContactForm() {
         }
       }, 1000)
     },
-    [timer, setTimer]
+    [timer, setTimer],
   )
 
   return (
@@ -119,17 +119,8 @@ export function ContactForm() {
     }
 }`}</style>
       <h2 style={{ margin: 0 }}>Contact Us</h2>
-      <Input
-        placeholder="Your name"
-        value={name}
-        onInput={(event) => setName(event.target.value)}
-      />
-      <TextArea
-        placeholder="Please enter your message"
-        rows={4}
-        value={message}
-        onInput={(event) => setMessage(event.target.value)}
-      />
+      <Input placeholder="Your name" value={name} onInput={(event) => setName(event.target.value)} />
+      <TextArea placeholder="Please enter your message" rows={4} value={message} onInput={(event) => setMessage(event.target.value)} />
       <Button type="submit" onClick={handleSubmit} inactive={verifying}>
         {verifying ? 'Please wait...' : confirming ? 'Confirm' : 'Submit'}
       </Button>
@@ -143,10 +134,7 @@ export function ContactForm() {
               margin: 0,
             }}
           >
-            Checking connection:{' '}
-            <span style={{ fontWeight: 'bold', background: 'gray', padding: 10, borderRadius: 10 }}>
-              {timer}
-            </span>
+            Checking connection: <span style={{ fontWeight: 'bold', background: 'gray', padding: 10, borderRadius: 10 }}>{timer}</span>
           </p>
           <Globe />
         </div>

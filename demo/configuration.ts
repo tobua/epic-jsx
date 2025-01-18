@@ -11,7 +11,6 @@ export const rsbuild = defineConfig({
   html: {
     title: 'epic-jsx Demo',
     favicon: '../logo.png',
-
   },
   output: {
     // Only applied in production, GitHub pages in this case.
@@ -19,7 +18,14 @@ export const rsbuild = defineConfig({
   },
 })
 
-export const gitignore = 'recommended'
+export const gitignore = 'bundle'
+export const vscode = 'biome'
+export const biome = {
+  extends: 'recommended',
+  files: {
+    ignore: ['rsbuild.config.ts'],
+  },
+}
 
 export const typescript = {
   extends: 'web',

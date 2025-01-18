@@ -13,12 +13,14 @@ import type {
   FC,
   Fiber,
   FunctionComponent,
-  JSX,
   Props,
   ReactElement,
   ReactNode,
   Type,
 } from './types'
+import type * as ReactType from './types/index'
+import type { JSXSource } from './types/jsx-dev-runtime'
+import type { JSX } from './types/jsx-runtime'
 
 const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
   context: undefined,
@@ -36,6 +38,7 @@ export type {
   CssProperties,
   Type,
   JSX,
+  JSXSource,
   ComponentPropsWithoutRef,
   FunctionComponent,
   FC,
@@ -44,12 +47,13 @@ export type {
 }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
-export default React
+export default React as unknown as typeof ReactType
 
 const roots = new Map<HTMLElement, Context>()
 
 // Imported by regular React runtime, implementation is guess.
-export const Fragment = undefined // Symbol.for('react.fragment')
+// @ts-ignore
+export const Fragment: typeof ReactType.Fragment = undefined // Symbol.for('react.fragment')
 
 export const getRoot = (container: HTMLElement) => {
   if (!roots.has(container)) {
@@ -102,7 +106,7 @@ export const unmount = (container: HTMLElement) => {
 
 export const unmountAll = () => roots.forEach((_, container) => unmount(container))
 
-export function render(element: JSX, container?: HTMLElement | null) {
+export function render(element: JSX.Element, container?: HTMLElement | null) {
   if (!container) {
     // biome-ignore lint/style/noParameterAssign: Why wouldn't a method default work?
     container = document.body // Default assignment in args wouldn't override null.
