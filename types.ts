@@ -28,6 +28,7 @@ export type Type = keyof HTMLElementTagNameMap | Function | 'TEXT_ELEMENT' | und
 // JSX.IntrinsicElements includes list of all React tags with their respecitive props available.
 
 export interface Fiber {
+  id?: number
   type?: Type
   child?: Fiber
   sibling?: Fiber
@@ -54,7 +55,7 @@ export interface Context {
 export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
 
 export interface Component {
-  id: string
+  id: number
   root: Fiber
   context: Context
   rerender: () => void

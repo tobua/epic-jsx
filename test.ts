@@ -1,5 +1,6 @@
 import { render as baseRender, unmount } from './index'
 import { processNow } from './render'
+import type { Component } from './types'
 import type { Fiber, JSX, Props, Type } from './types'
 
 export const serializeElement = (node: Element = document.body) => {
@@ -11,6 +12,8 @@ export const serializeElement = (node: Element = document.body) => {
 type ReadableNode = {
   tag?: Type
   getElement: () => HTMLElement | Text | undefined
+  getFiber: () => Fiber
+  getComponent: () => Component | undefined
   props?: Props
   children: ReadableNode[]
   text?: string
@@ -43,6 +46,8 @@ export const toReadableTree = (node: Fiber, options = { skipFragments: true }, p
   let result: ReadableNode = {
     children: [],
     getElement: () => node?.native,
+    getFiber: () => node,
+    getComponent: () => node?.component,
     tag: getTag(node),
     props: getProps(node),
   }

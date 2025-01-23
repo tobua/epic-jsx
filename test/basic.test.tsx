@@ -212,3 +212,36 @@ test('Classes are applied properly.', () => {
 
   expect(serialized).toEqual('<body><div class="regular-class">regular</div><div class="name-class">name</div></body>')
 })
+
+test('Each component is assigned a stable id.', () => {
+  const components = {}
+  function Component({ id }) {
+    components[id] = this
+    return <p>{id}</p>
+  }
+
+  const { serialized, tree } = render(
+    <>
+      <Component id={1} />
+      <Component id={2} />
+    </>,
+  )
+
+  expect(serialized).toEqual('<body><p>1</p><p>2</p></body>')
+
+  let firstId = tree.children[0].getComponent().id
+  let secondId = tree.children[1].getComponent().id
+
+  expect(firstId !== secondId).toBe(true)
+  expect(components[1].id).toBe(firstId)
+  expect(components[2].id).toBe(secondId)
+
+  components[1].rerender()
+
+  firstId = tree.children[0].getComponent().id
+  secondId = tree.children[1].getComponent().id
+
+  expect(firstId !== secondId).toBe(true)
+  expect(components[1].id).toBe(firstId)
+  expect(components[2].id).toBe(secondId)
+})

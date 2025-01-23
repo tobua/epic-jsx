@@ -139,8 +139,12 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
   fiber.hooks.length = 0
   Renderer.context = context
   fiber.afterListeners = []
+  // TODO id in fiber shouldn't be optional, assign during creation.
+  if (!fiber.id) {
+    fiber.id = fiber.previous?.id ?? Math.floor(Math.random() * 1000000)
+  }
   fiber.component = {
-    id: '123', // TODO
+    id: fiber.id,
     root: fiber,
     context,
     rerender: () => rerender(context, fiber),
