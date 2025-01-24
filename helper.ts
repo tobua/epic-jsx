@@ -120,3 +120,11 @@ export function multipleInstancesWarning() {
     global.__epicJsx = true
   }
 }
+
+export function debounce(method: Function, wait: number) {
+  let timeout: NodeJS.Timer
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => method.apply(this, args), wait)
+  }
+}

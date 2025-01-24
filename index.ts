@@ -1,4 +1,4 @@
-import { log, multipleInstancesWarning, schedule } from './helper'
+import { debounce, log, multipleInstancesWarning, schedule } from './helper'
 import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 // biome-ignore lint/style/noNamespaceImport: React compatibility.
 import * as React from './jsx'
@@ -28,7 +28,7 @@ const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
   current: undefined,
 }
 
-export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer }
+export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer, debounce }
 export type {
   Fiber,
   Props,
