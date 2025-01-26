@@ -122,9 +122,9 @@ export function multipleInstancesWarning() {
 }
 
 export function debounce(method: Function, wait: number) {
-  let timeout: NodeJS.Timer
+  let timeout: number // Avoid using NodeJS.Timeout to avoid clash with Bun types.
   return function (this: any, ...args: any[]) {
     clearTimeout(timeout)
-    timeout = setTimeout(() => method.apply(this, args), wait)
+    timeout = setTimeout(() => method.apply(this, args), wait) as unknown as number
   }
 }
