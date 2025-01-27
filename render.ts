@@ -86,9 +86,13 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
       }
     }
 
-    if (previous && !sameType) {
+    if (previous && !sameType && !fragment) {
       previous.change = Change.Delete
       context.deletions.push(previous)
+    }
+
+    if (previous && !sameType && fragment) {
+      deleteFragmentChildren(context, previous)
     }
 
     const item = previous
@@ -116,6 +120,23 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
 
   if (maxTries === 0) {
     log('Ran out of tries at reconcileChildren.', 'warning')
+  }
+}
+
+function deleteFragmentChildren(context: Context, fiber: Fiber) {
+  if (fiber.change === Change.Delete) {
+    return
+  }
+
+  fiber.change = Change.Delete
+  context.deletions.push(fiber)
+
+  if (fiber.child) {
+    deleteFragmentChildren(context, fiber.child)
+  }
+
+  if (fiber.sibling) {
+    deleteFragmentChildren(context, fiber.sibling)
   }
 }
 
