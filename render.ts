@@ -46,53 +46,23 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
 
     // TODO also compare props.
     const fragment = element === null || previous === null
-    const sameType = !fragment && element?.type === previous?.type
+    const isSameType = !fragment && element?.type === previous?.type
 
-    if (sameType && previous) {
-      newFiber = {
-        type: previous.type,
-        props: element?.props ?? previous?.props,
-        native: previous.native,
-        parent: current,
-        previous,
-        hooks: previous.hooks,
-        change: Change.Update,
-      }
+    if (isSameType && previous) {
+      newFiber = createUpdatedFiber(current, previous, element)
+    }
+
+    if (element && isSameType && !previous) {
+      newFiber = createNewFiber(current, element, previous)
     }
 
     // Newly added (possibly unnecessary).
-    if (element && sameType && !previous) {
-      newFiber = {
-        type: element.type,
-        props: element.props,
-        native: undefined,
-        parent: current,
-        previous: undefined,
-        // @ts-ignore TODO previous type is not inferred, probably becuase of later reassignment or parse issues.
-        hooks: typeof element.type === 'function' ? previous.hooks : undefined,
-        change: Change.Add,
-      }
+    if (element && !isSameType) {
+      newFiber = createNewFiber(current, element, previous)
     }
 
-    if (element && !sameType) {
-      newFiber = {
-        type: element.type,
-        props: element.props,
-        native: undefined,
-        parent: current,
-        previous: undefined,
-        hooks: typeof element.type === 'function' ? [] : undefined,
-        change: Change.Add,
-      }
-    }
-
-    if (previous && !sameType && !fragment) {
-      previous.change = Change.Delete
-      context.deletions.push(previous)
-    }
-
-    if (previous && !sameType && fragment) {
-      deleteFragmentChildren(context, previous)
+    if (previous && !isSameType) {
+      deleteChildren(context, previous)
     }
 
     const item = previous
@@ -123,7 +93,27 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
   }
 }
 
-function deleteFragmentChildren(context: Context, fiber: Fiber) {
+const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX): Fiber => ({
+  type: previous.type,
+  props: element?.props ?? previous?.props,
+  native: previous.native,
+  parent: current,
+  previous,
+  hooks: previous.hooks,
+  change: Change.Update,
+})
+
+const createNewFiber = (current: Fiber, element: JSX, previous: Fiber | undefined): Fiber => ({
+  type: element.type,
+  props: element.props,
+  native: undefined,
+  parent: current,
+  previous: undefined,
+  hooks: typeof element.type === 'function' ? (previous ? previous.hooks : []) : undefined,
+  change: Change.Add,
+})
+
+function deleteChildren(context: Context, fiber: Fiber) {
   if (fiber.change === Change.Delete) {
     return
   }
@@ -132,11 +122,11 @@ function deleteFragmentChildren(context: Context, fiber: Fiber) {
   context.deletions.push(fiber)
 
   if (fiber.child) {
-    deleteFragmentChildren(context, fiber.child)
+    deleteChildren(context, fiber.child)
   }
 
   if (fiber.sibling) {
-    deleteFragmentChildren(context, fiber.sibling)
+    deleteChildren(context, fiber.sibling)
   }
 }
 
