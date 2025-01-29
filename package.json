@@ -7,7 +7,7 @@
   "license": "CC-BY-NC-4.0",
   "author": "Matthias Giger",
   "scripts": {
-    "check": "biome check --write .",
+    "check": "biome check --write . && biome check --write --config-path=test ./test/*",
     "types": "tsc && tsc --project ./test/tsconfig.json"
   },
   "dependencies": {
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@happy-dom/global-registrator": "^16.7.3",
-    "@types/bun": "^1.2.0",
+    "@types/bun": "^1.2.1",
     "typescript": "^5.7.3",
     "zero-configuration": "^0.18.0"
   },
@@ -52,31 +52,42 @@
     "gitignore": "recommended",
     "vscode": "biome",
     "license": "commercial",
-    "biome": {
-      "extends": "recommended",
-      "linter": {
-        "rules": {
-          "correctness": {
-            "useJsxKeyInIterable": "off"
-          },
-          "a11y": {
-            "noSvgWithoutTitle": "off"
-          },
-          "complexity": {
-            "noBannedTypes": "off"
-          },
-          "suspicious": {
-            "noExplicitAny": "off"
+    "biome": [
+      {
+        "extends": "epic",
+        "linter": {
+          "rules": {
+            "complexity": {
+              "noBannedTypes": "off"
+            },
+            "suspicious": {
+              "noExplicitAny": "off"
+            }
           }
+        },
+        "files": {
+          "ignore": [
+            "demo",
+            "types",
+            "test"
+          ]
         }
       },
-      "files": {
-        "ignore": [
-          "demo",
-          "types"
-        ]
+      {
+        "folder": "test",
+        "extends": "test",
+        "linter": {
+          "rules": {
+            "a11y": {
+              "noSvgWithoutTitle": "off"
+            },
+            "correctness": {
+              "useJsxKeyInIterable": "off"
+            }
+          }
+        }
       }
-    },
+    ],
     "typescript": [
       {
         "extends": "plugin",

@@ -1,5 +1,5 @@
 import { create } from 'logua'
-import type { Fiber, NestedHtmlElement } from './types'
+import type { Fiber, NestedHtmlElement, Props } from './types'
 
 export const log = create('epic-jsx', 'blue')
 
@@ -128,3 +128,72 @@ export function debounce(method: Function, wait: number) {
     timeout = setTimeout(() => method.apply(this, args), wait) as unknown as number
   }
 }
+
+export const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
+
+function camelCaseToDashCase(camelCase: string): string {
+  return camelCase.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+}
+
+// Browser requires dash-case to render, react allows camelCase.
+export function convertSvgPropsToDashCase(props: Props) {
+  for (const prop in props) {
+    if (svgProperties.includes(prop)) {
+      props[camelCaseToDashCase(prop)] = props[prop]
+      delete props[prop]
+    }
+  }
+  return props
+}
+
+const svgProperties = [
+  'accentHeight',
+  'alignmentBaseline',
+  'arabicForm',
+  'baselineShift',
+  'clipPath',
+  'clipRule',
+  'colorInterpolation',
+  'colorInterpolationFilters',
+  'colorProfile',
+  'colorRendering',
+  'dominantBaseline',
+  'enableBackground',
+  'fillOpacity',
+  'fillRule',
+  'floodColor',
+  'floodOpacity',
+  'fontFamily',
+  'fontSize',
+  'fontSizeAdjust',
+  'fontStretch',
+  'fontStyle',
+  'fontVariant',
+  'fontWeight',
+  'glyphOrientationHorizontal',
+  'glyphOrientationVertical',
+  'imageRendering',
+  'letterSpacing',
+  'lightingColor',
+  'markerEnd',
+  'markerMid',
+  'markerStart',
+  'paintOrder',
+  'pointerEvents',
+  'shapeRendering',
+  'stopColor',
+  'stopOpacity',
+  'strokeDasharray',
+  'strokeDashoffset',
+  'strokeLinecap',
+  'strokeLinejoin',
+  'strokeMiterlimit',
+  'strokeOpacity',
+  'strokeWidth',
+  'textAnchor',
+  'textDecoration',
+  'textRendering',
+  'unicodeBidi',
+  'wordSpacing',
+  'writingMode',
+]

@@ -1,8 +1,6 @@
 import { svgTagNames } from 'svg-tag-names'
-import { log } from './helper'
+import { convertSvgPropsToDashCase, log, svgAndRegularTags } from './helper'
 import { Change, type CssProperties, type Fiber, type Props } from './types'
-
-const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
 
 // TODO this is a workaround, better to pass SVG context down the fiber tree as soon as an SVG tag is encountered.
 const isSvgTag = (tag: string) => {
@@ -135,6 +133,7 @@ export function createNativeElement(fiber: Fiber) {
   if (fiber.type === 'TEXT_ELEMENT') {
     element = document.createTextNode('')
   } else if (isSvgTag(fiber.type as any)) {
+    convertSvgPropsToDashCase(fiber.props)
     // Necessary to properly render SVG elements, createElement will not work.
     element = document.createElementNS('http://www.w3.org/2000/svg', fiber.type as any)
   } else {

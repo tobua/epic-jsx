@@ -19,6 +19,20 @@ test('Can render SVG as JSX.', () => {
   )
 })
 
+test('camelCased SVG properties are output in dash-case.', () => {
+  expect(getRoots().length).toBe(0)
+
+  const { serialized } = render(
+    <svg viewBox="0 0 10 10" width={100} height={100}>
+      <path d="M3 12L23.4986 35.2938C24.295" strokeWidth={10} strokeDasharray="3 1" />
+    </svg>,
+  )
+
+  expect(serialized).toEqual(
+    '<body><svg viewBox="0 0 10 10" width="100" height="100"><path d="M3 12L23.4986 35.2938C24.295" stroke-width="10" stroke-dasharray="3 1"/></svg></body>',
+  )
+})
+
 test('Can pass elements as children to a component.', () => {
   const PassChildren = ({ children }: { children: JSX.Element }) => <div>{children}</div>
   const { serialized } = render(
