@@ -1,3 +1,4 @@
+import type React from './index'
 import type { JSX, Props, ReactNode, Type } from './types'
 import type { jsxDEV as jsxDevType } from './types/jsx-dev-runtime'
 import type { jsx as jsxType, jsxs as jsxsType } from './types/jsx-runtime'
@@ -12,19 +13,28 @@ function createTextElement(text: string) {
   }
 }
 
-export function createElement(type: Type, props: Props, ...children: JSX[]) {
+// Official signature (not working yet).
+// createElement<P>(type: React.ElementType<P>, props: P & { children?: React.ReactNode }, ...children: React.ReactNode[]): React.ReactElement<P> | null;
+export function createElement(type: Type, props: Props, ...children: React.JSX.Element[]) {
+  let mappedChildren = children
   // NOTE needed for browser JSX runtime
   if (props?.children) {
-    // biome-ignore lint/style/noParameterAssign: Much easier in this case.
-    children = Array.isArray(props.children) ? props.children : [props.children]
+    mappedChildren = Array.isArray(props.children) ? props.children : [props.children]
     props.children = undefined
+  }
+
+  // Required for successful rendering with markdown-to-jsx.
+  if (Array.isArray(children[0]) && children[0].length === 1 && typeof children[0][0] === 'string') {
+    mappedChildren = children[0]
+  } else if (Array.isArray(children[0]) && children[0].length > 1) {
+    mappedChildren = children[0]
   }
 
   return {
     type,
     props: {
       ...props,
-      children: children
+      children: mappedChildren
         // Clear out falsy values.
         .filter(
           // @ts-ignore

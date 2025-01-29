@@ -1,6 +1,7 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import { type JSX, cloneElement, getRoots, unmountAll } from '../index'
+import { compiler } from 'markdown-to-jsx'
+import { type JSX, cloneElement, createElement, getRoots, unmountAll } from '../index'
 import { clear, render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -147,4 +148,26 @@ test('Elements can be cloned with cloneElement.', () => {
   expect(element).not.toBe(clone)
 
   expect(cloneElement(element, { className: 'new-class' }).props.className).toBe('new-class')
+})
+
+test('Can render markdown.', () => {
+  const content = `# Title
+Some text here.
+
+## Subtitle
+
+Wait! This is **bold**.`
+
+  // @ts-expect-error Possibly fixable, compare types with React's createElement.
+  const Markdown = () => compiler(content, { createElement })
+
+  const { serialized } = render(
+    <div>
+      <Markdown />
+    </div>,
+  )
+
+  expect(serialized).toEqual(
+    '<body><div><div key="outer"><h1 id="title" key="0">Title</h1><p key="1">Some text here.</p><h2 id="subtitle" key="2">Subtitle</h2><p key="3">Wait! This is <strong key="2">bold</strong>.</p></div></div></body>',
+  )
 })
