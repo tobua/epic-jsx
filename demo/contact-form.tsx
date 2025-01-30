@@ -1,44 +1,9 @@
 import { useCallback } from 'react'
 import { useState } from 'react'
-import { Globe } from './Globe'
+import { Button, Input } from './components'
+import { Globe } from './globe'
 
-function Input(props) {
-  return (
-    <input
-      style={{
-        background: 'lightgray',
-        border: 'none',
-        outline: 'none',
-        padding: 10,
-        borderRadius: 10,
-        resize: 'none',
-        alignSelf: 'normal', // Stretch
-      }}
-      {...props}
-    />
-  )
-}
-
-function Button(props) {
-  return (
-    <button
-      style={{
-        outline: 'none',
-        background: props.inactive ? 'gray' : 'black',
-        border: 'none',
-        color: 'white',
-        borderRadius: 10,
-        display: 'flex',
-        flex: 1,
-        padding: '10px 20px',
-        cursor: props.inactive ? 'auto' : 'pointer',
-      }}
-      {...props}
-    />
-  )
-}
-
-function TextArea(props) {
+function TextArea(props: React.ComponentProps<'textarea'>) {
   return (
     <textarea
       style={{
@@ -64,8 +29,8 @@ export function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [timer, setTimer] = useState(10)
 
-  const handleSubmit = useCallback(
-    function handleClick(event: MouseEvent) {
+  const handleSubmit: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    function handleClick(event) {
       event.preventDefault()
       if (confirming) {
         setSubmitted(true)
@@ -119,8 +84,13 @@ export function ContactForm() {
     }
 }`}</style>
       <h2 style={{ margin: 0 }}>Contact Us</h2>
-      <Input placeholder="Your name" value={name} onInput={(event) => setName(event.target.value)} />
-      <TextArea placeholder="Please enter your message" rows={4} value={message} onInput={(event) => setMessage(event.target.value)} />
+      <Input placeholder="Your name" value={name} onInput={(event) => setName((event.target as HTMLInputElement).value)} />
+      <TextArea
+        placeholder="Please enter your message"
+        rows={4}
+        value={message}
+        onInput={(event) => setMessage((event.target as HTMLTextAreaElement).value)}
+      />
       <Button type="submit" onClick={handleSubmit} inactive={verifying}>
         {verifying ? 'Please wait...' : confirming ? 'Confirm' : 'Submit'}
       </Button>

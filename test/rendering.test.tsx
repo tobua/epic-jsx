@@ -186,3 +186,112 @@ test('Fragments and other structures are properly cleaned up.', () => {
 
   expect(serializeElement()).toEqual('<body><div>after</div></body>')
 })
+
+test('Various tags are properly cleaned up and rerendered.', () => {
+  let context: Component
+  let stage = 0
+
+  function Component(this: Component) {
+    context = this
+
+    if (stage === 4) {
+      return (
+        <section>
+          <p>static</p>
+          <svg viewBox="1">
+            <title>Another one!</title>
+            <path clipRule="evenodd" fillRule="evenodd" d="2" fill="white" />
+          </svg>
+        </section>
+      )
+    }
+
+    if (stage === 3) {
+      return (
+        <section>
+          <svg viewBox="0">
+            <title>Loader</title>
+            <path fillRule="evenodd" clipRule="evenodd" d="1" fill="black" />
+          </svg>
+          <p>static</p>
+        </section>
+      )
+    }
+
+    if (stage === 2) {
+      return (
+        <section>
+          <div id="second">
+            <button>click 2</button>
+          </div>
+          <button>click3</button>
+          <div id="first">
+            <button>click 1</button>
+          </div>
+        </section>
+      )
+    }
+
+    if (stage === 1) {
+      return (
+        <section>
+          <div id="second">
+            <button>click 2</button>
+          </div>
+          <div id="first">
+            <button>click 1</button>
+          </div>
+        </section>
+      )
+    }
+
+    return (
+      <section>
+        <div id="first">
+          <button>click 1</button>
+        </div>
+        <div id="second">
+          <button>click 2</button>
+        </div>
+      </section>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).toEqual(
+    '<body><section><div id="first"><button>click 1</button></div><div id="second"><button>click 2</button></div></section></body>',
+  )
+
+  stage = 1
+  context.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><section><div id="second"><button>click 2</button></div><div id="first"><button>click 1</button></div></section></body>',
+  )
+
+  stage = 2
+  context.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><section><div id="second"><button>click 2</button></div><button>click3</button><div id="first"><button>click 1</button></div></section></body>',
+  )
+
+  stage = 3
+  context.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><section><svg viewBox="0"><title>Loader</title><path d="1" fill="black" fill-rule="evenodd" clip-rule="evenodd"/></svg><p>static</p></section></body>',
+  )
+
+  stage = 4
+  context.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><section><p>static</p><svg viewBox="1"><title>Another one!</title><path d="2" fill="white" clip-rule="evenodd" fill-rule="evenodd"/></svg></section></body>',
+  )
+})

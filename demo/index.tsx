@@ -1,7 +1,9 @@
 /// <reference types="@rsbuild/core/types" />
 import { render, useEffect, useRef, useState } from 'react'
 import logo from '../logo.svg'
-import { ContactForm } from './ContactForm'
+import { Button, Input } from './components'
+import { ContactForm } from './contact-form'
+import { Loader } from './icons'
 
 const randomHexValue = () =>
   Math.floor(Math.random() * 256)
@@ -16,9 +18,9 @@ function Counter() {
     buttonRef.current.style.color = 'white'
   })
   return (
-    <button ref={buttonRef} type="button" onClick={() => setCount(count + 1)}>
+    <Button ref={buttonRef} onClick={() => setCount(count + 1)}>
       Increment: {count}
-    </button>
+    </Button>
   )
 }
 
@@ -26,8 +28,7 @@ function Form() {
   const [value, setValue] = useState('World!')
   return (
     <>
-      {/* @ts-ignore */}
-      <input placeholder="Hello?" value={value} onInput={(event) => setValue(event.target.value)} />
+      <Input placeholder="Hello?" value={value} onInput={(event) => setValue((event.target as HTMLInputElement).value)} />
       <p>Uppercase Value: {value.toUpperCase()}</p>
     </>
   )
@@ -41,14 +42,11 @@ render(
       Hello <button>World</button> Links <a href="https://google.com">are</a> showing up! 😊
     </div>
     <Form />
-    <div aria-label="labelled">
-      <button type="button" tabIndex={-1}>
-        Attributes
-      </button>
-      <button type="button" onClick={() => alert('click')}>
-        Event listeners
-      </button>
+    <div style={{ display: 'flex', gap: 20 }} aria-label="labelled">
+      <Button tabIndex={-1}>Attributes</Button>
+      <Button onClick={() => alert('click')}>Event listeners</Button>
       <Counter />
+      <Loader />
     </div>
     <section style={{ display: 'flex', justifyContent: 'center', padding: 50 }}>
       <ContactForm />

@@ -80,7 +80,8 @@
         "linter": {
           "rules": {
             "a11y": {
-              "noSvgWithoutTitle": "off"
+              "noSvgWithoutTitle": "off",
+              "useButtonType": "off"
             },
             "correctness": {
               "useJsxKeyInIterable": "off"
