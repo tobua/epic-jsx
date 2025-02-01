@@ -84,22 +84,13 @@ export const unmount = (container: HTMLElement) => {
     return
   }
 
-  while (container.firstChild) {
-    container.removeChild(container.firstChild)
-  }
+  container.innerHTML = ''
 
   const context = getRoot(container)
 
   if (!context) {
     return
   }
-
-  context.root = undefined
-  context.deletions = []
-  context.current = undefined
-  context.dependencies = new Map<Function, any[]>()
-  context.pending = []
-  context.rendered = []
 
   roots.delete(container)
 }
@@ -114,6 +105,8 @@ export function render(element: JSX.Element, container?: HTMLElement | null) {
 
   if (roots.has(container)) {
     unmount(container)
+  } else {
+    container.innerHTML = '' // Always clearing the container first.
   }
 
   const root = {
@@ -135,11 +128,8 @@ export function render(element: JSX.Element, container?: HTMLElement | null) {
   }
 
   roots.set(container, context)
-
   context.deletions = []
-
   schedule((deadline) => process(deadline, context))
-
   return context
 }
 

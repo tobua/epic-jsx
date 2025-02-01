@@ -16,19 +16,13 @@ jobs:
       - run: bun install
       - run: bun check
       - run: bun types
-      - name: 🧪 Test
-        run: bun test
-      - name: 🛠️ Build Documentation
-        run: |
-          cd demo
-          bun install
-          bun rsbuild build
-      - name: 🚀 Publish Documentation
-        uses: JamesIves/github-pages-deploy-action@v4
+      - run: bun test
+      - run: bun install && bun rsbuild build
+        working-directory: demo
+      - uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: publish
           folder: demo/dist
-      - name: 📢 Release
-        uses: tobua/release-npm-action@v3
+      - uses: tobua/release-npm-action@v3
         with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

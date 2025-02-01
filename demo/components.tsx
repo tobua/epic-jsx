@@ -1,3 +1,9 @@
+import { useState } from 'react'
+
+export const Heading = ({ Tag = 'h1', children }: { Tag: 'h1' | 'h2' | 'h3'; children: string }) => (
+  <Tag style={{ margin: 0 }}>{children}</Tag>
+)
+
 export function Input(props: React.ComponentProps<'input'>) {
   return (
     <input
@@ -32,5 +38,43 @@ export function Button({ inactive = false, ...props }: { inactive?: boolean } & 
       }}
       {...props}
     />
+  )
+}
+
+const tabStyles: React.CSSProperties = {
+  display: 'flex',
+  gap: 5,
+}
+
+const tabButtonStyles: React.CSSProperties = {
+  border: 'none',
+  outline: 'none',
+  cursor: 'pointer',
+  padding: 10,
+  borderBottom: '2px solid black',
+  background: 'none',
+}
+
+const tabButtonActiveStyles: React.CSSProperties = {
+  background: '#EFEFEF',
+}
+
+const contentStyles: React.CSSProperties = {
+  paddingTop: 20,
+}
+
+export function Tabs({ tabs, children }: { tabs: string[]; children: React.ReactNode }) {
+  const [tabIndex, setTabIndex] = useState(0)
+  return (
+    <div>
+      <header style={tabStyles}>
+        {tabs.map((tab, index) => (
+          <button onClick={() => setTabIndex(index)} style={{ ...tabButtonStyles, ...(index === tabIndex && tabButtonActiveStyles) }}>
+            {tab}
+          </button>
+        ))}
+      </header>
+      <main style={contentStyles}>{children[tabIndex]}</main>
+    </div>
   )
 }
