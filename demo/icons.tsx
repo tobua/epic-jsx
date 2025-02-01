@@ -22,3 +22,16 @@ export function Loader({ size = 20, color = 'black', rotate = true, ...props }) 
     </svg>
   )
 }
+
+export function Branch({ size = 24, stroke = 3, color = 'blue', ...props }) {
+  return (
+    <svg style={{ width: size, height: size }} viewBox="0 0 50 50" fill="none" {...props}>
+      <title>Branch</title>
+      <circle cx="9" cy="41" r="6.5" stroke={color} strokeWidth={stroke} />
+      <circle cx="41" cy="9" r="6.5" stroke={color} strokeWidth={stroke} />
+      <circle cx="9" cy="9" r="6.5" stroke={color} strokeWidth={stroke} />
+      <path d="M9 34.5V15.5" stroke={color} strokeWidth={stroke} />
+      <path d="M9 34C9 27 17.5 25.5 25.5 25.5C33.5 25.5 41 23 41 15.5" stroke={color} strokeWidth={stroke} />
+    </svg>
+  )
+}

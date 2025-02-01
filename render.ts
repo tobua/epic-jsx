@@ -100,6 +100,7 @@ const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX): Fib
   parent: current,
   previous,
   hooks: previous.hooks,
+  svg: previous.svg || previous.type === 'svg',
   change: Change.Update,
 })
 
@@ -110,6 +111,7 @@ const createNewFiber = (current: Fiber, element: JSX, previous: Fiber | undefine
   parent: current,
   previous: undefined,
   hooks: typeof element.type === 'function' ? (previous ? previous.hooks : []) : undefined,
+  svg: current.svg || element.type === 'svg',
   change: Change.Add,
 })
 
@@ -132,11 +134,8 @@ function deleteChildren(context: Context, fiber: Fiber) {
 
 function rerender(context: Context, fiber: Fiber) {
   context.pending.push({
-    native: fiber.native,
-    props: fiber.props,
-    type: fiber.type,
+    ...fiber,
     previous: fiber,
-    parent: fiber.parent,
   })
 }
 

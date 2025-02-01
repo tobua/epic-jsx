@@ -212,6 +212,9 @@ test('Various tags are properly cleaned up and rerendered.', () => {
           <svg viewBox="0">
             <title>Loader</title>
             <path fillRule="evenodd" clipRule="evenodd" d="1" fill="black" />
+            <g>
+              <circle cx="41" cy="9" r="6.5" stroke="#EFEFEF" strokeWidth={6} />
+            </g>
           </svg>
           <p>static</p>
         </section>
@@ -226,7 +229,9 @@ test('Various tags are properly cleaned up and rerendered.', () => {
           </div>
           <button>click3</button>
           <div id="first">
-            <button>click 1</button>
+            <>
+              <button>click 1</button>
+            </>
           </div>
         </section>
       )
@@ -235,9 +240,11 @@ test('Various tags are properly cleaned up and rerendered.', () => {
     if (stage === 1) {
       return (
         <section>
-          <div id="second">
-            <button>click 2</button>
-          </div>
+          <>
+            <div id="second">
+              <button>click 2</button>
+            </div>
+          </>
           <div id="first">
             <button>click 1</button>
           </div>
@@ -247,12 +254,16 @@ test('Various tags are properly cleaned up and rerendered.', () => {
 
     return (
       <section>
-        <div id="first">
-          <button>click 1</button>
-        </div>
-        <div id="second">
-          <button>click 2</button>
-        </div>
+        <>
+          <div id="first">
+            <>
+              <button>click 1</button>
+            </>
+          </div>
+          <div id="second">
+            <button>click 2</button>
+          </div>
+        </>
       </section>
     )
   }
@@ -284,7 +295,7 @@ test('Various tags are properly cleaned up and rerendered.', () => {
   run()
 
   expect(serializeElement()).toEqual(
-    '<body><section><svg viewBox="0"><title>Loader</title><path d="1" fill="black" fill-rule="evenodd" clip-rule="evenodd"/></svg><p>static</p></section></body>',
+    '<body><section><svg viewBox="0"><title>Loader</title><path d="1" fill="black" fill-rule="evenodd" clip-rule="evenodd"/><g><circle cx="41" cy="9" r="6.5" stroke="#EFEFEF" stroke-width="6"/></g></svg><p>static</p></section></body>',
   )
 
   stage = 4

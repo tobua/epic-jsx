@@ -129,8 +129,6 @@ export function debounce(method: Function, wait: number) {
   }
 }
 
-export const svgAndRegularTags = ['a', 'canvas', 'audio', 'iframe', 'video']
-
 function camelCaseToDashCase(camelCase: string): string {
   return camelCase.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 }

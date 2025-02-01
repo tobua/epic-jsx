@@ -23,7 +23,7 @@ export type Props = { [key: string]: any }
 // biome-ignore lint/correctness/noUnusedVariables: Not yet specified.
 export type ComponentPropsWithoutRef<T = 'div'> = { [key: string]: any }
 
-export type Type = keyof HTMLElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
+export type Type = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
 
 // JSX.IntrinsicElements includes list of all React tags with their respecitive props available.
 
@@ -41,6 +41,7 @@ export interface Fiber {
   previous?: Fiber
   change?: Change
   unmount?: () => void
+  svg?: boolean
 }
 
 export interface Context {

@@ -3,7 +3,7 @@ import { render, useEffect, useRef, useState } from 'react'
 import logo from '../logo.svg'
 import { Button, Heading, Input, Tabs } from './components'
 import { ContactForm } from './contact-form'
-import { Loader } from './icons'
+import { Branch, Loader } from './icons'
 
 const randomHexValue = () =>
   Math.floor(Math.random() * 256)
@@ -75,6 +75,7 @@ function SVG() {
   return (
     <div>
       <Loader />
+      <Branch size={40} />
     </div>
   )
 }
