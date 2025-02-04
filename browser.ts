@@ -51,7 +51,7 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) => {
-      const eventType = name.toLowerCase().substring(2)
+      const eventType = name.toLowerCase().substring(2) // Remove the "on" from onClick.
       element.removeEventListener(eventType, prevProps[name])
     })
 

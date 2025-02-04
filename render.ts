@@ -135,6 +135,7 @@ function deleteChildren(context: Context, fiber: Fiber) {
 function rerender(context: Context, fiber: Fiber) {
   context.pending.push({
     ...fiber,
+    sibling: undefined, // Not rerendering siblings.
     previous: fiber,
   })
 }

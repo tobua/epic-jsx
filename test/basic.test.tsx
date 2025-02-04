@@ -1,7 +1,7 @@
 import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
 import { type Component, type JSX, getRoots, unmountAll } from '../index'
-import { render, serializeElement } from '../test'
+import { render, run, serializeElement } from '../test'
 
 afterEach(unmountAll)
 
@@ -240,6 +240,7 @@ test('Each component is assigned a stable id.', () => {
   expect(components[2].id).toBe(secondId)
 
   components[1].rerender()
+  run()
 
   firstId = tree.children[0].getComponent().id
   secondId = tree.children[1].getComponent().id
@@ -249,15 +250,61 @@ test('Each component is assigned a stable id.', () => {
   expect(components[2].id).toBe(secondId)
 })
 
+test('Rerender of siblings only rerenders the target.', () => {
+  const components = {}
+  const renderCounts = { 1: 0, 2: 0, 3: 0 }
+  function Component({ id }) {
+    components[id] = this
+    renderCounts[id] += 1
+    return <p>{id}</p>
+  }
+
+  const { serialized } = render(
+    <>
+      <Component id={1} />
+      <Component id={2} />
+      <Component id={3} />
+    </>,
+  )
+
+  expect(serialized).toEqual('<body><p>1</p><p>2</p><p>3</p></body>')
+
+  expect(renderCounts).toEqual({ 1: 1, 2: 1, 3: 1 })
+
+  components[2].rerender()
+  run()
+
+  expect(renderCounts).toEqual({ 1: 1, 2: 2, 3: 1 })
+
+  components[1].rerender()
+  run()
+
+  expect(renderCounts).toEqual({ 1: 2, 2: 2, 3: 1 })
+
+  components[3].rerender()
+  run()
+
+  expect(renderCounts).toEqual({ 1: 2, 2: 2, 3: 2 })
+
+  components[2].rerender()
+  run()
+
+  expect(renderCounts).toEqual({ 1: 2, 2: 3, 3: 2 })
+})
+
 test('Handlers are only registered once and props are empty.', () => {
   let component: Component = null
   let props: object = null
+  let renderCount = 0
   const clickHandler = mock()
+  // TODO functions declared inside won't be cleaned up, as new functions are instantiated.
+  const handleClick = () => clickHandler()
   function Button({ ...otherProps }) {
     component = this
     props = otherProps
+    renderCount += 1
     return (
-      <button id="button" onClick={() => clickHandler()}>
+      <button id="button" onClick={handleClick}>
         click
       </button>
     )
@@ -274,21 +321,27 @@ test('Handlers are only registered once and props are empty.', () => {
   )
 
   expect(serialized).toEqual('<body><div><button id="button">click</button></div></body>')
-  expect(props).toEqual({}) // TODO receives children for some reason.
-
-  component.rerender()
-
-  expect(serializeElement()).toEqual('<body><div><button id="button">click</button></div></body>')
+  expect(props).toEqual({})
   document.getElementById('button').click()
 
   expect(clickHandler).toHaveBeenCalledTimes(1)
 
   component.rerender()
-  component.rerender()
-  component.rerender()
+  run()
 
   expect(serializeElement()).toEqual('<body><div><button id="button">click</button></div></body>')
   document.getElementById('button').click()
 
   expect(clickHandler).toHaveBeenCalledTimes(2)
+
+  component.rerender()
+  component.rerender()
+  component.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div><button id="button">click</button></div></body>')
+  document.getElementById('button').click()
+
+  // Fails when arrow functions created during render are used.
+  expect(clickHandler).toHaveBeenCalledTimes(3)
 })
