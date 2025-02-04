@@ -306,3 +306,76 @@ test('Various tags are properly cleaned up and rerendered.', () => {
     '<body><section><p>static</p><svg viewBox="1"><title>Another one!</title><path d="2" fill="white" clip-rule="evenodd" fill-rule="evenodd"/></svg></section></body>',
   )
 })
+
+test('Unchanged elements do not get replaced.', () => {
+  const context: { layout?: Component; app?: Component } = {}
+  let stage = 0
+
+  function Layout(this: Component, { children }) {
+    context.layout = this
+    return (
+      <div id="wrapper">
+        <header id="header">head</header>
+        {children}
+      </div>
+    )
+  }
+
+  function App(this: Component) {
+    context.app = this
+
+    if (stage === 2) {
+      return (
+        <Layout>
+          <div>stage two</div>
+        </Layout>
+      )
+    }
+
+    if (stage === 1) {
+      return (
+        <Layout>
+          <>
+            <div id="first">first</div>
+            <div id="second">second</div>
+          </>
+        </Layout>
+      )
+    }
+
+    return (
+      <Layout>
+        <div>initial</div>
+      </Layout>
+    )
+  }
+
+  const { serialized, tree } = render(<App />)
+
+  expect(serialized).toEqual('<body><div id="wrapper"><header id="header">head</header><div>initial</div></div></body>')
+
+  const wrapper = tree.children[0].children[0].children[0].getElement() as HTMLDivElement
+  const header = tree.children[0].children[0].children[0].children[0].getElement() as HTMLHeadElement
+
+  // When rerendered these would get overridden.
+  wrapper.id = 'wrapper changed'
+  header.id = 'header_changed'
+
+  stage = 1
+  context.app.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><div id="wrapper changed"><header id="header_changed">head</header><div id="first">first</div><div id="second">second</div></div></body>',
+  )
+
+  stage = 2
+  context.app.rerender()
+  context.layout.rerender()
+  run()
+
+  wrapper.id = 'wrapper'
+  header.id = 'header'
+
+  expect(serializeElement()).toEqual('<body><div id="wrapper"><header id="header">head</header><div>stage two</div></div></body>')
+})

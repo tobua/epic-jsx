@@ -21,7 +21,7 @@ export function Input(props: React.ComponentProps<'input'>) {
   )
 }
 
-export function Button({ inactive = false, ...props }: { inactive?: boolean } & React.ComponentProps<'button'>) {
+export function Button({ inactive = false, style, ...props }: { inactive?: boolean } & React.ComponentProps<'button'>) {
   return (
     <button
       type="button"
@@ -35,6 +35,7 @@ export function Button({ inactive = false, ...props }: { inactive?: boolean } & 
         flex: 1,
         padding: '10px 20px',
         cursor: inactive ? 'auto' : 'pointer',
+        ...style,
       }}
       {...props}
     />

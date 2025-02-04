@@ -1,6 +1,6 @@
 import './helper'
-import { afterEach, expect, test } from 'bun:test'
-import { type JSX, getRoots, unmountAll } from '../index'
+import { afterEach, expect, mock, test } from 'bun:test'
+import { type Component, type JSX, getRoots, unmountAll } from '../index'
 import { render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -68,7 +68,9 @@ test('Works with nested components.', () => {
 })
 
 test('null as the container will also lead to fallback being used.', () => {
-  const { serialized } = render(<p>fallback</p>, { container: document.getElementById('missing') })
+  const { serialized } = render(<p>fallback</p>, {
+    container: document.getElementById('missing'),
+  })
   expect(serialized).toEqual('<body><p>fallback</p></body>')
 })
 
@@ -137,7 +139,9 @@ test('Tree includes all nodes.', () => {
   expect(tree.children[0]?.children[4]?.props).toEqual({
     placeholder: 'World',
   })
-  expect(tree.children[0]?.children[4]?.props).toEqual({ placeholder: 'World' })
+  expect(tree.children[0]?.children[4]?.props).toEqual({
+    placeholder: 'World',
+  })
   expect(tree.children[0]?.children[4]?.children[0]?.tag).toBe('input')
 })
 
@@ -243,4 +247,48 @@ test('Each component is assigned a stable id.', () => {
   expect(firstId !== secondId).toBe(true)
   expect(components[1].id).toBe(firstId)
   expect(components[2].id).toBe(secondId)
+})
+
+test('Handlers are only registered once and props are empty.', () => {
+  let component: Component = null
+  let props: object = null
+  const clickHandler = mock()
+  function Button({ ...otherProps }) {
+    component = this
+    props = otherProps
+    return (
+      <button id="button" onClick={() => clickHandler()}>
+        click
+      </button>
+    )
+  }
+
+  function App({ children }) {
+    return <div>{children}</div>
+  }
+
+  const { serialized } = render(
+    <App>
+      <Button />
+    </App>,
+  )
+
+  expect(serialized).toEqual('<body><div><button id="button">click</button></div></body>')
+  expect(props).toEqual({}) // TODO receives children for some reason.
+
+  component.rerender()
+
+  expect(serializeElement()).toEqual('<body><div><button id="button">click</button></div></body>')
+  document.getElementById('button').click()
+
+  expect(clickHandler).toHaveBeenCalledTimes(1)
+
+  component.rerender()
+  component.rerender()
+  component.rerender()
+
+  expect(serializeElement()).toEqual('<body><div><button id="button">click</button></div></body>')
+  document.getElementById('button').click()
+
+  expect(clickHandler).toHaveBeenCalledTimes(2)
 })

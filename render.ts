@@ -173,6 +173,10 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     },
   }
   Renderer.current = fiber
+  if (Array.isArray(fiber.props.children) && fiber.props.children.length === 0) {
+    // biome-ignore lint/performance/noDelete: Clean up meaningless props.
+    delete fiber.props.children
+  }
   const children = [fiber.type.call(fiber.component, fiber.props)]
   Renderer.current = undefined
   Renderer.context = undefined

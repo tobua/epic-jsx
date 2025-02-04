@@ -39,15 +39,13 @@ function Basic() {
     <div>
       <Heading Tag="h3">HTML Tags</Heading>
       <div>
-        Hello <button>World</button> Links <a href="https://google.com">are</a> showing up! 😊
+        Hello <button type="button">World</button> Links <a href="https://google.com">are</a> showing up! 😊
       </div>
       <Heading Tag="h3">Attributes</Heading>
       <Button tabIndex={-1} aria-label="labelled">
         Can't focus me.
       </Button>
       <Button tabIndex={0}>Focus me instead.</Button>
-      <Heading Tag="h3">Event listeners</Heading>
-      <Button onClick={() => alert('click')}>Event listeners</Button>
     </div>
   )
 }
@@ -64,9 +62,18 @@ function State() {
 }
 
 function Interactive() {
+  const [hovered, setHovered] = useState(false)
   return (
     <div>
       <Heading Tag="h3">Events</Heading>
+      <Button onClick={() => alert('click')}>Click me</Button>
+      <Button
+        style={hovered ? { background: 'blue' } : { background: 'green' }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        Hover me
+      </Button>
     </div>
   )
 }

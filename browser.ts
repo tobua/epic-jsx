@@ -4,6 +4,10 @@ import { Change, type CssProperties, type Fiber, type Props } from './types'
 const sizeStyleProperties = [
   'width',
   'height',
+  'minWidth',
+  'maxWidth',
+  'minHeight',
+  'maxHeight',
   'border',
   'margin',
   'padding',
