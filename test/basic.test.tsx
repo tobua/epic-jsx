@@ -297,14 +297,12 @@ test('Handlers are only registered once and props are empty.', () => {
   let props: object = null
   let renderCount = 0
   const clickHandler = mock()
-  // TODO functions declared inside won't be cleaned up, as new functions are instantiated.
-  const handleClick = () => clickHandler()
   function Button({ ...otherProps }) {
     component = this
     props = otherProps
     renderCount += 1
     return (
-      <button id="button" onClick={handleClick}>
+      <button id="button" onClick={() => clickHandler()}>
         click
       </button>
     )

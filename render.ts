@@ -95,7 +95,7 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
 
 const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX): Fiber => ({
   type: previous.type,
-  props: element?.props ?? previous?.props,
+  props: element?.props,
   native: previous.native,
   parent: current,
   previous,

@@ -43,6 +43,8 @@ const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
 const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
+// Listeners on new props might not have reference equality, so they need to be stored on assignment.
+const eventListeners = new Map<HTMLElement | Text, Map<string, EventListenerOrEventListenerObject>>()
 
 function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
@@ -52,7 +54,10 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2) // Remove the "on" from onClick.
-      element.removeEventListener(eventType, prevProps[name])
+      const previousHandler = eventListeners.get(element)?.get(eventType)
+      if (previousHandler) {
+        element.removeEventListener(eventType, previousHandler)
+      }
     })
 
   // Remove old properties
@@ -99,6 +104,10 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2)
       element.addEventListener(eventType, nextProps[name])
+      if (!eventListeners.has(element)) {
+        eventListeners.set(element, new Map())
+      }
+      eventListeners.get(element)?.set(eventType, nextProps[name])
     })
 }
 
@@ -174,6 +183,9 @@ export function commitFiber(fiber: Fiber) {
   } else if (fiber.change === Change.Update && fiber.native) {
     updateNativeElement(fiber.native, fiber.previous?.props, fiber.props)
   } else if (fiber.change === Change.Delete && parent) {
+    if (fiber.native && eventListeners.has(fiber.native)) {
+      eventListeners.delete(fiber.native) // Clean up event listener tracking.
+    }
     if (parent.native) {
       commitDeletion(fiber, parent.native)
     }
