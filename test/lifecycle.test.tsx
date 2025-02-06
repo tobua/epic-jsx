@@ -377,3 +377,31 @@ test('Renderer.current is set on root component render already.', () => {
 
   render(<Component check={() => expect(Renderer.current?.type).toBe(Component)} />)
 })
+
+test('Lifecycle methods are called at the appropriate time.', () => {
+  let context: Component
+  const events: string[] = []
+
+  function App(this: Component) {
+    events.push('start')
+    context = this
+    this.once(() => events.push('once'))
+    this.after(() => events.push('after'))
+    this.each(() => events.push('each'))
+
+    const markup = <div>Lifecycle</div>
+    events.push('end')
+    return markup
+  }
+
+  const { serialized } = render(<App />)
+
+  expect(serialized).toEqual('<body><div>Lifecycle</div></body>')
+
+  expect(events).toEqual(['start', 'end', 'once', 'after', 'each'])
+
+  context.rerender()
+  run()
+
+  expect(events).toEqual(['start', 'end', 'once', 'after', 'each', 'start', 'end', 'each'])
+})

@@ -1,5 +1,6 @@
 import type React from './index'
-import type { JSX, Props, ReactNode, Type } from './types'
+import type { Props, Type } from './types'
+import type { JSX, ReactNode } from './types/index'
 import type { jsxDEV as jsxDevType } from './types/jsx-dev-runtime'
 import type { jsx as jsxType, jsxs as jsxsType } from './types/jsx-runtime'
 
@@ -52,7 +53,7 @@ export const jsxDEV = createElement as unknown as typeof jsxDevType
 export const jsx = createElement as unknown as typeof jsxType
 export const jsxs = createElement as unknown as typeof jsxsType
 // Should be compatible with React.cloneElement.
-export function cloneElement(element: JSX, props?: Partial<any>, ...children: ReactNode[]) {
+export function cloneElement(element: JSX.Element, props?: Partial<any>, ...children: ReactNode[]) {
   const newProps = {
     ...element.props,
     ...props,

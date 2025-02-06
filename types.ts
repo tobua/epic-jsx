@@ -1,4 +1,4 @@
-import type { Properties } from 'csstype'
+import type { JSX } from './types/index'
 
 declare global {
   // Avoids loading plugin multiple times in development mode.
@@ -67,76 +67,14 @@ export interface Component {
   refs: HTMLElement[]
   refsNested: NestedHtmlElement
   refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]
+  plugin: (plugins: Plugin[]) => void
 }
+
+export type Plugin = false | JSX.Element
 
 export interface Ref<T> {
   readonly current: T | null
 }
 
-// biome-ignore lint/style/useNamingConvention: React default.
-export interface CSSProperties extends Properties<string | number> {
-  // Taken from React, allows for compatibility with editor JSX built-ins.
-}
-
 // Slightly simpler variant I often use.
 export type CssProperties = { [Key in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[Key] extends string ? string | number : never }
-
-// ReactElement declaration from React, compatible with React in Editor.
-// Extracted from @types/react JSX.Element
-// Class component support required to keep compatibility.
-interface ReactPortal extends ReactElement {
-  children: ReactNode
-}
-
-export type ReactNode = ReactElement | string | number | Iterable<ReactNode> | boolean | null | undefined | ReactPortal // Portal support unlikely any time soon.
-// biome-ignore lint/style/useNamingConvention: React default.
-interface NewLifecycle<P, S, SS> {
-  getSnapshotBeforeUpdate?(prevProps: Readonly<P>, prevState: Readonly<S>): SS | null
-  componentDidUpdate?(prevProps: Readonly<P>, prevState: Readonly<S>, snapshot?: SS): void
-}
-interface DeprecatedLifecycle<P, S> {
-  componentWillMount?(): void
-  // biome-ignore lint/style/useNamingConvention: React default.
-  UNSAFE_componentWillMount?(): void
-  componentWillReceiveProps?(nextProps: Readonly<P>, nextContext: any): void
-  // biome-ignore lint/style/useNamingConvention: React default.
-  UNSAFE_componentWillReceiveProps?(nextProps: Readonly<P>, nextContext: any): void
-  componentWillUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): void
-  // biome-ignore lint/style/useNamingConvention: React default.
-  UNSAFE_componentWillUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): void
-}
-interface ErrorInfo {
-  componentStack?: string | null
-  digest?: string | null
-}
-// biome-ignore lint/style/useNamingConvention: React default.
-interface ComponentLifecycle<P, S, SS = any> extends NewLifecycle<P, S, SS>, DeprecatedLifecycle<P, S> {
-  componentDidMount?(): void
-  shouldComponentUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): boolean
-  componentWillUnmount?(): void
-  componentDidCatch?(error: Error, errorInfo: ErrorInfo): void
-}
-// biome-ignore lint/style/useNamingConvention: React default.
-interface ReactComponent<P = {}, S = {}, SS = any> extends ComponentLifecycle<P, S, SS> {}
-// biome-ignore lint/style/useNamingConvention: React default.
-type ReactJSXElementConstructor<P> =
-  | ((props: P, deprecatedLegacyContext?: any) => ReactNode)
-  | (new (
-      props: P,
-      deprecatedLegacyContext?: any,
-    ) => ReactComponent<any, any>)
-
-export interface ReactElement<P = any, T extends string | ReactJSXElementConstructor<any> = string | ReactJSXElementConstructor<any>> {
-  type: T
-  props: P
-  key: string | null
-}
-// biome-ignore lint/style/useNamingConvention: React default.
-export interface JSX extends ReactElement<any, any> {}
-
-export interface FunctionComponent<P = {}> {
-  (props: P, deprecatedLegacyContext?: any): ReactNode
-  displayName?: string | undefined
-}
-// biome-ignore lint/style/useNamingConvention: React default.
-export type FC<P = {}> = FunctionComponent<P>

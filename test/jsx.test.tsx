@@ -158,7 +158,6 @@ Some text here.
 
 Wait! This is **bold**.`
 
-  // @ts-expect-error Possibly fixable, compare types with React's createElement.
   const Markdown = () => compiler(content, { createElement })
 
   const { serialized } = render(

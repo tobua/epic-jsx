@@ -1,7 +1,7 @@
 import { render as baseRender, unmount } from './index'
 import { processNow } from './render'
-import type { Component } from './types'
-import type { Fiber, JSX, Props, Type } from './types'
+import type { Component, Fiber, Props, Type } from './types'
+import type { JSX } from './types/index'
 
 export const serializeElement = (node: Element = document.body) => {
   const serializer = new XMLSerializer()
@@ -89,7 +89,7 @@ if (typeof requestIdleCallback === 'undefined') {
 }
 
 export function render(
-  element: JSX,
+  element: JSX.Element,
   { container, skipRun = false, skipFragments = true }: { container?: HTMLElement | null; skipRun?: boolean; skipFragments?: boolean } = {},
 ) {
   const context = baseRender(element, container)

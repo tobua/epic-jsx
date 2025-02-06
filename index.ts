@@ -4,20 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 import * as React from './jsx'
 import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import type {
-  CSSProperties,
-  Component,
-  ComponentPropsWithoutRef,
-  Context,
-  CssProperties,
-  FC,
-  Fiber,
-  FunctionComponent,
-  Props,
-  ReactElement,
-  ReactNode,
-  Type,
-} from './types'
+import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Fiber, Props, Type } from './types'
 import type * as ReactType from './types/index'
 import type { JSXSource } from './types/jsx-dev-runtime'
 import type { JSX } from './types/jsx-runtime'
@@ -29,22 +16,7 @@ const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
 }
 
 export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer, debounce }
-export type {
-  Fiber,
-  Props,
-  Context,
-  Component,
-  CSSProperties,
-  CssProperties,
-  Type,
-  JSX,
-  JSXSource,
-  ComponentPropsWithoutRef,
-  FunctionComponent,
-  FC,
-  ReactNode,
-  ReactElement,
-}
+export type { Fiber, Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React as unknown as typeof ReactType
@@ -125,6 +97,7 @@ export function render(element: JSX.Element, container?: HTMLElement | null) {
     dependencies: new Map<Function, any[]>(),
     pending: [root],
     rendered: [],
+    afterListeners: [],
   }
 
   roots.set(container, context)

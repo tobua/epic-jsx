@@ -1,7 +1,8 @@
 import { Renderer } from '.'
 import { commitFiber, createNativeElement } from './browser'
 import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
-import { Change, type Context, type Fiber, type JSX } from './types'
+import { Change, type Context, type Fiber, type Plugin } from './types'
+import type { JSX } from './types/index'
 
 function commit(context: Context, fiber: Fiber) {
   context.deletions.forEach(commitFiber)
@@ -32,7 +33,7 @@ function deleteAllFiberSiblings(context: Context, node?: Fiber) {
 }
 
 // Loops flat through all the siblings of the previous child of the node passed.
-function reconcileChildren(context: Context, current: Fiber, children: JSX[] = []) {
+function reconcileChildren(context: Context, current: Fiber, children: JSX.Element[] = []) {
   let index = 0
   let previous = current.previous?.child
   let prevSibling: Fiber | undefined
@@ -93,7 +94,7 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX[] = [
   }
 }
 
-const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX): Fiber => ({
+const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX.Element): Fiber => ({
   type: previous.type,
   props: element?.props,
   native: previous.native,
@@ -104,7 +105,7 @@ const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX): Fib
   change: Change.Update,
 })
 
-const createNewFiber = (current: Fiber, element: JSX, previous: Fiber | undefined): Fiber => ({
+const createNewFiber = (current: Fiber, element: JSX.Element, previous: Fiber | undefined): Fiber => ({
   type: element.type,
   props: element.props,
   native: undefined,
@@ -148,6 +149,7 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     fiber.hooks = []
   }
   const isFirstRender = !fiber.id
+  let pluginResult: JSX.Element | undefined
   fiber.hooks.length = 0
   Renderer.context = context
   // TODO id in fiber shouldn't be optional, assign during creation.
@@ -183,13 +185,28 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
         context.afterListeners.push(() => callback.call(fiber.component))
       }
     },
+    plugin(plugins: Plugin[]) {
+      for (const plugin of plugins) {
+        if (plugin) {
+          pluginResult = plugin
+          throw new Error('plugin') // early-return approach.
+        }
+      }
+    },
   }
   Renderer.current = fiber
   if (Array.isArray(fiber.props.children) && fiber.props.children.length === 0) {
     // biome-ignore lint/performance/noDelete: Clean up meaningless props.
     delete fiber.props.children
   }
-  const children = [fiber.type.call(fiber.component, fiber.props)]
+  let children: JSX.Element[] = []
+  try {
+    children = [fiber.type.call(fiber.component, fiber.props)]
+  } catch (error: any) {
+    if (error.message === 'plugin' && pluginResult) {
+      children = [pluginResult]
+    }
+  }
   Renderer.current = undefined
   Renderer.context = undefined
   reconcileChildren(context, fiber, children.flat())
