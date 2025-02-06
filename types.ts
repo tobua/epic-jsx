@@ -36,7 +36,6 @@ export interface Fiber {
   native?: HTMLElement | Text
   props: Props
   hooks?: any[]
-  afterListeners?: Function[]
   component?: Component
   previous?: Fiber
   change?: Change
@@ -51,6 +50,7 @@ export interface Context {
   deletions: Fiber[]
   current?: Fiber
   dependencies: Map<Function, any[]>
+  afterListeners: Function[]
 }
 
 export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
@@ -60,7 +60,10 @@ export interface Component {
   root: Fiber
   context: Context
   rerender: () => void
-  after: (callback: () => void) => void
+  each: (callback: (this: Component) => void) => void
+  /** @deprecated Use `once` or `each` instead. */
+  after: (callback: (this: Component) => void) => void
+  once: (callback: (this: Component) => void) => void
   refs: HTMLElement[]
   refsNested: NestedHtmlElement
   refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]

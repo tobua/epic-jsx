@@ -147,9 +147,9 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
   if (typeof fiber.hooks === 'undefined') {
     fiber.hooks = []
   }
+  const isFirstRender = !fiber.id
   fiber.hooks.length = 0
   Renderer.context = context
-  fiber.afterListeners = []
   // TODO id in fiber shouldn't be optional, assign during creation.
   if (!fiber.id) {
     fiber.id = fiber.previous?.id ?? Math.floor(Math.random() * 1000000)
@@ -169,8 +169,19 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     refsByTag(tag: keyof HTMLElementTagNameMap) {
       return getComponentRefsFromTreeByTag(fiber, [], tag)
     },
+    each(callback: () => void) {
+      context.afterListeners.push(() => callback.call(fiber.component))
+    },
+    once(callback: () => void) {
+      if (isFirstRender) {
+        context.afterListeners.push(() => callback.call(fiber.component))
+      }
+    },
     after(callback: () => void) {
-      fiber.afterListeners?.push(callback)
+      log('this.after() lifecycle is deprecated, use this.once() or this.each()', 'warning')
+      if (isFirstRender) {
+        context.afterListeners.push(() => callback.call(fiber.component))
+      }
     },
   }
   Renderer.current = fiber
@@ -229,9 +240,10 @@ export function process(deadline: IdleDeadline, context: Context) {
       context.rendered.push(context.current) // Rendered state only final when current empty.
     }
   }
+  context.afterListeners = []
 
   let shouldYield = false
-  let maxTries = 500
+  let maxTries = 5000 // Prevent infinite loop, long lists can take a lot of tries.
   while (context.current && !shouldYield && maxTries > 0) {
     maxTries -= 1
     // Render current fiber.
@@ -254,6 +266,12 @@ export function process(deadline: IdleDeadline, context: Context) {
   if (!context.current && context.rendered.length > 0) {
     for (const fiber of context.rendered) {
       commit(context, fiber)
+    }
+    if (context.afterListeners) {
+      for (const callback of context.afterListeners) {
+        callback.call(null)
+      }
+      context.afterListeners = []
     }
     context.rendered.length = 0
   }

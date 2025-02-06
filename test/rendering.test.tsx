@@ -379,3 +379,79 @@ test('Unchanged elements do not get replaced.', () => {
 
   expect(serializeElement()).toEqual('<body><div id="wrapper"><header id="header">head</header><div>stage two</div></div></body>')
 })
+
+test('Only the necessary elements are deleted.', () => {
+  let context: Component
+  let stage = 0
+
+  function App(this: Component) {
+    if (stage === 1) {
+      return (
+        <section id="section"><span>hey</span></section>
+      )
+    }
+
+    return (
+      <section id="section"><p>hey</p></section>
+    )
+  }
+
+  function AnoterWrapper({ children }) {
+    return children
+  }
+
+  function Wrapper() {
+    context = this
+
+    return <AnoterWrapper><article id="article"><App /></article></AnoterWrapper>
+  }
+
+  const { serialized } = render(<Wrapper />)
+
+  expect(serialized).toEqual(
+    '<body><article id="article"><section id="section"><p>hey</p></section></article></body>',
+  )
+
+  document.getElementById('section').setAttribute('aria-label', 'still-here')
+  expect(document.getElementById('section').getAttribute('aria-label')).toEqual('still-here')
+  document.getElementById('article').setAttribute('aria-label', 'still-here')
+  expect(document.getElementById('article').getAttribute('aria-label')).toEqual('still-here')
+
+  stage = 1
+  context.rerender()
+  run()
+
+  expect(serializeElement()).toEqual(
+    '<body><article id="article" aria-label=\"still-here\"><section id="section" aria-label=\"still-here\"><span>hey</span></section></article></body>',
+  )
+})
+
+test('Lifecycle methods are called at the appropriate time.', () => {
+  let context: Component
+  let events = []
+
+  function App(this: Component) {
+    events.push('start')
+    context = this
+    this.once(() => events.push('once'))
+    this.after(() => events.push('after'))
+    this.each(() => events.push('each'))
+    
+    const markup = <div>Lifecycle</div>
+    events.push('end')
+    return markup
+  }
+
+  const { serialized } = render(<App />)
+
+  expect(serialized).toEqual(
+    '<body><div>Lifecycle</div></body>',
+  )
+
+  expect(events).toEqual(['start', 'end', 'once', 'after', 'each'])
+
+  context.rerender()
+  run()
+
+  expect(events).toEqual(['start', 'end', 'once', 'after', 'each', 'start', 'end', 'each'])
+})

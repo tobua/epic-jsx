@@ -191,13 +191,6 @@ export function commitFiber(fiber: Fiber) {
     }
   }
 
-  if (fiber.afterListeners) {
-    for (const callback of fiber.afterListeners) {
-      callback.call(fiber.component)
-    }
-    fiber.afterListeners = []
-  }
-
   if (fiber.child) {
     commitFiber(fiber.child)
   }
