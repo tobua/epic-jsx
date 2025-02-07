@@ -193,6 +193,7 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
         }
       }
     },
+    state: undefined,
   }
   Renderer.current = fiber
   if (Array.isArray(fiber.props.children) && fiber.props.children.length === 0) {
