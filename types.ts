@@ -55,19 +55,20 @@ export interface Context {
 
 export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
 
-export interface Component {
+export interface Component<T extends object | undefined = undefined> {
   id: number
   root: Fiber
   context: Context
   rerender: () => void
-  each: (callback: (this: Component) => void) => void
+  each: (callback: (this: Component<T>) => void) => void
   /** @deprecated Use `once` or `each` instead. */
-  after: (callback: (this: Component) => void) => void
-  once: (callback: (this: Component) => void) => void
+  after: (callback: (this: Component<T>) => void) => void
+  once: (callback: (this: Component<T>) => void) => void
   refs: HTMLElement[]
   refsNested: NestedHtmlElement
   refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]
   plugin: (plugins: Plugin[]) => void
+  state: T
 }
 
 export type Plugin = false | JSX.Element
