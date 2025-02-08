@@ -1,11 +1,13 @@
 import { Renderer } from '.'
 import { commitFiber, createNativeElement } from './browser'
-import { getComponentRefsFromTree, getComponentRefsFromTreeByTag, log, schedule } from './helper'
+import { createRef, log, schedule } from './helper'
 import { Change, type Context, type Fiber, type Plugin } from './types'
 import type { JSX } from './types/index'
 
 function commit(context: Context, fiber: Fiber) {
-  context.deletions.forEach(commitFiber)
+  for (const fiber of context.deletions) {
+    commitFiber(fiber)
+  }
   context.deletions.length = 0
   if (fiber.child) {
     commitFiber(fiber.child)
@@ -161,16 +163,8 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
     root: fiber,
     context,
     rerender: () => rerender(context, fiber),
-    // TODO memoize.
-    get refs() {
-      return getComponentRefsFromTree(fiber, [], true) as HTMLElement[]
-    },
-    get refsNested() {
-      return getComponentRefsFromTree(fiber, [], false)
-    },
-    refsByTag(tag: keyof HTMLElementTagNameMap) {
-      return getComponentRefsFromTreeByTag(fiber, [], tag)
-    },
+    // TODO implement and test ref clearing on rerenders.
+    ref: createRef(),
     each(callback: () => void) {
       context.afterListeners.push(() => callback.call(fiber.component))
     },

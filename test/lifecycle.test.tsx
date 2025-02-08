@@ -1,8 +1,8 @@
+import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
 import { type Component, unmountAll } from '../index'
 import { Renderer } from '../index'
 import { render, run, serializeElement } from '../test'
-import { mapNestedArray } from './helper'
 
 afterEach(unmountAll)
 
@@ -42,9 +42,9 @@ test('Can trigger a component rerender.', () => {
 })
 
 test('Component can access refs.', () => {
-  let context: Component
+  let context: Component<any, any>
 
-  function Component(this: Component) {
+  function Component(this: Component<any, any>) {
     context = this
     return (
       <>
@@ -58,54 +58,27 @@ test('Component can access refs.', () => {
 
   expect(serialized).toEqual('<body><div id="first">first</div><div id="second">second</div></body>')
 
-  const { refs } = context
-
-  expect(refs.length).toBe(2)
-  expect(refs[0].id).toBe('first')
-  expect(refs[0].tagName.toLowerCase()).toBe('div')
-  expect(refs[1].id).toBe('second')
+  expect(context.ref.size).toBe(2)
+  expect(context.ref.first.native.id).toBe('first')
+  expect(context.ref.first.tag).toBe('div')
+  expect(context.ref.second.native.id).toBe('second')
 })
 
-test('Component can access refs.', () => {
-  let context: Component
-
-  function Component(this: Component) {
-    context = this
-    return (
-      <>
-        <div id="first">first</div>
-        <div id="second">second</div>
-      </>
-    )
-  }
-
-  const { serialized } = render(<Component />)
-
-  expect(serialized).toEqual('<body><div id="first">first</div><div id="second">second</div></body>')
-
-  const { refs } = context
-
-  expect(refs.length).toBe(2)
-  expect(refs[0].id).toBe('first')
-  expect(refs[0].tagName.toLowerCase()).toBe('div')
-  expect(refs[1].id).toBe('second')
-})
-
-test('After lifecycle listeners will be called after render.', () => {
+test('Once lifecycle listeners will be called after render.', () => {
   let context: any
-  const afterMock = mock(function AfterMock() {
+  const onceMock = mock(function () {
     context = this
   })
   let arrowFunctionContext: Component
 
   function Component(this: Component) {
-    this.after(afterMock)
-    this.after(() => {
+    this.once(onceMock)
+    this.once(() => {
       arrowFunctionContext = this
     })
-    this.after(() => {
+    this.once(() => {
       // Ensures refs are present during rendering.
-      expect(this.refs.length).toBe(2)
+      expect(this.ref.size).toBe(2)
     })
     return (
       <>
@@ -117,16 +90,13 @@ test('After lifecycle listeners will be called after render.', () => {
 
   render(<Component />)
 
-  expect(afterMock).toHaveBeenCalled()
-  expect(afterMock.mock.calls.length).toBe(1)
+  expect(onceMock).toHaveBeenCalled()
+  expect(onceMock.mock.calls.length).toBe(1)
 
-  const { refs } = context
+  expect(context.ref.size).toBe(2)
+  expect(context.ref.second.native.id).toBe('second')
 
-  expect(refs.length).toBe(2)
-  expect(refs[1].id).toBe('second')
-
-  // @ts-ignore
-  expect(arrowFunctionContext.refs.length).toBe(2)
+  expect(arrowFunctionContext.ref.size).toBe(2)
 })
 
 test('Nested refs are flattened out by default.', () => {
@@ -152,14 +122,13 @@ test('Nested refs are flattened out by default.', () => {
     '<body><div id="first"><div id="second"><div id="third">third</div></div></div><div id="fourth">fourth</div></body>',
   )
 
-  const { refs } = context
-
-  expect(refs.length).toBe(4)
+  expect(context.ref.size).toBe(4)
+  const allDivRefs = context.ref.byTag('div')
   // child elements before siblings.
-  expect(refs[0]?.id).toBe('first')
-  expect(refs[1]?.id).toBe('second')
-  expect(refs[2]?.id).toBe('third')
-  expect(refs[3]?.id).toBe('fourth')
+  expect(allDivRefs[0].native.id).toBe('first')
+  expect(allDivRefs[1].native.id).toBe('second')
+  expect(allDivRefs[2].native.id).toBe('third')
+  expect(allDivRefs[3].native.id).toBe('fourth')
 })
 
 test("Refs from inside child components aren't listed.", () => {
@@ -183,48 +152,48 @@ test("Refs from inside child components aren't listed.", () => {
 
   expect(serialized).toEqual('<body><div id="first"><div id="second">second</div></div><div id="third">third</div></body>')
 
-  const { refs } = context
-
-  expect(refs.length).toBe(2)
-  expect(refs[0].id).toBe('first')
-  expect(refs[1].id).toBe('third')
+  const allDivRefs = context.ref.byTag('div')
+  expect(context.ref.size).toBe(2)
+  expect(allDivRefs.length).toBe(2)
+  expect(allDivRefs[0].native.id).toBe('first')
+  expect(allDivRefs[1].native.id).toBe('third')
 })
 
-test('Refs can be accessed nested.', () => {
-  let context: Component
+// test('Refs can be accessed nested.', () => {
+//   let context: Component
 
-  function Component(this: Component) {
-    context = this
-    return (
-      <>
-        <div id="first">
-          <div id="second">
-            <p id="third">third</p>
-          </div>
-        </div>
-        <span id="fourth">fourth</span>
-      </>
-    )
-  }
+//   function Component(this: Component) {
+//     context = this
+//     return (
+//       <>
+//         <div id="first">
+//           <div id="second">
+//             <p id="third">third</p>
+//           </div>
+//         </div>
+//         <span id="fourth">fourth</span>
+//       </>
+//     )
+//   }
 
-  const { serialized } = render(<Component />)
+//   const { serialized } = render(<Component />)
 
-  expect(serialized).toEqual(
-    '<body><div id="first"><div id="second"><p id="third">third</p></div></div><span id="fourth">fourth</span></body>',
-  )
+//   expect(serialized).toEqual(
+//     '<body><div id="first"><div id="second"><p id="third">third</p></div></div><span id="fourth">fourth</span></body>',
+//   )
 
-  const { refsNested } = context
+//   const { refsNested } = context
 
-  expect(refsNested.length).toBe(3)
-  expect((refsNested[0] as HTMLElement).id).toBe('first')
-  expect((refsNested[2] as HTMLElement).id).toBe('fourth')
-  expect(refsNested[1][0].id).toBe('second')
-  expect(refsNested[1][1][0].id).toBe('third')
+//   expect(refsNested.length).toBe(3)
+//   expect((refsNested[0] as HTMLElement).id).toBe('first')
+//   expect((refsNested[2] as HTMLElement).id).toBe('fourth')
+//   expect(refsNested[1][0].id).toBe('second')
+//   expect(refsNested[1][1][0].id).toBe('third')
 
-  const tagsMapped = mapNestedArray(refsNested, (element: HTMLElement) => element.tagName?.toLowerCase())
+//   const tagsMapped = mapNestedArray(refsNested, (element: HTMLElement) => element.tagName?.toLowerCase())
 
-  expect(tagsMapped).toEqual(['div', ['div', ['p']], 'span'])
-})
+//   expect(tagsMapped).toEqual(['div', ['div', ['p']], 'span'])
+// })
 
 test('Refs can be accessed by a specific tag.', () => {
   let context: Component | undefined
@@ -245,16 +214,16 @@ test('Refs can be accessed by a specific tag.', () => {
 
   render(<Component />)
 
-  const divs = context?.refsByTag('div')
-  const paragraph = context?.refsByTag('p')
-  const span = context?.refsByTag('span')
+  const divs = context.ref.byTag('div')
+  const paragraph = context.ref.byTag('p')
+  const span = context.ref.byTag('span')
 
   expect(divs?.length).toBe(2)
   expect(paragraph?.length).toBe(1)
   expect(span?.length).toBe(1)
 
-  // @ts-ignore
-  expect(paragraph[0].tagName.toLowerCase()).toBe('p')
+  expect(paragraph[0].native.tagName.toLowerCase()).toBe('p')
+  expect(paragraph[0].tag).toBe('p')
 })
 
 test('Elements can be conditionally rendered.', () => {
@@ -350,6 +319,7 @@ test('Currently rendered component is reflected on the Renderer.', () => {
   expect(Renderer.current).not.toBeDefined()
 
   render(
+    // @ts-ignore
     <>
       <Component name="First" check={() => expect(Renderer.current?.type).toBe(Component)} />
       {/* @ts-ignore */}
@@ -404,4 +374,37 @@ test('Lifecycle methods are called at the appropriate time.', () => {
   run()
 
   expect(events).toEqual(['start', 'end', 'once', 'after', 'each', 'start', 'end', 'each'])
+})
+
+test('All component refs are accessible.', () => {
+  let component: Component<undefined, 'first' | 'second'>
+
+  function OtherComponent() {
+    return <div id="other">other</div>
+  }
+
+  function Component(this: Component<undefined, 'first' | 'second'>) {
+    component = this
+    this.once(() => {
+      // Ensures refs are present during rendering.
+      expect(this.ref.size).toBe(2)
+    })
+    return (
+      <>
+        <div id="first">first</div>
+        <div id="second">second</div>
+        <OtherComponent />
+      </>
+    )
+  }
+
+  render(<Component />)
+
+  expect(component.ref.first.native.getAttribute('id')).toBe('first')
+  expect(component.ref.second.native.getAttribute('id')).toBe('second')
+  expect(component.ref.size).toBe(2)
+
+  // Accessing non-existent refs won't crash.
+  // @ts-expect-error
+  expect(component.ref.missing.native.getAttribute('id')).toBe(null)
 })

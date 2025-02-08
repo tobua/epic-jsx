@@ -1,5 +1,5 @@
 import { create } from 'logua'
-import type { Fiber, NestedHtmlElement, Props } from './types'
+import type { Fiber, NestedHtmlElement, Props, Ref, Refs } from './types'
 
 export const log = create('epic-jsx', 'blue')
 
@@ -119,6 +119,44 @@ export function multipleInstancesWarning() {
   } else {
     global.__epicJsx = true
   }
+}
+
+export function createRef<R extends string>(): Refs<R> {
+  const refs = new Map<string, Ref>()
+  const refObjects: Ref[] = []
+
+  const handler: ProxyHandler<Record<string, Ref>> = {
+    get(target, prop: string) {
+      if (prop in target) {
+        return target[prop]
+      }
+
+      if (refs.has(prop)) {
+        return refs.get(prop)
+      }
+      if (prop === 'size') {
+        return refObjects.length
+      }
+      log(`Attempted to access unregistered ref with id="${prop}"`, 'warning')
+      // Return mock to avoid access errors.
+      return { tag: 'div', native: document.createElement('div') }
+    },
+  }
+
+  return new Proxy(
+    {
+      byTag: (tag: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap) => refObjects.filter((ref) => ref.tag === tag),
+      addRef: (id: string, ref: Ref) => {
+        refs.set(id, ref)
+        refObjects.push(ref)
+      },
+      clear: () => {
+        refs.clear()
+        refObjects.length = 0
+      },
+    } as Refs<R>,
+    handler,
+  ) as Refs<R>
 }
 
 export function debounce(method: Function, wait: number) {

@@ -53,9 +53,16 @@ export interface Context {
   afterListeners: Function[]
 }
 
+export type Ref = { tag: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap; native: HTMLElement }
+export type Refs<R extends string> = {
+  byTag: (tag: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap) => Ref[]
+  addRef: (id: string, ref: Ref) => void
+  clear: () => void
+  size: number
+} & Record<R, Ref>
 export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
 
-export interface Component<T extends object | undefined = undefined> {
+export interface Component<T extends object | undefined = undefined, R extends string = never> {
   id: number
   root: Fiber
   context: Context
@@ -64,16 +71,14 @@ export interface Component<T extends object | undefined = undefined> {
   /** @deprecated Use `once` or `each` instead. */
   after: (callback: (this: Component<T>) => void) => void
   once: (callback: (this: Component<T>) => void) => void
-  refs: HTMLElement[]
-  refsNested: NestedHtmlElement
-  refsByTag: (tag: keyof HTMLElementTagNameMap) => HTMLElement[]
+  ref: Refs<R>
   plugin: (plugins: Plugin[]) => void
   state: T
 }
 
 export type Plugin = false | JSX.Element
 
-export interface Ref<T> {
+export interface LegacyRef<T> {
   readonly current: T | null
 }
 

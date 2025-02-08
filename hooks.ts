@@ -1,7 +1,7 @@
 import { Renderer } from '.'
 import { log, schedule, shallowArrayEqual } from './helper'
 import { process } from './render'
-import type { Ref } from './types'
+import type { LegacyRef } from './types'
 
 export function useState<T>(initial: T) {
   if (!Renderer.context) {
@@ -72,7 +72,7 @@ export function useState<T>(initial: T) {
 }
 
 export function useRef<T extends HTMLElement>() {
-  return { current: undefined } as unknown as Ref<T>
+  return { current: undefined } as unknown as LegacyRef<T>
 }
 
 export function useEffect(callback: () => void, dependencies: any[] = []) {

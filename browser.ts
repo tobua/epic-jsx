@@ -1,5 +1,5 @@
 import { convertSvgPropsToDashCase, log } from './helper'
-import { Change, type CssProperties, type Fiber, type Props } from './types'
+import { Change, type Component, type CssProperties, type Fiber, type Props } from './types'
 
 const sizeStyleProperties = [
   'width',
@@ -163,9 +163,14 @@ function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   }
 }
 
-export function commitFiber(fiber: Fiber) {
+export function commitFiber(fiber: Fiber, currentComponent?: Component) {
   if (!fiber) {
     return
+  }
+
+  if (fiber.component?.root) {
+    // biome-ignore lint/style/noParameterAssign: Much easier in this case.
+    currentComponent = fiber.component?.root.component
   }
 
   let { parent } = fiber
@@ -191,10 +196,18 @@ export function commitFiber(fiber: Fiber) {
     }
   }
 
+  // Add refs to component.
+  if (fiber.props?.id && fiber.native && currentComponent) {
+    currentComponent?.ref.addRef(fiber.props.id, {
+      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
+      native: fiber.native as HTMLElement,
+    })
+  }
+
   if (fiber.child) {
-    commitFiber(fiber.child)
+    commitFiber(fiber.child, currentComponent)
   }
   if (fiber.sibling) {
-    commitFiber(fiber.sibling)
+    commitFiber(fiber.sibling, currentComponent)
   }
 }
