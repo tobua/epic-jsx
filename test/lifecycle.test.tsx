@@ -408,3 +408,38 @@ test('All component refs are accessible.', () => {
   // @ts-expect-error
   expect(component.ref.missing.native.getAttribute('id')).toBe(null)
 })
+
+test('Both id and ref attributes can be used to assign refs, only id is wriiten to the DOM.', () => {
+  type Refs = 'first' | 'second' | 'third'
+  let component: Component<undefined, Refs>
+
+  function OtherComponent() {
+    return <div ref="other">other</div>
+  }
+
+  function Component(this: Component<undefined, Refs>) {
+    component = this
+    return (
+      <>
+        <div ref="first">first</div>
+        <div id="second">second</div>
+        <div ref="third">second</div>
+        <OtherComponent />
+      </>
+    )
+  }
+
+  const { serialized } = render(<Component />)
+
+  expect(serialized).not.toContain('ref=')
+  expect(serialized).toContain('id=')
+
+  expect(component.ref.first.native.getAttribute('id')).toBe(null)
+  expect(component.ref.second.native.getAttribute('id')).toBe('second')
+  expect(component.ref.third.native.getAttribute('id')).toBe(null)
+  expect(component.ref.size).toBe(3)
+
+  // Accessing non-existent refs won't crash.
+  // @ts-expect-error
+  expect(component.ref.missing.native.getAttribute('id')).toBe(null)
+})

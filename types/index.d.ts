@@ -284,7 +284,7 @@ declare namespace React {
      *
      * @see {@link https://react.dev/learn/referencing-values-with-refs#refs-and-the-dom React Docs}
      */
-    ref?: Ref<T> | undefined
+    ref?: Ref<T> | string | undefined // NOTE epic-jsx specific.
   }
 
   /**

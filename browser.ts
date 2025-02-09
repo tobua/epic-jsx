@@ -76,8 +76,11 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
     .filter(isProperty)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
-      if (name === 'ref') {
+      if (name === 'ref' && typeof nextProps[name] === 'object') {
         nextProps[name].current = element
+        return
+      }
+      if (name === 'ref' && typeof nextProps[name] === 'string') {
         return
       }
       if (name === 'value') {
@@ -199,6 +202,13 @@ export function commitFiber(fiber: Fiber, currentComponent?: Component) {
   // Add refs to component.
   if (fiber.props?.id && fiber.native && currentComponent) {
     currentComponent?.ref.addRef(fiber.props.id, {
+      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
+      native: fiber.native as HTMLElement,
+    })
+  }
+
+  if (fiber.props?.ref && fiber.native && currentComponent) {
+    currentComponent?.ref.addRef(fiber.props.ref, {
       tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
       native: fiber.native as HTMLElement,
     })
