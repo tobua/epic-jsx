@@ -58,6 +58,7 @@ export type Refs<R extends string> = {
   byTag: (tag: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap) => Ref[]
   addRef: (id: string, ref: Ref) => void
   clear: () => void
+  hasRef: (id: string) => boolean
   size: number
 } & Record<R, Ref>
 export type NestedHtmlElement = Array<HTMLElement | Text | NestedHtmlElement>
@@ -76,7 +77,7 @@ export interface Component<T extends object | undefined = undefined, R extends s
   state: T
 }
 
-export type Plugin = false | JSX.Element
+export type Plugin = false | '' | JSX.Element
 
 export interface LegacyRef<T> {
   readonly current: T | null

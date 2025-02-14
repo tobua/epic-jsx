@@ -154,6 +154,9 @@ export function createRef<R extends string>(): Refs<R> {
         refs.clear()
         refObjects.length = 0
       },
+      hasRef: (id: string) => {
+        return refs.has(id)
+      },
     } as Refs<R>,
     handler,
   ) as Refs<R>
@@ -232,4 +235,23 @@ const svgProperties = [
   'unicodeBidi',
   'wordSpacing',
   'writingMode',
+]
+
+export const sizeStyleProperties = [
+  'width',
+  'height',
+  'minWidth',
+  'maxWidth',
+  'minHeight',
+  'maxHeight',
+  'border',
+  'margin',
+  'padding',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'gap',
+  'rowGap',
+  'columnGap',
 ]

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
 import * as React from './jsx'
 import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Fiber, Props, Type } from './types'
+import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Fiber, Props, Ref, Refs, Type } from './types'
 import type * as ReactType from './types/index'
 import type { JSXSource } from './types/jsx-dev-runtime'
 import type { JSX } from './types/jsx-runtime'
@@ -16,7 +16,7 @@ const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
 }
 
 export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer, debounce }
-export type { Fiber, Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef }
+export type { Fiber, Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef, Ref, Refs }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React as unknown as typeof ReactType
@@ -27,7 +27,7 @@ const roots = new Map<HTMLElement, Context>()
 // @ts-ignore
 export const Fragment: typeof ReactType.Fragment = undefined // Symbol.for('react.fragment')
 
-export const getRoot = (container: HTMLElement) => {
+export const getRoot = (container: HTMLElement = document.body) => {
   if (!roots.has(container)) {
     return
   }

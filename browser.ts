@@ -1,24 +1,5 @@
-import { convertSvgPropsToDashCase, log } from './helper'
+import { convertSvgPropsToDashCase, log, sizeStyleProperties } from './helper'
 import { Change, type Component, type CssProperties, type Fiber, type Props } from './types'
-
-const sizeStyleProperties = [
-  'width',
-  'height',
-  'minWidth',
-  'maxWidth',
-  'minHeight',
-  'maxHeight',
-  'border',
-  'margin',
-  'padding',
-  'top',
-  'right',
-  'bottom',
-  'left',
-  'gap',
-  'rowGap',
-  'columnGap',
-]
 
 function startsWithSizeProperty(propertyName: string) {
   return sizeStyleProperties.some((prop) => propertyName.startsWith(prop))
@@ -46,12 +27,12 @@ const isGone = (_: Props, next: Props) => (key: string) => !(key in next)
 // Listeners on new props might not have reference equality, so they need to be stored on assignment.
 const eventListeners = new Map<HTMLElement | Text, Map<string, EventListenerOrEventListenerObject>>()
 
-function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {}, nextProps: Props = {}) {
+function updateNativeElement(element: HTMLElement | Text, previousProps: Props = {}, nextProps: Props = {}) {
   // Remove old or changed event listeners
   // biome-ignore lint/complexity/noForEach: Chained expression.
-  Object.keys(prevProps)
+  Object.keys(previousProps)
     .filter(isEvent)
-    .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
+    .filter((key) => !(key in nextProps) || isNew(previousProps, nextProps)(key))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2) // Remove the "on" from onClick.
       const previousHandler = eventListeners.get(element)?.get(eventType)
@@ -62,9 +43,9 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
 
   // Remove old properties
   // biome-ignore lint/complexity/noForEach: Chained expression.
-  Object.keys(prevProps)
+  Object.keys(previousProps)
     .filter(isProperty)
-    .filter(isGone(prevProps, nextProps))
+    .filter(isGone(previousProps, nextProps))
     .forEach((name) => {
       // @ts-ignore Filtered for valid properties, maybe more checks necessary.
       element[name] = ''
@@ -74,7 +55,7 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
   // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(nextProps)
     .filter(isProperty)
-    .filter(isNew(prevProps, nextProps))
+    .filter(isNew(previousProps, nextProps))
     .forEach((name) => {
       if (name === 'ref' && typeof nextProps[name] === 'object') {
         nextProps[name].current = element
@@ -103,7 +84,7 @@ function updateNativeElement(element: HTMLElement | Text, prevProps: Props = {},
   // biome-ignore lint/complexity/noForEach: Chained expression.
   Object.keys(nextProps)
     .filter(isEvent)
-    .filter(isNew(prevProps, nextProps))
+    .filter(isNew(previousProps, nextProps))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2)
       element.addEventListener(eventType, nextProps[name])
@@ -123,6 +104,36 @@ function mapLegacyProps(fiber: Fiber) {
     }
     fiber.props.className = undefined
   }
+}
+
+function addRefs(fiber: Fiber, component?: Component) {
+  // Add refs to component.
+  if (fiber.props?.id && fiber.native && component) {
+    component.ref.addRef(fiber.props.id, {
+      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
+      native: fiber.native as HTMLElement,
+    })
+  }
+
+  if (fiber.props?.ref && fiber.native && component) {
+    component.ref.addRef(fiber.props.ref, {
+      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
+      native: fiber.native as HTMLElement,
+    })
+  }
+}
+
+function findNativeParent(fiber: Fiber): Fiber | undefined {
+  let parent = fiber.parent
+  let maxTries = 500
+  while (!parent?.native && parent?.parent && maxTries > 0) {
+    maxTries -= 1
+    parent = parent.parent
+  }
+  if (maxTries === 0) {
+    log('Ran out of tries finding native parent.', 'warning')
+  }
+  return parent
 }
 
 export function createNativeElement(fiber: Fiber) {
@@ -152,7 +163,14 @@ export function createNativeElement(fiber: Fiber) {
 function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   if (fiber.native) {
     try {
-      nativeParent.removeChild(fiber.native)
+      if (nativeParent.isConnected && fiber.native.isConnected) {
+        nativeParent.removeChild(fiber.native)
+      } else if (fiber.native.isConnected) {
+        log("Trying to remove a node from a parent that's no longer in the DOM", 'warning')
+      } else {
+        console.log(nativeParent.tagName, fiber.native.tagName)
+        log("Trying to remove a node that's no longer in the DOM", 'warning')
+      }
     } catch (_error) {
       // NOTE indicates a plugin error, should not happen.
       log('Failed to remove node from the DOM', 'warning')
@@ -176,15 +194,7 @@ export function commitFiber(fiber: Fiber, currentComponent?: Component) {
     currentComponent = fiber.component?.root.component
   }
 
-  let { parent } = fiber
-  let maxTries = 500
-  while (!parent?.native && parent?.parent && maxTries > 0) {
-    maxTries -= 1
-    parent = parent.parent
-  }
-  if (maxTries === 0) {
-    log('Ran out of tries at commitFiber.', 'warning')
-  }
+  const parent = findNativeParent(fiber)
 
   if (fiber.change === Change.Add && fiber.native) {
     parent?.native?.appendChild(fiber.native)
@@ -199,20 +209,7 @@ export function commitFiber(fiber: Fiber, currentComponent?: Component) {
     }
   }
 
-  // Add refs to component.
-  if (fiber.props?.id && fiber.native && currentComponent) {
-    currentComponent?.ref.addRef(fiber.props.id, {
-      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
-      native: fiber.native as HTMLElement,
-    })
-  }
-
-  if (fiber.props?.ref && fiber.native && currentComponent) {
-    currentComponent?.ref.addRef(fiber.props.ref, {
-      tag: (fiber.native as HTMLElement).tagName.toLowerCase() as any,
-      native: fiber.native as HTMLElement,
-    })
-  }
+  addRefs(fiber, currentComponent)
 
   if (fiber.child) {
     commitFiber(fiber.child, currentComponent)

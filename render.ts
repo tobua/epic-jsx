@@ -53,18 +53,13 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX.Eleme
 
     if (isSameType && previous) {
       newFiber = createUpdatedFiber(current, previous, element)
-    }
-
-    if (element && isSameType && !previous) {
-      newFiber = createNewFiber(current, element, previous)
-    }
-
-    // Newly added (possibly unnecessary).
-    if (element && !isSameType) {
+    } else if (element) {
+      // Create new fiber for different types or new elements
       newFiber = createNewFiber(current, element, previous)
     }
 
     if (previous && !isSameType) {
+      // Delete the old node and its children when types don't match
       deleteChildren(context, previous)
     }
 
