@@ -38,7 +38,7 @@ function deleteAllFiberSiblings(context: Context, node?: Fiber) {
 function reconcileChildren(context: Context, current: Fiber, children: JSX.Element[] = []) {
   let index = 0
   let previous = current.previous?.child
-  let prevSibling: Fiber | undefined
+  let previousSibling: Fiber | undefined
   let maxTries = 500
 
   // TODO compare children.length to previous element length.
@@ -51,16 +51,16 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX.Eleme
     const fragment = element === null || previous === null
     const isSameType = !fragment && element?.type === previous?.type
 
+    if (previous && !isSameType) {
+      // Delete the old node and its children when types don't match
+      deleteChildren(context, previous)
+    }
+
     if (isSameType && previous) {
       newFiber = createUpdatedFiber(current, previous, element)
     } else if (element) {
       // Create new fiber for different types or new elements
       newFiber = createNewFiber(current, element, previous)
-    }
-
-    if (previous && !isSameType) {
-      // Delete the old node and its children when types don't match
-      deleteChildren(context, previous)
     }
 
     const item = previous
@@ -71,11 +71,11 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX.Eleme
 
     if (index === 0) {
       current.child = newFiber
-    } else if (element && prevSibling) {
-      prevSibling.sibling = newFiber
+    } else if (element && previousSibling) {
+      previousSibling.sibling = newFiber
     }
 
-    prevSibling = newFiber
+    previousSibling = newFiber
     index += 1
 
     // NOTE added to prevent endless loop after state update to component.
@@ -131,11 +131,9 @@ function deleteChildren(context: Context, fiber: Fiber) {
 }
 
 function rerender(context: Context, fiber: Fiber) {
-  context.pending.push({
-    ...fiber,
-    sibling: undefined, // Not rerendering siblings.
-    previous: fiber,
-  })
+  fiber.sibling = undefined
+  fiber.previous = fiber
+  context.pending.push(fiber)
 }
 
 function updateFunctionComponent(context: Context, fiber: Fiber) {

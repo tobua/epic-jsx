@@ -168,7 +168,6 @@ function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
       } else if (fiber.native.isConnected) {
         log("Trying to remove a node from a parent that's no longer in the DOM", 'warning')
       } else {
-        console.log(nativeParent.tagName, fiber.native.tagName)
         log("Trying to remove a node that's no longer in the DOM", 'warning')
       }
     } catch (_error) {

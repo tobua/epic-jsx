@@ -472,10 +472,6 @@ test('Children of wrapping fibers are properly reassigned when rerendering.', ()
   const context = {} as { first: Component; wrapper: Component }
   let stage = 0
 
-  function Second() {
-    return <p id="second">Second</p>
-  }
-
   function First(this: Component) {
     context.first = this
 
@@ -492,9 +488,50 @@ test('Children of wrapping fibers are properly reassigned when rerendering.', ()
 
   function Wrapper(this: Component) {
     context.wrapper = this
-    // if (stage === 2) {
-    //   return <Second />
-    // }
+    return <First />
+  }
+
+  const { serialized } = render(<Wrapper />)
+
+  expect(serialized).toEqual('<body><p id="loading">Loading...</p></body>')
+
+  stage = 1
+  context.first.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><span id="result">Result</span></body>')
+
+  stage = 2
+  context.wrapper.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><p id="second">Second</p></body>')
+})
+
+test('Children of wrapping fibers are properly reassigned when rerendering (Separate function).', () => {
+  const context = {} as { first: Component; wrapper: Component }
+  let stage = 0
+
+  function Second() {
+    return <p id="second">Second</p>
+  }
+
+  function First(this: Component) {
+    context.first = this
+
+    if (stage === 1) {
+      return <span id="result">Result</span>
+    }
+
+    return <p id="loading">Loading...</p>
+  }
+
+  function Wrapper(this: Component) {
+    context.wrapper = this
+
+    if (stage === 2) {
+      return <Second />
+    }
 
     return <First />
   }
