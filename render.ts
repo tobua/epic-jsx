@@ -130,6 +130,90 @@ function deleteChildren(context: Context, fiber: Fiber) {
   }
 }
 
+function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key: string]: any }) {
+  if (!previousProps) {
+    return true
+  }
+
+  const nextKeys = Object.keys(nextProps).filter((key) => key !== 'children')
+  const prevKeys = Object.keys(previousProps).filter((key) => key !== 'children')
+
+  if (nextKeys.length !== prevKeys.length) {
+    return true
+  }
+
+  for (const key of nextKeys) {
+    const nextVal = nextProps[key]
+    const prevVal = previousProps[key]
+
+    // Handle functions - compare by reference
+    if (typeof nextVal === 'function') {
+      if (nextVal !== prevVal) {
+        return true
+      }
+      continue
+    }
+
+    // Handle objects and arrays
+    if (typeof nextVal === 'object' && nextVal !== null) {
+      if (Array.isArray(nextVal)) {
+        if (!Array.isArray(prevVal) || nextVal.length !== prevVal.length) {
+          return true
+        }
+        for (let i = 0; i < nextVal.length; i++) {
+          if (nextVal[i] !== prevVal[i]) {
+            return true
+          }
+        }
+      } else if (!propsChanged(nextVal, prevVal)) {
+        return true
+      }
+      continue
+    }
+
+    // Handle primitives
+    if (nextVal !== prevVal) {
+      return true
+    }
+  }
+
+  // Deep child comparison.
+  const nextChildren = nextProps.children
+  const prevChildren = previousProps.children
+
+  // Handle undefined/null cases
+  if (!nextChildren !== !prevChildren) {
+    return true
+  }
+
+  // Compare arrays of children
+  if (Array.isArray(nextChildren) && Array.isArray(prevChildren)) {
+    if (nextChildren.length !== prevChildren.length) {
+      return true
+    }
+    return nextChildren.some((nextChild, index): boolean => {
+      const prevChild = prevChildren[index]
+      // Handle null/undefined cases
+      if (!nextChild !== !prevChild) return true
+
+      // If both are objects (likely Fibers or Elements), compare their properties
+      if (typeof nextChild === 'object' && typeof prevChild === 'object' && nextChild && prevChild) {
+        return nextChild.type !== prevChild.type || propsChanged(nextChild.props || {}, prevChild.props || {})
+      }
+
+      // Fallback to reference equality for primitives
+      return nextChild !== prevChild
+    })
+  }
+
+  // Compare single child with deep comparison
+  if (typeof nextChildren === 'object' && typeof prevChildren === 'object' && nextChildren && prevChildren) {
+    return nextChildren.type !== prevChildren.type || propsChanged(nextChildren.props || {}, prevChildren.props || {})
+  }
+
+  return nextChildren !== prevChildren
+}
+
 function rerender(context: Context, fiber: Fiber) {
   fiber.sibling = undefined
   fiber.previous = fiber
@@ -208,10 +292,12 @@ function updateHostComponent(context: Context, fiber: Fiber) {
   reconcileChildren(context, fiber, fiber.props?.children.flat())
 }
 
-function render(context: Context, fiber: Fiber) {
+function render(context: Context, fiber: Fiber, isFirst = false) {
   const isFunctionComponent = fiber.type instanceof Function
   if (isFunctionComponent) {
-    updateFunctionComponent(context, fiber)
+    if (isFirst || propsChanged(fiber.props, fiber.previous?.props)) {
+      updateFunctionComponent(context, fiber)
+    }
   } else {
     updateHostComponent(context, fiber)
   }
@@ -252,7 +338,7 @@ export function process(deadline: IdleDeadline, context: Context) {
   while (context.current && !shouldYield && maxTries > 0) {
     maxTries -= 1
     // Render current fiber.
-    context.current = render(context, context.current)
+    context.current = render(context, context.current, maxTries === 4999)
     // Add next fiber if previous tree finished.
     if (!context.current && context.pending.length > 0) {
       context.current = context.pending.shift()
