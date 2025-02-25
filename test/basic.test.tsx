@@ -343,3 +343,44 @@ test('Handlers are only registered once and props are empty.', () => {
   // Fails when arrow functions created during render are used.
   expect(clickHandler).toHaveBeenCalledTimes(3)
 })
+
+test('Click handler works in conjection with disabled attribute.', () => {
+  let component: Component = null
+  let props: object = null
+  let renderCount = 0
+  const clickHandler = mock()
+  const clickHandler2 = mock()
+  function Button({ ...otherProps }) {
+    component = this
+    props = otherProps
+    renderCount += 1
+    return (
+      <>
+        <button id="button1" disabled={false} onClick={() => clickHandler()}>
+          1
+        </button>
+        <button id="button2" disabled={true} onClick={() => clickHandler2()}>
+          2
+        </button>
+      </>
+    )
+  }
+
+  function App({ children }) {
+    return <div>{children}</div>
+  }
+
+  const { serialized } = render(
+    <App>
+      <Button />
+    </App>,
+  )
+
+  expect(serialized).toEqual('<body><div><button id="button1">1</button><button id="button2" disabled="disabled">2</button></div></body>')
+  expect(props).toEqual({})
+  document.getElementById('button1').click()
+  document.getElementById('button2').click()
+
+  expect(clickHandler).toHaveBeenCalledTimes(1)
+  expect(clickHandler2).toHaveBeenCalledTimes(0)
+})

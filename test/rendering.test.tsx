@@ -555,19 +555,19 @@ test('Children of wrapping fibers are properly reassigned when rerendering (Sepa
 
 test('Existing components are only rerendered when props change.', () => {
   const context = {} as { app: Component; first: Component; second: Component }
-  let renderCounts = { app: 0, first: 0, second: 0 }
+  const renderCounts = { app: 0, first: 0, second: 0 }
   let state = 0
 
-  function First(this: Component, { count } : { count: number }) {
+  function First(this: Component, { count }: { count: number }) {
     context.first = this
     renderCounts.first += 1
-    return <p id="first">First { count }</p>
+    return <p id="first">First {count}</p>
   }
 
-  function Second(this: Component, { count } : { count: number }) {
+  function Second(this: Component, { count }: { count: number }) {
     context.second = this
     renderCounts.second += 1
-    return <p id="second">Second { count }</p>
+    return <p id="second">Second {count}</p>
   }
 
   function App(this: Component) {
@@ -575,69 +575,93 @@ test('Existing components are only rerendered when props change.', () => {
     renderCounts.app += 1
     // TODO in an array all elements will be rerendered.
     // TODO test deep props
-    return <><First count={state} /><Second count={state + 1} /></>
+    return (
+      <>
+        <First count={state} />
+        <Second count={state + 1} />
+      </>
+    )
   }
 
   const { serialized } = render(<App />)
 
   expect(serialized).toEqual('<body><p id="first">First 0</p><p id="second">Second 1</p></body>')
-  expect(renderCounts).toEqual({ app: 1, first: 1, second: 1})
+  expect(renderCounts).toEqual({ app: 1, first: 1, second: 1 })
 
   context.app.rerender()
   run()
 
-  expect(renderCounts).toEqual({ app: 2, first: 1, second: 1})
+  expect(renderCounts).toEqual({ app: 2, first: 1, second: 1 })
   expect(serializeElement()).toEqual('<body><p id="first">First 0</p><p id="second">Second 1</p></body>')
 
   state = 1
   context.app.rerender()
   run()
 
-  expect(renderCounts).toEqual({ app: 3, first: 2, second: 2})
+  expect(renderCounts).toEqual({ app: 3, first: 2, second: 2 })
   // TODO rendering bug
-  expect(serializeElement()).toEqual('<body><p id="first">First 0</p><p id="second">Second 1</p><p id="first">First 1</p><p id="second">Second 2</p></body>')
+  expect(serializeElement()).toEqual(
+    '<body><p id="first">First 0</p><p id="second">Second 1</p><p id="first">First 1</p><p id="second">Second 2</p></body>',
+  )
 })
 
 test('Existing components are only rerendered when props change children are still updated.', () => {
   const context = {} as { app: Component; first: Component; second: Component }
-  let renderCounts = { app: 0, first: 0, second: 0 }
+  const renderCounts = { app: 0, first: 0, second: 0 }
   let state = 0
   let childrenState = 1
 
-  function First(this: Component, { count, children } : { count: number, children: React.ReactNode }) {
+  function First(this: Component, { count, children }: { count: number; children: React.ReactNode }) {
     context.first = this
     renderCounts.first += 1
-    return <p id="first">First { count } - {children}</p>
+    return (
+      <p id="first">
+        First {count} - {children}
+      </p>
+    )
   }
 
-  function Second(this: Component, { count, children } : { count: number , children: React.ReactNode}) {
+  function Second(this: Component, { count, children }: { count: number; children: React.ReactNode }) {
     context.second = this
     renderCounts.second += 1
-    return <p id="second">Second { count } - {children}</p>
+    return (
+      <p id="second">
+        Second {count} - {children}
+      </p>
+    )
   }
 
   function App(this: Component) {
     context.app = this
     renderCounts.app += 1
-    return <><First count={state}><p>{childrenState}</p></First><Second count={state + 1}><p>{childrenState + 1}</p></Second></>
+    return (
+      <>
+        <First count={state}>
+          <p>{childrenState}</p>
+        </First>
+        <Second count={state + 1}>
+          <p>{childrenState + 1}</p>
+        </Second>
+      </>
+    )
   }
 
   const { serialized } = render(<App />)
 
   expect(serialized).toEqual('<body><p id="first">First 0 - <p>1</p></p><p id="second">Second 1 - <p>2</p></p></body>')
-  expect(renderCounts).toEqual({ app: 1, first: 1, second: 1})
+  expect(renderCounts).toEqual({ app: 1, first: 1, second: 1 })
 
   childrenState = 2
   context.app.rerender()
   run()
 
-  expect(renderCounts).toEqual({ app: 2, first: 2, second: 2})
+  expect(renderCounts).toEqual({ app: 2, first: 2, second: 2 })
   expect(serializeElement()).toEqual('<body><p id="first">First 0 - <p>2</p></p><p id="second">Second 1 - <p>3</p></p></body>')
 
   state = 1
   context.app.rerender()
   run()
 
-  expect(renderCounts).toEqual({ app: 3, first: 3, second: 3})
+  expect(renderCounts).toEqual({ app: 3, first: 3, second: 3 })
   expect(serializeElement()).toEqual('<body><p id="first">First 1 - <p>2</p></p><p id="second">Second 2 - <p>3</p></p></body>')
 })

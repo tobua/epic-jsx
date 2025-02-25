@@ -20,6 +20,15 @@ function convertStylesToPixels(styleObject: CSSStyleDeclaration) {
   return convertedStyles
 }
 
+function getPropertyValue(property: string, value: string) {
+  // Write disabled="disabled", as boolean not supported.
+  if (['disabled', 'checked'].includes(property)) {
+    return value ? property : undefined
+  }
+
+  return value
+}
+
 const isEvent = (key: string) => key.startsWith('on')
 const isProperty = (key: string) => key !== 'children' && !isEvent(key)
 const isNew = (prev: Props, next: Props) => (key: string) => prev[key] !== next[key]
@@ -72,7 +81,10 @@ function updateNativeElement(element: HTMLElement | Text, previousProps: Props =
         if (name === 'style') {
           Object.assign((element as HTMLElement).style, convertStylesToPixels(nextProps[name]))
         } else {
-          ;(element as HTMLElement).setAttribute(name, nextProps[name])
+          const value = getPropertyValue(name, nextProps[name])
+          if (value !== undefined) {
+            ;(element as HTMLElement).setAttribute(name, value)
+          }
         }
       } else {
         // @ts-ignore Filtered for valid properties, maybe more checks necessary.

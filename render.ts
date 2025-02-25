@@ -130,7 +130,7 @@ function deleteChildren(context: Context, fiber: Fiber) {
   }
 }
 
-function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key: string]: any }) {
+function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key: string]: any }): boolean {
   if (!previousProps) {
     return true
   }
