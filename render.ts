@@ -194,7 +194,9 @@ function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key:
     return nextChildren.some((nextChild, index): boolean => {
       const prevChild = prevChildren[index]
       // Handle null/undefined cases
-      if (!nextChild !== !prevChild) return true
+      if (!nextChild !== !prevChild) {
+        return true
+      }
 
       // If both are objects (likely Fibers or Elements), compare their properties
       if (typeof nextChild === 'object' && typeof prevChild === 'object' && nextChild && prevChild) {

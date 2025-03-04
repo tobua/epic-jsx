@@ -13,13 +13,15 @@ export function useState<T>(initial: T) {
   const { context } = Renderer
 
   if (!context) {
-    return
+    log('useState used outside component', 'warning')
+    return []
   }
 
   const { pending, current } = context
 
   if (!current) {
-    return
+    log('useState used outside component', 'warning')
+    return []
   }
 
   const hooks = current.previous?.hooks ?? []
@@ -96,4 +98,27 @@ export function useCallback<T extends (...args: any) => any>(callback: T, _depen
 
 export function useMemo<T>(method: () => T, _dependencies: any[] = []) {
   return method()
+}
+
+export function useDeferredValue<T>(value: T) {
+  return value
+}
+
+declare const UNDEFINED_VOID_ONLY: unique symbol
+// biome-ignore lint/suspicious/noConfusingVoidType: Official react types.
+type VoidOrUndefinedOnly = void | { [UNDEFINED_VOID_ONLY]: never }
+export type TransitionFunction = () => VoidOrUndefinedOnly | Promise<VoidOrUndefinedOnly>
+
+export function useTransition() {
+  const [isPending, setPending] = useState(false)
+
+  const startTransition = (callback: TransitionFunction) => {
+    setPending(true)
+    setTimeout(() => {
+      callback()
+      setPending(false)
+    }, 100)
+  }
+
+  return [isPending, startTransition] as const
 }

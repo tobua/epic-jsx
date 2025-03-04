@@ -1,5 +1,5 @@
 import { debounce, log, multipleInstancesWarning, schedule } from './helper'
-import { useCallback, useEffect, useMemo, useRef, useState } from './hooks'
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from './hooks'
 // biome-ignore lint/style/noNamespaceImport: React compatibility.
 import * as React from './jsx'
 import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
@@ -15,7 +15,22 @@ const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
   current: undefined,
 }
 
-export { createElement, jsx, jsxDEV, jsxs, cloneElement, useState, useRef, useEffect, useCallback, useMemo, Renderer, debounce }
+export {
+  createElement,
+  jsx,
+  jsxDEV,
+  jsxs,
+  cloneElement,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+  Renderer,
+  debounce,
+  useDeferredValue,
+  useTransition,
+}
 export type { Fiber, Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef, Ref, Refs }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
