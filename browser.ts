@@ -1,4 +1,4 @@
-import { convertSvgPropsToDashCase, log, sizeStyleProperties } from './helper'
+import { convertSvgPropsToDashCase, log, possibleStandardNames, sizeStyleProperties } from './helper'
 import { Change, type Component, type CssProperties, type Fiber, type Props } from './types'
 
 function startsWithSizeProperty(propertyName: string) {
@@ -82,7 +82,7 @@ function updateNativeElement(element: HTMLElement | Text, previousProps: Props =
           Object.assign((element as HTMLElement).style, convertStylesToPixels(nextProps[name]))
         } else {
           const value = getPropertyValue(name, nextProps[name])
-          if (value !== undefined) {
+          if (value !== undefined && (name.toLowerCase() in possibleStandardNames || name.startsWith('aria-'))) {
             ;(element as HTMLElement).setAttribute(name, value)
           }
         }

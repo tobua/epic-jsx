@@ -70,7 +70,11 @@ export function Tabs({ tabs, children }: { tabs: string[]; children: React.React
     <div>
       <header style={tabStyles}>
         {tabs.map((tab, index) => (
-          <button onClick={() => setTabIndex(index)} style={{ ...tabButtonStyles, ...(index === tabIndex && tabButtonActiveStyles) }}>
+          <button
+            type="button"
+            onClick={() => setTabIndex(index)}
+            style={{ ...tabButtonStyles, ...(index === tabIndex && tabButtonActiveStyles) }}
+          >
             {tab}
           </button>
         ))}

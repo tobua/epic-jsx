@@ -167,6 +167,6 @@ Wait! This is **bold**.`
   )
 
   expect(serialized).toEqual(
-    '<body><div><div key="outer"><h1 id="title" key="0">Title</h1><p key="1">Some text here.</p><h2 id="subtitle" key="2">Subtitle</h2><p key="3">Wait! This is <strong key="2">bold</strong>.</p></div></div></body>',
+    '<body><div><div><h1 id="title">Title</h1><p>Some text here.</p><h2 id="subtitle">Subtitle</h2><p>Wait! This is <strong>bold</strong>.</p></div></div></body>',
   )
 })

@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useCallback } from 'react'
 import { useState } from 'react'
 import { Button, Input } from './components'
@@ -56,7 +57,7 @@ export function ContactForm() {
         }
       }, 1000)
     },
-    [timer, setTimer],
+    [timer, confirming],
   )
 
   return (

@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@happy-dom/global-registrator": "^17.1.9",
+    "@happy-dom/global-registrator": "^17.4.0",
     "@types/bun": "^1.2.4",
     "markdown-to-jsx": "^7.7.4",
     "typescript": "^5.8.2",
