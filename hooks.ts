@@ -1,4 +1,5 @@
 import { Renderer } from '.'
+import { createRerenderRoot } from './component'
 import { log, schedule, shallowArrayEqual } from './helper'
 import { process } from './render'
 import type { LegacyRef } from './types'
@@ -50,14 +51,7 @@ export function useState<T>(initial: T) {
       return
     }
 
-    pending.push({
-      native: current.native, // TODO components never have native elements, make optional.
-      props: current.props,
-      type: current.type,
-      hooks: [],
-      previous: current,
-      parent: current.parent,
-    })
+    pending.push(createRerenderRoot(current))
 
     schedule((deadline) => process(deadline, context))
   }

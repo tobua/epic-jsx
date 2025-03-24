@@ -1,8 +1,9 @@
 import { Renderer } from '.'
 import { commitFiber, createNativeElement } from './browser'
-import { createRef, log, schedule } from './helper'
-import { Change, type Context, type Fiber, type Plugin } from './types'
-import type { JSX } from './types/index'
+import { addFiber, createComponent, updateFiber } from './component'
+import { log, schedule } from './helper'
+import { Change, type Context, type Fiber } from './types'
+import type React from './types/index'
 
 function commit(context: Context, fiber: Fiber) {
   for (const fiber of context.deletions) {
@@ -35,7 +36,7 @@ function deleteAllFiberSiblings(context: Context, node?: Fiber) {
 }
 
 // Loops flat through all the siblings of the previous child of the node passed.
-function reconcileChildren(context: Context, current: Fiber, children: JSX.Element[] = []) {
+function reconcileChildren(context: Context, current: Fiber, children: React.JSX.Element[] = []) {
   let index = 0
   let previous = current.previous?.child
   let previousSibling: Fiber | undefined
@@ -57,10 +58,10 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX.Eleme
     }
 
     if (isSameType && previous) {
-      newFiber = createUpdatedFiber(current, previous, element)
+      newFiber = updateFiber(current, previous, element)
     } else if (element) {
       // Create new fiber for different types or new elements
-      newFiber = createNewFiber(current, element, previous)
+      newFiber = addFiber(current, element, previous)
     }
 
     const item = previous
@@ -90,28 +91,6 @@ function reconcileChildren(context: Context, current: Fiber, children: JSX.Eleme
     log('Ran out of tries at reconcileChildren.', 'warning')
   }
 }
-
-const createUpdatedFiber = (current: Fiber, previous: Fiber, element?: JSX.Element): Fiber => ({
-  type: previous.type,
-  props: element?.props,
-  native: previous.native,
-  parent: current,
-  previous,
-  hooks: previous.hooks,
-  svg: previous.svg || previous.type === 'svg',
-  change: Change.Update,
-})
-
-const createNewFiber = (current: Fiber, element: JSX.Element, previous: Fiber | undefined): Fiber => ({
-  type: element.type,
-  props: element.props,
-  native: undefined,
-  parent: current,
-  previous: undefined,
-  hooks: typeof element.type === 'function' ? (previous ? previous.hooks : []) : undefined,
-  svg: current.svg || element.type === 'svg',
-  change: Change.Add,
-})
 
 function deleteChildren(context: Context, fiber: Fiber) {
   if (fiber.change === Change.Delete) {
@@ -200,9 +179,11 @@ function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key:
 
       // If both are objects (likely Fibers or Elements), compare their properties
       if (typeof nextChild === 'object' && typeof prevChild === 'object' && nextChild && prevChild) {
+        if (typeof nextChild.type === 'string' && typeof prevChild.type === 'string') {
+          return true
+        }
         return nextChild.type !== prevChild.type || propsChanged(nextChild.props || {}, prevChild.props || {})
       }
-
       // Fallback to reference equality for primitives
       return nextChild !== prevChild
     })
@@ -216,12 +197,6 @@ function propsChanged(nextProps: { [key: string]: any }, previousProps?: { [key:
   return nextChildren !== prevChildren
 }
 
-function rerender(context: Context, fiber: Fiber) {
-  fiber.sibling = undefined
-  fiber.previous = fiber
-  context.pending.push(fiber)
-}
-
 function updateFunctionComponent(context: Context, fiber: Fiber) {
   if (typeof fiber.type !== 'function') {
     return
@@ -229,56 +204,22 @@ function updateFunctionComponent(context: Context, fiber: Fiber) {
   if (typeof fiber.hooks === 'undefined') {
     fiber.hooks = []
   }
-  const isFirstRender = !fiber.id
-  let pluginResult: JSX.Element | undefined
+
   fiber.hooks.length = 0
   Renderer.context = context
-  // TODO id in fiber shouldn't be optional, assign during creation.
-  if (!fiber.id) {
-    fiber.id = fiber.previous?.id ?? Math.floor(Math.random() * 1000000)
-  }
-  fiber.component = {
-    id: fiber.id,
-    root: fiber,
-    context,
-    rerender: () => rerender(context, fiber),
-    // TODO implement and test ref clearing on rerenders.
-    ref: createRef(),
-    each(callback: () => void) {
-      context.afterListeners.push(() => callback.call(fiber.component))
-    },
-    once(callback: () => void) {
-      if (isFirstRender) {
-        context.afterListeners.push(() => callback.call(fiber.component))
-      }
-    },
-    after(callback: () => void) {
-      log('this.after() lifecycle is deprecated, use this.once() or this.each()', 'warning')
-      if (isFirstRender) {
-        context.afterListeners.push(() => callback.call(fiber.component))
-      }
-    },
-    plugin(plugins: Plugin[]) {
-      for (const plugin of plugins) {
-        if (plugin) {
-          pluginResult = plugin
-          throw new Error('plugin') // early-return approach.
-        }
-      }
-    },
-    state: undefined,
-  }
+  const componentData = createComponent({ fiber, context })
+  fiber.component = componentData.component
   Renderer.current = fiber
   if (Array.isArray(fiber.props.children) && fiber.props.children.length === 0) {
     // biome-ignore lint/performance/noDelete: Clean up meaningless props.
     delete fiber.props.children
   }
-  let children: JSX.Element[] = []
+  let children: React.JSX.Element[] = []
   try {
     children = [fiber.type.call(fiber.component, fiber.props)]
   } catch (error: any) {
-    if (error.message === 'plugin' && pluginResult) {
-      children = [pluginResult]
+    if (error.message === 'plugin' && componentData.pluginResult) {
+      children = [componentData.pluginResult]
     }
   }
   Renderer.current = undefined

@@ -384,3 +384,37 @@ test('Click handler works in conjection with disabled attribute.', () => {
   expect(clickHandler).toHaveBeenCalledTimes(1)
   expect(clickHandler2).toHaveBeenCalledTimes(0)
 })
+
+test('Can debug Fiber and Component.', () => {
+  expect(getRoots().length).toBe(0)
+
+  let component: Component
+
+  function App(this: Component, { count }: { count: number }) {
+    component = this
+    return <p>Paragraph {count}</p>
+  }
+
+  const { serialized } = render(
+    <div>
+      <App count={2} />
+    </div>,
+  )
+
+  expect(serialized).toEqual('<body><div><p>Paragraph 2</p></div></body>')
+  expect(getRoots().length).toBe(1)
+
+  const appComponent = component.print() // <App />
+  expect(appComponent).toContain('App')
+  const root = component.context.root.print() // Root (body)
+  expect(root).toContain('Root <body>')
+  const div = component.context.root.child.print() // <div>
+  expect(div).toContain('div')
+  const appFiber = component.context.root.child.child.print() // <App />
+  expect(appFiber).toContain('App')
+  expect(appFiber).toContain('{"count":2}')
+  const paragraph = component.context.root.child.child.child?.print() // <p>
+  expect(paragraph).toContain('p')
+  const text = component.context.root.child.child.child.child?.print() // Paragraph (Text)
+  expect(text).toContain('"Paragraph "') // potential TODO
+})

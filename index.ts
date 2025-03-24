@@ -1,3 +1,4 @@
+import { createRoot } from './component'
 import { debounce, log, multipleInstancesWarning, schedule } from './helper'
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from './hooks'
 // biome-ignore lint/style/noNamespaceImport: React compatibility.
@@ -84,7 +85,7 @@ export const unmount = (container: HTMLElement) => {
 
 export const unmountAll = () => roots.forEach((_, container) => unmount(container))
 
-export function render(element: JSX.Element, container?: HTMLElement | null) {
+export function render(element: ReactType.JSX.Element, container?: HTMLElement | null) {
   if (!container) {
     // biome-ignore lint/style/noParameterAssign: Why wouldn't a method default work?
     container = document.body // Default assignment in args wouldn't override null.
@@ -96,14 +97,7 @@ export function render(element: JSX.Element, container?: HTMLElement | null) {
     container.innerHTML = '' // Always clearing the container first.
   }
 
-  const root = {
-    native: container,
-    props: {
-      children: [element],
-    },
-    previous: undefined,
-    unmount: () => unmount(container),
-  }
+  const root = createRoot(container, element, unmount)
 
   const context: Context = {
     root,

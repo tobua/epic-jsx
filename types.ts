@@ -41,6 +41,7 @@ export interface Fiber {
   change?: Change
   unmount?: () => void
   svg?: boolean
+  print: () => string
 }
 
 export interface Context {
@@ -75,6 +76,7 @@ export interface Component<T extends object | undefined = undefined, R extends s
   ref: Refs<R>
   plugin: (plugins: Plugin[]) => void
   state: T
+  print: () => string
 }
 
 export type Plugin = false | '' | JSX.Element
