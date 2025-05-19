@@ -418,3 +418,22 @@ test('Can debug Fiber and Component.', () => {
   const text = component.context.root.child.child.child.child?.print() // Paragraph (Text)
   expect(text).toContain('"Paragraph "') // potential TODO
 })
+
+let UndeclaredVariable: undefined
+
+test("Use of undeclared types doesn't break rendering.", () => {
+  expect(getRoots().length).toBe(0)
+
+  // Regular React will fail in this case, but our createElement receives undefined in both cases.
+  // So, it's just treated as a regular fragment.
+  const { serialized } = render(
+    <div>
+      <p>fr</p>
+      <UndeclaredVariable>almost fr</UndeclaredVariable>
+      <>fr fragment</>
+      <p>fr</p>
+    </div>,
+  )
+
+  expect(serialized).toEqual('<body><div><p>fr</p>almost frfr fragment<p>fr</p></div></body>')
+})
