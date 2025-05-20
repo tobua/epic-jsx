@@ -8,6 +8,9 @@ import type React from './types/index'
 function commit(context: Context, fiber: Fiber) {
   for (const fiber of context.deletions) {
     commitFiber(fiber)
+    if (typeof fiber.type === 'function' && typeof fiber.endListener === 'function') {
+      fiber.endListener()
+    }
   }
   context.deletions.length = 0
   if (fiber.child) {

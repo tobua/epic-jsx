@@ -38,6 +38,9 @@ export function createComponent({ fiber, context }: { fiber: Fiber; context: Con
           context.afterListeners.push(() => callback.call(fiber.component))
         }
       },
+      end(callback: () => void) {
+        fiber.endListener = () => callback.call(fiber.component)
+      },
       plugin(plugins: Plugin[]) {
         for (const plugin of plugins) {
           if (plugin) {

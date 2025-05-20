@@ -99,6 +99,90 @@ test('Once lifecycle listeners will be called after render.', () => {
   expect(arrowFunctionContext.ref.size).toBe(2)
 })
 
+test('End lifecycle listener will be called when component is removed.', () => {
+  let context: any
+
+  let arrowFunctionContext: Component
+
+  function Component(this: Component) {
+    return (
+      <>
+        <div id="first">first</div>
+        <div id="second">second</div>
+      </>
+    )
+  }
+
+  render(<Component />)
+
+  expect(context.ref.size).toBe(2)
+  expect(context.ref.second.native.id).toBe('second')
+
+  expect(arrowFunctionContext.ref.size).toBe(2)
+})
+
+test('Components can be rendered in stages and cleaned up.', () => {
+  let context: Component
+  const endMockFirst = mock()
+  const endMockSecond = mock()
+  let stage = 0
+
+  function First(this: Component) {
+    this.end(endMockFirst)
+    return <div id="first">First Component</div>
+  }
+
+  function Second(this: Component) {
+    this.end(endMockSecond)
+    return <div id="second">Second Component</div>
+  }
+
+  function App(this: Component) {
+    context = this
+
+    if (stage === 2) {
+      return null
+    }
+
+    if (stage === 1) {
+      return <Second />
+    }
+
+    return <First />
+  }
+
+  const { serialized } = render(<App />)
+
+  // Stage 0: First component
+  expect(serialized).toEqual('<body><div id="first">First Component</div></body>')
+
+  expect(endMockFirst).not.toHaveBeenCalled()
+  expect(endMockFirst.mock.calls.length).toBe(0)
+  expect(endMockSecond).not.toHaveBeenCalled()
+  expect(endMockSecond.mock.calls.length).toBe(0)
+
+  // Stage 1: Second component
+  stage = 1
+  context.rerender()
+  run()
+  expect(serializeElement()).toEqual('<body><div id="second">Second Component</div></body>')
+
+  expect(endMockFirst).toHaveBeenCalled()
+  expect(endMockFirst.mock.calls.length).toBe(1)
+  expect(endMockSecond).not.toHaveBeenCalled()
+  expect(endMockSecond.mock.calls.length).toBe(0)
+
+  // Stage 2: null (cleanup)
+  stage = 2
+  context.rerender()
+  run()
+  expect(serializeElement()).toEqual('<body></body>')
+
+  expect(endMockFirst.mock.calls.length).toBe(1)
+  expect(endMockSecond).toHaveBeenCalled()
+  expect(endMockSecond.mock.calls.length).toBe(1)
+})
+
 test('Nested refs are flattened out by default.', () => {
   let context: Component
 

@@ -27,6 +27,9 @@ export type Type = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap | Fu
 
 // JSX.IntrinsicElements includes list of all React tags with their respecitive props available.
 
+type ComponentListener<T extends object | undefined = undefined> = (this: Component<T>) => void
+
+// TODO fiber should be typed as well with T to pass to Component.
 export interface Fiber {
   id?: number
   type?: Type
@@ -42,6 +45,7 @@ export interface Fiber {
   unmount?: () => void
   svg?: boolean
   print: () => string
+  endListener?: Function // ComponentListener<T>
 }
 
 export interface Context {
@@ -69,10 +73,11 @@ export interface Component<T extends object | undefined = undefined, R extends s
   root: Fiber
   context: Context
   rerender: () => void
-  each: (callback: (this: Component<T>) => void) => void
+  each: (callback: ComponentListener<T>) => void
   /** @deprecated Use `once` or `each` instead. */
-  after: (callback: (this: Component<T>) => void) => void
-  once: (callback: (this: Component<T>) => void) => void
+  after: (callback: ComponentListener<T>) => void
+  once: (callback: ComponentListener<T>) => void
+  end: (callback: ComponentListener<T>) => void
   ref: Refs<R>
   plugin: (plugins: Plugin[]) => void
   state: T
