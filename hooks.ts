@@ -67,8 +67,9 @@ export function useState<T>(initial: T) {
   return [hook.state, setState] as const
 }
 
-export function useRef<T extends HTMLElement>() {
-  return { current: undefined } as unknown as LegacyRef<T>
+// React types require initialElement to be available or set to null.
+export function useRef<T extends HTMLElement>(initialElement?: T | null) {
+  return { current: initialElement } as unknown as LegacyRef<T>
 }
 
 export function useEffect(callback: () => void, dependencies: any[] = []) {

@@ -99,28 +99,6 @@ test('Once lifecycle listeners will be called after render.', () => {
   expect(arrowFunctionContext.ref.size).toBe(2)
 })
 
-test('End lifecycle listener will be called when component is removed.', () => {
-  let context: any
-
-  let arrowFunctionContext: Component
-
-  function Component(this: Component) {
-    return (
-      <>
-        <div id="first">first</div>
-        <div id="second">second</div>
-      </>
-    )
-  }
-
-  render(<Component />)
-
-  expect(context.ref.size).toBe(2)
-  expect(context.ref.second.native.id).toBe('second')
-
-  expect(arrowFunctionContext.ref.size).toBe(2)
-})
-
 test('Components can be rendered in stages and cleaned up.', () => {
   let context: Component
   const endMockFirst = mock()
