@@ -1,5 +1,5 @@
 import { createRef, log } from './helper'
-import { Change, type Component, type Context, type Fiber, type Plugin } from './types'
+import { Change, type Component, type Context, Fiber, type Plugin } from './types'
 import type React from './types/index'
 
 function rerender(context: Context, fiber: Fiber) {
@@ -60,90 +60,48 @@ export function createComponent({ fiber, context }: { fiber: Fiber; context: Con
   return data
 }
 
-function printProps(props: { children?: any }) {
-  if (typeof props !== 'object') {
-    return ''
-  }
-
-  const { children, ...filtered } = props
-
-  if (Object.keys(filtered).length === 0) {
-    return ''
-  }
-
-  return ` ${JSON.stringify(filtered)}`
-}
-
-const printFiber = (fiber: Fiber) => {
-  const type = fiber.type
-
-  if (type === 'TEXT_ELEMENT') {
-    return `"${fiber.props.nodeValue}"`
-  }
-
-  return `${typeof type === 'function' ? type.name : type}${printProps(fiber.props)}`
-}
-
 export function addFiber(current: Fiber, element: React.JSX.Element, previous: Fiber | undefined): Fiber {
-  const fiber = {
-    type: element.type,
+  return new Fiber({
     props: element.props,
-    native: undefined,
+    type: element.type,
     parent: current,
-    previous: undefined,
     hooks: typeof element.type === 'function' ? (previous ? previous.hooks : []) : undefined,
     svg: current.svg || element.type === 'svg',
     change: Change.Add,
-    print() {
-      return printFiber(fiber)
-    },
-  }
-  return fiber
+  })
 }
 
 export function updateFiber(current: Fiber, previous: Fiber, element?: React.JSX.Element): Fiber {
-  const fiber = {
-    type: previous.type,
+  return new Fiber({
     props: element?.props,
+    type: previous.type,
     native: previous.native,
     parent: current,
-    previous,
     hooks: previous.hooks,
+    previous,
     svg: previous.svg || previous.type === 'svg',
     change: Change.Update,
-    print() {
-      return printFiber(fiber)
-    },
-  }
-  return fiber
+  })
 }
 
 export function createRerenderRoot(current: Fiber): Fiber {
-  const fiber = {
-    native: current.native, // TODO components never have native elements, make optional.
+  return new Fiber({
     props: current.props,
     type: current.type,
+    native: current.native, // TODO components never have native elements, make optional.
+    parent: current.parent,
     hooks: [],
     previous: current,
-    parent: current.parent,
-    print() {
-      return printFiber(fiber)
-    },
-  }
-  return fiber
+  })
 }
 
 export function createRoot(container: HTMLElement, element: React.JSX.Element, unmount: (container: HTMLElement) => void): Fiber {
-  const fiber = {
+  return new Fiber({
+    props: { children: [element] },
     native: container,
-    props: {
-      children: [element],
-    },
-    previous: undefined,
     unmount: () => unmount(container),
-    print() {
+    print: function (this: Fiber): string {
       return `Root <${container.tagName.toLowerCase()}>`
     },
-  }
-  return fiber
+  })
 }

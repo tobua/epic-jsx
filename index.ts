@@ -5,7 +5,8 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, us
 import * as React from './jsx'
 import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Fiber, Props, Ref, Refs, Type } from './types'
+import { Fiber } from './types'
+import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Props, Ref, Refs, Type } from './types'
 import type * as ReactType from './types/index'
 import type { JSXSource } from './types/jsx-dev-runtime'
 import type { JSX } from './types/jsx-runtime'
@@ -32,7 +33,8 @@ export {
   useDeferredValue,
   useTransition,
 }
-export type { Fiber, Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef, Ref, Refs }
+export { Fiber }
+export type { Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef, Ref, Refs }
 
 // biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React as unknown as typeof ReactType

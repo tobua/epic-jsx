@@ -30,22 +30,51 @@ export type Type = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap | Fu
 type ComponentListener<T extends object | undefined = undefined> = (this: Component<T>) => void
 
 // TODO fiber should be typed as well with T to pass to Component.
-export interface Fiber {
+export class Fiber {
   id?: number
   type?: Type
   child?: Fiber
   sibling?: Fiber
   parent?: Fiber
   native?: HTMLElement | Text
-  props: Props
+  props!: Props
   hooks?: any[]
   component?: Component
   previous?: Fiber
   change?: Change
   unmount?: () => void
   svg?: boolean
-  print: () => string
   endListener?: Function // ComponentListener<T>
+
+  constructor(options: Partial<Fiber>) {
+    Object.assign(this, options)
+  }
+
+  print(): string {
+    // `Root <${container.tagName.toLowerCase()}>`
+
+    const type = this.type
+
+    if (type === 'TEXT_ELEMENT') {
+      return `"${this.props.nodeValue}"`
+    }
+
+    return `${typeof type === 'function' ? type.name : type}${this.printProps(this.props)}`
+  }
+
+  printProps(props: { children?: any }): string {
+    if (typeof props !== 'object') {
+      return ''
+    }
+
+    const { children, ...filtered } = props
+
+    if (Object.keys(filtered).length === 0) {
+      return ''
+    }
+
+    return ` ${JSON.stringify(filtered)}`
+  }
 }
 
 export interface Context {
