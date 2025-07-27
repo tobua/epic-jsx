@@ -1,7 +1,6 @@
 import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
-import { unmountAll } from '../index'
-import { getRoot, useCallback, useEffect, useMemo, useRef, useState } from '../index'
+import { getRoot, unmountAll, useCallback, useEffect, useMemo, useRef, useState } from '../index'
 import { render, run, serializeElement } from '../test'
 
 afterEach(unmountAll)

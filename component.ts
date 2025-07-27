@@ -95,12 +95,12 @@ export function createRerenderRoot(current: Fiber): Fiber {
   })
 }
 
-export function createRoot(container: HTMLElement, element: React.JSX.Element, unmount: (container: HTMLElement) => void): Fiber {
+export function createRoot(container: HTMLElement, element: React.JSX.Element, unmount: (node: HTMLElement) => void): Fiber {
   return new Fiber({
     props: { children: [element] },
     native: container,
     unmount: () => unmount(container),
-    print: function (this: Fiber): string {
+    print(this: Fiber): string {
       return `Root <${container.tagName.toLowerCase()}>`
     },
   })

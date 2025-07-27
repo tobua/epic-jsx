@@ -1,7 +1,7 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
 import { compiler } from 'markdown-to-jsx'
-import { type JSX, cloneElement, createElement, getRoots, unmountAll } from '../index'
+import { cloneElement, createElement, getRoots, type JSX, unmountAll } from '../index'
 import { clear, render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -87,6 +87,7 @@ test('Various empty elements are ignored.', () => {
       {undefined}
       {null}
       {false}
+      {/** biome-ignore lint/style/useConsistentCurlyBraces: Necessary for test. */}
       {''}
       <p>end</p>
       <p>

@@ -150,7 +150,7 @@ function findNativeParent(fiber: Fiber): Fiber | undefined {
 
 export function createNativeElement(fiber: Fiber) {
   if (!fiber.type) {
-    return undefined // Ignore fragments.
+    return // Ignore fragments.
   }
 
   mapLegacyProps(fiber)

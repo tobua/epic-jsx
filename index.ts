@@ -1,42 +1,19 @@
 import { createRoot } from './component'
-import { debounce, log, multipleInstancesWarning, schedule } from './helper'
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from './hooks'
-// biome-ignore lint/style/noNamespaceImport: React compatibility.
+import { log, multipleInstancesWarning, schedule } from './helper'
 import * as React from './jsx'
-import { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 import { process, processNow } from './render'
-import { Fiber } from './types'
-import type { Component, ComponentPropsWithoutRef, Context, CssProperties, Props, Ref, Refs, Type } from './types'
+import type { Context } from './types'
 import type * as ReactType from './types/index'
-import type { JSXSource } from './types/jsx-dev-runtime'
-import type { JSX } from './types/jsx-runtime'
 
-const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
-  context: undefined,
-  effects: [],
-  current: undefined,
-}
+export { debounce } from './helper'
+export { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from './hooks'
+export { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
+export { Renderer } from './render'
+export type { Component, ComponentPropsWithoutRef, Context, CssProperties, Props, Ref, Refs, Type } from './types'
+export { Fiber } from './types'
+export type { JSXSource } from './types/jsx-dev-runtime'
+export type { JSX } from './types/jsx-runtime'
 
-export {
-  createElement,
-  jsx,
-  jsxDEV,
-  jsxs,
-  cloneElement,
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  useMemo,
-  Renderer,
-  debounce,
-  useDeferredValue,
-  useTransition,
-}
-export { Fiber }
-export type { Props, Context, Component, CssProperties, Type, JSX, JSXSource, ComponentPropsWithoutRef, Ref, Refs }
-
-// biome-ignore lint/style/noDefaultExport: React compatibility.
 export default React as unknown as typeof ReactType
 
 const roots = new Map<HTMLElement, Context>()
@@ -85,7 +62,10 @@ export const unmount = (container: HTMLElement) => {
   roots.delete(container)
 }
 
-export const unmountAll = () => roots.forEach((_, container) => unmount(container))
+export const unmountAll = () =>
+  roots.forEach((_, container) => {
+    unmount(container)
+  })
 
 export function render(element: ReactType.JSX.Element, container?: HTMLElement | null) {
   if (!container) {

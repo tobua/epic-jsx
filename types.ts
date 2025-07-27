@@ -67,7 +67,7 @@ export class Fiber {
       return ''
     }
 
-    const { children, ...filtered } = props
+    const { children: _children, ...filtered } = props
 
     if (Object.keys(filtered).length === 0) {
       return ''

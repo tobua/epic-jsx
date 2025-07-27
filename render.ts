@@ -1,15 +1,20 @@
-import { Renderer } from '.'
 import { commitFiber, createNativeElement } from './browser'
 import { addFiber, createComponent, updateFiber } from './component'
 import { log, schedule } from './helper'
 import { Change, type Context, type Fiber } from './types'
 import type React from './types/index'
 
+export const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
+  context: undefined,
+  effects: [],
+  current: undefined,
+}
+
 function commit(context: Context, fiber: Fiber) {
-  for (const fiber of context.deletions) {
-    commitFiber(fiber)
-    if (typeof fiber.type === 'function' && typeof fiber.endListener === 'function') {
-      fiber.endListener()
+  for (const currentFiber of context.deletions) {
+    commitFiber(currentFiber)
+    if (typeof currentFiber.type === 'function' && typeof currentFiber.endListener === 'function') {
+      currentFiber.endListener()
     }
   }
   context.deletions.length = 0
@@ -262,7 +267,7 @@ function render(context: Context, fiber: Fiber, isFirst = false) {
   if (maxTries === 0) {
     log('Ran out of tries at render.', 'warning')
   }
-  return undefined
+  return
 }
 
 export function process(deadline: IdleDeadline, context: Context) {

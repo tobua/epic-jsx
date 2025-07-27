@@ -1,7 +1,7 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
 import { getComponentRefsFromTree } from '../helper'
-import { Fiber, debounce, unmountAll } from '../index'
+import { debounce, Fiber, unmountAll } from '../index'
 import { render } from '../test'
 
 afterEach(unmountAll)

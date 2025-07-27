@@ -66,6 +66,7 @@ function Interactive() {
   return (
     <div>
       <Heading Tag="h3">Events</Heading>
+      {/** biome-ignore lint/suspicious/noAlert: Demo application. */}
       <Button onClick={() => alert('click')}>Click me</Button>
       <Button
         style={hovered ? { background: 'blue' } : { background: 'green' }}

@@ -1,7 +1,6 @@
-import { Renderer } from '.'
 import { createRerenderRoot } from './component'
 import { log, schedule, shallowArrayEqual } from './helper'
-import { process } from './render'
+import { process, Renderer } from './render'
 import type { LegacyRef } from './types'
 
 export function useState<T>(initial: T) {
@@ -35,16 +34,16 @@ export function useState<T>(initial: T) {
   }
 
   const setState = (value: T) => {
-    const hook = current.hooks?.[hookIndex]
+    const currentHook = current.hooks?.[hookIndex]
     // Ensure newest version of setState is called.
     // TODO recursively travels through whole chain.
-    if (hook && setState !== hook.setState) {
-      hook.setState(value)
+    if (currentHook && setState !== currentHook.setState) {
+      currentHook.setState(value)
       return
     }
 
     // NOTE new state will be returned on next render when useState is called again.
-    hook.state = value
+    currentHook.state = value
 
     if (pending.find((currentValue) => currentValue.previous === current)) {
       // Rerender already registered.
@@ -109,8 +108,8 @@ export function useTransition() {
 
   const startTransition = (callback: TransitionFunction) => {
     setPending(true)
-    setTimeout(() => {
-      callback()
+    setTimeout(async () => {
+      await callback()
       setPending(false)
     }, 100)
   }

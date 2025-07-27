@@ -1,6 +1,5 @@
 import type React from 'react'
-import { useCallback } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button, Input } from './components'
 import { Globe } from './globe'
 
@@ -20,6 +19,16 @@ function TextArea(props: React.ComponentProps<'textarea'>) {
       {...props}
     />
   )
+}
+
+function getButtonLabel(verifying: boolean, confirming: boolean) {
+  if (verifying) {
+    return 'Please wait...'
+  }
+  if (confirming) {
+    return 'Confirm'
+  }
+  return 'Submit'
 }
 
 export function ContactForm() {
@@ -93,7 +102,7 @@ export function ContactForm() {
         onInput={(event) => setMessage((event.target as HTMLTextAreaElement).value)}
       />
       <Button type="submit" onClick={handleSubmit} inactive={verifying}>
-        {verifying ? 'Please wait...' : confirming ? 'Confirm' : 'Submit'}
+        {getButtonLabel(verifying, confirming)}
       </Button>
       {verifying && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>

@@ -9,7 +9,7 @@ test('Fragments are properly cleaned up.', () => {
   let context: Component
   let stage = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
 
     if (stage === 4) {
@@ -45,7 +45,7 @@ test('Fragments are properly cleaned up.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><i></i><p></p></body>')
 
@@ -78,7 +78,7 @@ test('Fragments and other structures are properly cleaned up.', () => {
   let context: Component
   let stage = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
 
     if (stage === 4) {
@@ -116,7 +116,7 @@ test('Fragments and other structures are properly cleaned up.', () => {
     return <div>initial</div>
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><div>initial</div></body>')
 
@@ -139,7 +139,7 @@ test('Fragments and other structures are properly cleaned up.', () => {
   let context: Component
   let stage = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
 
     if (stage === 2) {
@@ -168,7 +168,7 @@ test('Fragments and other structures are properly cleaned up.', () => {
     return <div>initial</div>
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><div>initial</div></body>')
 
@@ -191,7 +191,7 @@ test('Various tags are properly cleaned up and rerendered.', () => {
   let context: Component
   let stage = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
 
     if (stage === 4) {
@@ -268,7 +268,7 @@ test('Various tags are properly cleaned up and rerendered.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual(
     '<body><section><div id="first"><button>click 1</button></div><div id="second"><button>click 2</button></div></section></body>',
@@ -441,8 +441,8 @@ test('Plugins can render custom JSX based on global state.', () => {
     error: false as boolean | string,
   }
 
-  const loading = (loading: boolean) => loading && <p>Loading...</p>
-  const error = (error: boolean | string) => error && <p>{error}</p>
+  const loading = (value: boolean) => value && <p>Loading...</p>
+  const error = (value: boolean | string) => value && <p>{value}</p>
 
   function App(this: Component) {
     context = this

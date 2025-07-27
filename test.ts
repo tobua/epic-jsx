@@ -20,7 +20,7 @@ type ReadableNode = {
 }
 
 const getProps = (node: Fiber) => {
-  const { children, ...props } = node?.props ?? {} // This ensures that props is copied and children remains on original.
+  const { children: _children, ...props } = node?.props ?? {} // This ensures that props is copied and children remains on original.
   return props
 }
 
@@ -39,7 +39,7 @@ const getTag = (node: Fiber) => {
     return node.type
   }
 
-  return undefined
+  return
 }
 
 export const toReadableTree = (node: Fiber, options = { skipFragments: true }, parent?: ReadableNode) => {

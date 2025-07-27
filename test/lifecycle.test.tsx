@@ -1,14 +1,13 @@
 import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
-import { type Component, unmountAll } from '../index'
-import { Renderer } from '../index'
+import { type Component, Renderer, unmountAll } from '../index'
 import { render, run, serializeElement } from '../test'
 
 afterEach(unmountAll)
 
 test('Can trigger a component rerender.', () => {
   let count = 0
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     return (
       <div>
         Count: {count}
@@ -25,7 +24,7 @@ test('Can trigger a component rerender.', () => {
     )
   }
 
-  const { serialized, tree } = render(<Component />)
+  const { serialized, tree } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><div>Count: 0<button type="button">Rerender</button></div></body>')
 
@@ -44,7 +43,7 @@ test('Can trigger a component rerender.', () => {
 test('Component can access refs.', () => {
   let context: Component<any, any>
 
-  function Component(this: Component<any, any>) {
+  function MyComponent(this: Component<any, any>) {
     context = this
     return (
       <>
@@ -54,7 +53,7 @@ test('Component can access refs.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><div id="first">first</div><div id="second">second</div></body>')
 
@@ -71,7 +70,7 @@ test('Once lifecycle listeners will be called after render.', () => {
   })
   let arrowFunctionContext: Component
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     this.once(onceMock)
     this.once(() => {
       arrowFunctionContext = this
@@ -88,7 +87,7 @@ test('Once lifecycle listeners will be called after render.', () => {
     )
   }
 
-  render(<Component />)
+  render(<MyComponent />)
 
   expect(onceMock).toHaveBeenCalled()
   expect(onceMock.mock.calls.length).toBe(1)
@@ -164,7 +163,7 @@ test('Components can be rendered in stages and cleaned up.', () => {
 test('Nested refs are flattened out by default.', () => {
   let context: Component
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
     return (
       <>
@@ -178,7 +177,7 @@ test('Nested refs are flattened out by default.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual(
     '<body><div id="first"><div id="second"><div id="third">third</div></div></div><div id="fourth">fourth</div></body>',
@@ -198,7 +197,7 @@ test("Refs from inside child components aren't listed.", () => {
 
   const Second = () => <div id="second">second</div>
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
     return (
       <>
@@ -210,7 +209,7 @@ test("Refs from inside child components aren't listed.", () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><div id="first"><div id="second">second</div></div><div id="third">third</div></body>')
 
@@ -260,7 +259,7 @@ test("Refs from inside child components aren't listed.", () => {
 test('Refs can be accessed by a specific tag.', () => {
   let context: Component | undefined
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
     return (
       <>
@@ -274,7 +273,7 @@ test('Refs can be accessed by a specific tag.', () => {
     )
   }
 
-  render(<Component />)
+  render(<MyComponent />)
 
   const divs = context.ref.byTag('div')
   const paragraph = context.ref.byTag('p')
@@ -292,7 +291,7 @@ test('Elements can be conditionally rendered.', () => {
   let context: Component | undefined
   let counter = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
     counter += 1
     return (
@@ -304,7 +303,7 @@ test('Elements can be conditionally rendered.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><p id="first">first</p><p id="third">third</p></body>')
 
@@ -324,7 +323,7 @@ test('Elements and components no longer present will be removed.', () => {
   let context: Component | undefined
   let counter = 0
 
-  function Component(this: Component) {
+  function MyComponent(this: Component) {
     context = this
     counter += 1
     return (
@@ -343,7 +342,7 @@ test('Elements and components no longer present will be removed.', () => {
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).toEqual('<body><p>first</p><p>third</p><svg><path/></svg></body>')
 
@@ -361,7 +360,7 @@ test('Elements and components no longer present will be removed.', () => {
 test('Currently rendered component is reflected on the Renderer.', () => {
   let context: Component | undefined
 
-  function Component(this: Component, { name, check, children }: { name: string; check: Function; children?: any }) {
+  function MyComponent(this: Component, { name, check, children }: { name: string; check: Function; children?: any }) {
     context = this
     check()
     return (
@@ -383,14 +382,14 @@ test('Currently rendered component is reflected on the Renderer.', () => {
   render(
     // @ts-ignore
     <>
-      <Component name="First" check={() => expect(Renderer.current?.type).toBe(Component)} />
+      <MyComponent name="First" check={() => expect(Renderer.current?.type).toBe(MyComponent)} />
       {/* @ts-ignore */}
       {expect(Renderer.current).toBe(undefined) && undefined}
-      <Component name="Second" check={() => expect(Renderer.current?.type).toBe(Component)}>
+      <MyComponent name="Second" check={() => expect(Renderer.current?.type).toBe(MyComponent)}>
         {/* @ts-ignore */}
         {expect(Renderer.current).toBe(undefined) && undefined}
         <NestedComponent name="Nested" check={() => expect(Renderer.current?.type).toBe(NestedComponent)} />
-      </Component>
+      </MyComponent>
     </>,
   )
 
@@ -402,12 +401,12 @@ test('Currently rendered component is reflected on the Renderer.', () => {
 })
 
 test('Renderer.current is set on root component render already.', () => {
-  function Component({ check }: { check: Function }) {
+  function MyComponent({ check }: { check: Function }) {
     check()
     return <p>hey</p>
   }
 
-  render(<Component check={() => expect(Renderer.current?.type).toBe(Component)} />)
+  render(<MyComponent check={() => expect(Renderer.current?.type).toBe(MyComponent)} />)
 })
 
 test('Lifecycle methods are called at the appropriate time.', () => {
@@ -445,7 +444,7 @@ test('All component refs are accessible.', () => {
     return <div id="other">other</div>
   }
 
-  function Component(this: Component<undefined, 'first' | 'second'>) {
+  function MyComponent(this: Component<undefined, 'first' | 'second'>) {
     component = this
     this.once(() => {
       // Ensures refs are present during rendering.
@@ -460,7 +459,7 @@ test('All component refs are accessible.', () => {
     )
   }
 
-  render(<Component />)
+  render(<MyComponent />)
 
   expect(component.ref.first.native.getAttribute('id')).toBe('first')
   expect(component.ref.second.native.getAttribute('id')).toBe('second')
@@ -479,7 +478,7 @@ test('Both id and ref attributes can be used to assign refs, only id is wriiten 
     return <div ref="other">other</div>
   }
 
-  function Component(this: Component<undefined, Refs>) {
+  function MyComponent(this: Component<undefined, Refs>) {
     component = this
     return (
       <>
@@ -491,7 +490,7 @@ test('Both id and ref attributes can be used to assign refs, only id is wriiten 
     )
   }
 
-  const { serialized } = render(<Component />)
+  const { serialized } = render(<MyComponent />)
 
   expect(serialized).not.toContain('ref=')
   expect(serialized).toContain('id=')

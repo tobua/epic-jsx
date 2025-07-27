@@ -1,6 +1,6 @@
 import './helper'
 import { afterEach, expect, mock, test } from 'bun:test'
-import { type Component, type JSX, getRoots, unmountAll } from '../index'
+import { type Component, getRoots, type JSX, unmountAll } from '../index'
 import { render, run, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -20,6 +20,7 @@ test('Renders regular JSX tags.', () => {
 
 test('Renders DOM attributes.', () => {
   const { serialized } = render(
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: Test
     <div aria-label="labelled">
       <button type="button" tabIndex={-1}>
         Hello
@@ -206,7 +207,6 @@ test('Classes are applied properly.', () => {
   const { serialized } = render(
     <>
       <div class="regular-class">regular</div>
-      {/* biome-ignore lint/suspicious/noReactSpecificProps: For testing purposes! */}
       <div className="name-class">name</div>
     </>,
   )
@@ -218,15 +218,15 @@ test('Classes are applied properly.', () => {
 
 test('Each component is assigned a stable id.', () => {
   const components = {}
-  function Component({ id }) {
+  function Paragraph({ id }) {
     components[id] = this
     return <p>{id}</p>
   }
 
   const { serialized, tree } = render(
     <>
-      <Component id={1} />
-      <Component id={2} />
+      <Paragraph id={1} />
+      <Paragraph id={2} />
     </>,
   )
 
@@ -253,7 +253,7 @@ test('Each component is assigned a stable id.', () => {
 test('Rerender of siblings only rerenders the target.', () => {
   const components = {}
   const renderCounts = { 1: 0, 2: 0, 3: 0 }
-  function Component({ id }) {
+  function Paragraph({ id }) {
     components[id] = this
     renderCounts[id] += 1
     return <p>{id}</p>
@@ -261,9 +261,9 @@ test('Rerender of siblings only rerenders the target.', () => {
 
   const { serialized } = render(
     <>
-      <Component id={1} />
-      <Component id={2} />
-      <Component id={3} />
+      <Paragraph id={1} />
+      <Paragraph id={2} />
+      <Paragraph id={3} />
     </>,
   )
 
@@ -419,6 +419,7 @@ test('Can debug Fiber and Component.', () => {
   expect(text).toContain('"Paragraph "') // potential TODO
 })
 
+// biome-ignore lint/nursery/noUnassignedVariables: Test
 let UndeclaredVariable: undefined
 
 test("Use of undeclared types doesn't break rendering.", () => {
