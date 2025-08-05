@@ -26,6 +26,9 @@
   "trustedDependencies": [
     "zero-configuration"
   ],
+  "overrides": {
+    "@types/react": "file:./test"
+  },
   "type": "module",
   "sideEffects": false,
   "main": "./index.ts",
@@ -68,8 +71,8 @@
         "files": {
           "includes": [
             "**/*",
-            "!demo",
-            "!types"
+            "!demo/**/*",
+            "!types/**/*"
           ]
         }
       },

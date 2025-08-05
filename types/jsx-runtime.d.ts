@@ -1,4 +1,4 @@
-import type * as React from "./";
+import * as React from "./";
 export { Fragment } from "./";
 
 export namespace JSX {

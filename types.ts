@@ -1,4 +1,4 @@
-import type { JSX } from './types/index'
+import type React from './types/index'
 
 declare global {
   // Avoids loading plugin multiple times in development mode.
@@ -113,7 +113,7 @@ export interface Component<T extends object | undefined = undefined, R extends s
   print: () => string
 }
 
-export type Plugin = false | '' | JSX.Element
+export type Plugin = false | '' | React.JSX.Element
 
 export interface LegacyRef<T> {
   readonly current: T | null

@@ -1,5 +1,5 @@
 import type { Props, Type } from './types'
-import type { JSX, ReactNode } from './types/index'
+import type React from './types/index'
 import type { jsxDEV as jsxDevType } from './types/jsx-dev-runtime'
 import type { jsxs as jsxsType, jsx as jsxType } from './types/jsx-runtime'
 
@@ -15,7 +15,7 @@ function createTextElement(text: string) {
 
 // Official signature (not working yet).
 // createElement<P>(type: React.ElementType<P>, props: P & { children?: React.ReactNode }, ...children: React.ReactNode[]): React.ReactElement<P> | null;
-export function createElement(type: Type, props: Props, ...children: JSX.Element[]) {
+export function createElement(type: Type, props: Props, ...children: React.JSX.Element[]) {
   let mappedChildren = children
   // NOTE needed for browser JSX runtime
   if (props?.children) {
@@ -52,7 +52,7 @@ export const jsxDEV = createElement as unknown as typeof jsxDevType
 export const jsx = createElement as unknown as typeof jsxType
 export const jsxs = createElement as unknown as typeof jsxsType
 // Should be compatible with React.cloneElement.
-export function cloneElement(element: JSX.Element, props?: Partial<any>, ...children: ReactNode[]) {
+export function cloneElement(element: React.JSX.Element, props?: Partial<any>, ...children: React.ReactNode[]) {
   const newProps = {
     ...element.props,
     ...props,

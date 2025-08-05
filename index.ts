@@ -3,7 +3,7 @@ import { log, multipleInstancesWarning, schedule } from './helper'
 import * as React from './jsx'
 import { process, processNow } from './render'
 import type { Context } from './types'
-import type * as ReactType from './types/index'
+import type ReactType from './types/index'
 
 export { debounce } from './helper'
 export { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from './hooks'
