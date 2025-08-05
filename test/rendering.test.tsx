@@ -384,8 +384,8 @@ test('Only the necessary elements are deleted.', () => {
   let context: Component
   let stage = 0
 
-  function App(this: Component) {
-    if (stage === 1) {
+  function App(this: Component, { stage: currentStage }: { stage: number }) {
+    if (currentStage === 1) {
       return (
         <section id="section">
           <span>hey</span>
@@ -404,19 +404,27 @@ test('Only the necessary elements are deleted.', () => {
     return children
   }
 
-  function Wrapper() {
+  function Wrapper({ wrapped }: { wrapped: boolean }) {
     context = this
+
+    if (!wrapped) {
+      return (
+        <article id="article">
+          <App stage={stage} />
+        </article>
+      )
+    }
 
     return (
       <AnoterWrapper>
         <article id="article">
-          <App />
+          <App stage={stage} />
         </article>
       </AnoterWrapper>
     )
   }
 
-  const { serialized } = render(<Wrapper />)
+  const { serialized } = render(<Wrapper wrapped={Math.random() < 0.5} />)
 
   expect(serialized).toEqual('<body><article id="article"><section id="section"><p>hey</p></section></article></body>')
 
@@ -472,7 +480,7 @@ test('Children of wrapping fibers are properly reassigned when rerendering.', ()
   const context = {} as { first: Component; wrapper: Component }
   let stage = 0
 
-  function First(this: Component) {
+  function First(this: Component, { stage: _currentStage }: { stage: number }) {
     context.first = this
 
     if (stage === 2) {
@@ -488,7 +496,7 @@ test('Children of wrapping fibers are properly reassigned when rerendering.', ()
 
   function Wrapper(this: Component) {
     context.wrapper = this
-    return <First />
+    return <First stage={stage} />
   }
 
   const { serialized } = render(<Wrapper />)
