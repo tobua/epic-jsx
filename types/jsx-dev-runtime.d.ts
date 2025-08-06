@@ -1,5 +1,7 @@
-import * as React from "./";
-export { Fragment } from "./";
+// First two lines adapted to ES Modules.
+import React from "./";
+
+export declare const Fragment: typeof React.Fragment;
 
 export namespace JSX {
     type ElementType = React.JSX.ElementType;

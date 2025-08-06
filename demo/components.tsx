@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useState } from 'react'
 
 export const Heading = ({ Tag = 'h1', children }: { Tag: 'h1' | 'h2' | 'h3'; children: string }) => (

@@ -1,5 +1,6 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
+import type React from '../index'
 import { type Component, unmountAll } from '../index'
 import { render, run, serializeElement } from '../test'
 

@@ -114,10 +114,10 @@ export function multipleInstancesWarning() {
   }
 
   // Ensure plugin is only loaded once from a single source (will not work properly otherwise).
-  if (typeof global.__epicJsx !== 'undefined') {
+  if (typeof globalThis.__epicJsx !== 'undefined') {
     log('Multiple instances of epic-jsx have been loaded, plugin might not work as expected', 'warning')
   } else {
-    global.__epicJsx = true
+    globalThis.__epicJsx = true
   }
 }
 

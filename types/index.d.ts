@@ -1,8 +1,10 @@
-// epic-jsx: taken from @types/react@19.1.9
-// NOTE avoid format on save (will wreck naming).
-// Added "class?: string | undefined;" after className
-// Added string to ref "type Ref<T> = string | RefCallback<T> | RefObject<T | null> | null;"
-// Changed "export = React" to "export default React".  (didn't work)
+/**
+ * epic-jsx: taken from @types/react@19.1.9
+ * CUSTOM CHANGES MADE:
+ * - Added "class?: string | undefined;" after "className".
+ * - Added "string" to ref "type Ref<T> = string | RefCallback<T> | RefObject<T | null> | null".
+ * - Changed "export = React" and "export as namespace React" to "export default React".
+ */
 
 // NOTE: Users of the `experimental` builds of React should add a reference
 // to 'react/experimental' in their project. See experimental.d.ts's top comment
@@ -68,9 +70,7 @@ type AwaitedReactNode =
 type Destructor = () => void | { [UNDEFINED_VOID_ONLY]: never };
 type VoidOrUndefinedOnly = void | { [UNDEFINED_VOID_ONLY]: never };
 
-// eslint-disable-next-line @definitelytyped/export-just-namespace
-export = React
-export as namespace React;
+export default React
 
 declare namespace React {
     //

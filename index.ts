@@ -1,6 +1,5 @@
 import { createRoot } from './component'
 import { log, multipleInstancesWarning, schedule } from './helper'
-import * as React from './jsx'
 import { process, processNow } from './render'
 import type { Context } from './types'
 import type ReactType from './types/index'
@@ -11,10 +10,9 @@ export { cloneElement, createElement, jsx, jsxDEV, jsxs } from './jsx'
 export { Renderer } from './render'
 export type { Component, ComponentPropsWithoutRef, Context, CssProperties, Props, Ref, Refs, Type } from './types'
 export { Fiber } from './types'
+export type { default } from './types/index'
 export type { JSXSource } from './types/jsx-dev-runtime'
 export type { JSX } from './types/jsx-runtime'
-
-export default React as unknown as typeof ReactType
 
 const roots = new Map<HTMLElement, Context>()
 
