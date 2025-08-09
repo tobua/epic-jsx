@@ -1,7 +1,7 @@
 import { createRerenderRoot } from './component'
 import { log, schedule, shallowArrayEqual } from './helper'
 import { process, Renderer } from './render'
-import type { LegacyRef } from './types'
+import type React from './types/index'
 
 export function useState<T>(initial: T) {
   if (!Renderer.context) {
@@ -67,8 +67,8 @@ export function useState<T>(initial: T) {
 }
 
 // React types require initialElement to be available or set to null.
-export function useRef<T extends HTMLElement>(initialElement?: T | null) {
-  return { current: initialElement } as unknown as LegacyRef<T>
+export function useRef<T>(initialElement?: T | null) {
+  return { current: initialElement } as React.RefObject<T>
 }
 
 export function useEffect(callback: () => void, dependencies: any[] = []) {

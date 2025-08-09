@@ -115,9 +115,5 @@ export interface Component<T extends object | undefined = undefined, R extends s
 
 export type Plugin = false | '' | React.JSX.Element
 
-export interface LegacyRef<T> {
-  readonly current: T | null
-}
-
 // Slightly simpler variant I often use.
 export type CssProperties = { [Key in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[Key] extends string ? string | number : never }
