@@ -111,6 +111,7 @@ export function useTransition() {
     setTimeout(async () => {
       await callback()
       setPending(false)
+      // biome-ignore lint/style/noMagicNumbers: Very basic legacy fallback.
     }, 100)
   }
 

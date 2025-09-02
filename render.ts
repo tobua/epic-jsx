@@ -1,6 +1,6 @@
 import { commitFiber, createNativeElement } from './browser'
 import { addFiber, createComponent, updateFiber } from './component'
-import { log, schedule } from './helper'
+import { Constants, log, schedule } from './helper'
 import { Change, type Context, type Fiber } from './types'
 import type React from './types/index'
 
@@ -285,11 +285,11 @@ export function process(deadline: IdleDeadline, context: Context) {
   context.afterListeners = []
 
   let shouldYield = false
-  let maxTries = 5000 // Prevent infinite loop, long lists can take a lot of tries.
+  let maxTries = Constants.maxTriesProcess // Prevent infinite loop, long lists can take a lot of tries.
   while (context.current && !shouldYield && maxTries > 0) {
     maxTries -= 1
     // Render current fiber.
-    context.current = render(context, context.current, maxTries === 4999)
+    context.current = render(context, context.current, maxTries === Constants.maxTriesProcess - 1)
     // Add next fiber if previous tree finished.
     if (!context.current && context.pending.length > 0) {
       context.current = context.pending.shift()
@@ -323,4 +323,4 @@ export function process(deadline: IdleDeadline, context: Context) {
   }
 }
 
-export const processNow = (context: Context) => process({ timeRemaining: () => 99999, didTimeout: false }, context)
+export const processNow = (context: Context) => process({ timeRemaining: () => Number.MAX_SAFE_INTEGER, didTimeout: false }, context)

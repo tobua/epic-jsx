@@ -20,7 +20,10 @@ export const rsbuild = defineConfig({
 
 export const gitignore = 'bundle'
 export const vscode = 'biome'
-export const biome = 'epic'
+export const biome = {
+  extends: 'epic',
+  root: false
+}
 
 export const typescript = {
   extends: 'web',

@@ -1,6 +1,11 @@
 import { create } from 'logua'
 import type { Fiber, NestedHtmlElement, Props, Ref, Refs } from './types'
 
+export const Constants = {
+  maxTriesProcess: 5000,
+  idleCallbackTimeout: 50,
+}
+
 export const log = create('epic-jsx', 'blue')
 
 export function shallowArrayEqual(first: any[], second: any[]) {
@@ -92,7 +97,7 @@ export function schedule(callback: IdleRequestCallback) {
         innerCallback({
           didTimeout: false,
           timeRemaining() {
-            return Math.max(0, 50 - (Date.now() - start))
+            return Math.max(0, Constants.idleCallbackTimeout - (Date.now() - start))
           },
         })
       }, 1)

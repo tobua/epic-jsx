@@ -419,7 +419,7 @@ test('Can debug Fiber and Component.', () => {
   expect(text).toContain('"Paragraph "') // potential TODO
 })
 
-// biome-ignore lint/nursery/noUnassignedVariables: Test
+// biome-ignore lint/suspicious/noUnassignedVariables: Test
 let UndeclaredVariable: undefined
 
 test("Use of undeclared types doesn't break rendering.", () => {

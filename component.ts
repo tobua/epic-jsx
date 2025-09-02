@@ -13,7 +13,7 @@ export function createComponent({ fiber, context }: { fiber: Fiber; context: Con
 
   // TODO id in fiber shouldn't be optional, assign during creation.
   if (!fiber.id) {
-    fiber.id = fiber.previous?.id ?? Math.floor(Math.random() * 1000000)
+    fiber.id = fiber.previous?.id ?? Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
   }
 
   const data = {

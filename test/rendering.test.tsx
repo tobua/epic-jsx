@@ -674,3 +674,55 @@ test('Existing components are only rerendered when props change children are sti
   expect(renderCounts).toEqual({ app: 3, first: 3, second: 3 })
   expect(serializeElement()).toEqual('<body><p id="first">First 1 - <p>2</p></p><p id="second">Second 2 - <p>3</p></p></body>')
 })
+
+test('Rerendering a component removed from DOM should not affect the DOM', () => {
+  const context = {} as { app: Component; child: Component }
+  const renderCounts = { app: 0, child: 0 }
+  let showChild = true
+  let childState = 0
+
+  function Child(this: Component) {
+    context.child = this
+    renderCounts.child += 1
+    return <p id="child">Child {childState}</p>
+  }
+
+  function App(this: Component) {
+    context.app = this
+    renderCounts.app += 1
+    return <div id="app">{showChild && <Child />}</div>
+  }
+
+  const { serialized } = render(<App />)
+
+  expect(serialized).toEqual('<body><div id="app"><p id="child">Child 0</p></div></body>')
+  expect(renderCounts).toEqual({ app: 1, child: 1 })
+
+  showChild = false
+  context.app.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div id="app"></div></body>')
+  expect(renderCounts).toEqual({ app: 2, child: 1 })
+
+  childState = 1
+  context.child.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div id="app"></div></body>')
+  expect(renderCounts).toEqual({ app: 2, child: 2 })
+
+  childState = 2
+  context.child.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div id="app"></div></body>')
+  expect(renderCounts).toEqual({ app: 2, child: 3 })
+
+  showChild = true
+  context.app.rerender()
+  run()
+
+  expect(serializeElement()).toEqual('<body><div id="app"><p id="child">Child 2</p></div></body>')
+  expect(renderCounts).toEqual({ app: 3, child: 4 })
+})
