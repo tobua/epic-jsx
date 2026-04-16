@@ -22,7 +22,7 @@ export const gitignore = 'bundle'
 export const vscode = 'biome'
 export const biome = {
   extends: 'epic',
-  root: false
+  root: false,
 }
 
 export const typescript = {
