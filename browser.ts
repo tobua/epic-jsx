@@ -43,7 +43,7 @@ function updateNativeElement(element: HTMLElement | Text, previousProps: Props =
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(previousProps, nextProps)(key))
     .forEach((name) => {
-      const eventType = name.toLowerCase().substring(2) // Remove the "on" from onClick.
+      const eventType = name.toLowerCase().slice(2) // Remove the "on" from onClick.
       const previousHandler = eventListeners.get(element)?.get(eventType)
       if (previousHandler) {
         element.removeEventListener(eventType, previousHandler)
@@ -98,7 +98,7 @@ function updateNativeElement(element: HTMLElement | Text, previousProps: Props =
     .filter(isEvent)
     .filter(isNew(previousProps, nextProps))
     .forEach((name) => {
-      const eventType = name.toLowerCase().substring(2)
+      const eventType = name.toLowerCase().slice(2)
       element.addEventListener(eventType, nextProps[name])
       if (!eventListeners.has(element)) {
         eventListeners.set(element, new Map())

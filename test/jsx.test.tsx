@@ -87,7 +87,6 @@ test('Various empty elements are ignored.', () => {
       {undefined}
       {null}
       {false}
-      {/** biome-ignore lint/style/useConsistentCurlyBraces: Necessary for test. */}
       {''}
       <p>end</p>
       <p>

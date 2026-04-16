@@ -65,7 +65,7 @@ const contentStyles: React.CSSProperties = {
   paddingTop: 20,
 }
 
-export function Tabs({ tabs, children }: { tabs: string[]; children: React.ReactNode }) {
+export function Tabs({ tabs, children }: { tabs: string[]; children: React.ReactNode[] }) {
   const [tabIndex, setTabIndex] = useState(0)
   return (
     <div>

@@ -65,7 +65,7 @@ export function addFiber(current: Fiber, element: React.JSX.Element, previous: F
     props: element.props,
     type: element.type,
     parent: current,
-    hooks: typeof element.type === 'function' ? (previous ? previous.hooks : []) : undefined,
+    hooks: typeof element.type === 'function' ? (previous?.hooks ?? []) : undefined,
     svg: current.svg || element.type === 'svg',
     change: Change.Add,
   })
