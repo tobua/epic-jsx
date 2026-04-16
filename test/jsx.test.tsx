@@ -1,6 +1,6 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
-import { compiler } from 'markdown-to-jsx'
+import { compiler } from 'markdown-to-jsx/react'
 import { cloneElement, createElement, getRoots, type JSX, unmountAll } from '../index'
 import { clear, render, serializeElement } from '../test'
 
