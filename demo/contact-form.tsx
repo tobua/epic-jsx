@@ -21,6 +21,8 @@ function TextArea(props: React.ComponentProps<'textarea'>) {
   )
 }
 
+const OneSecondMs = 1000
+
 function getButtonLabel(verifying: boolean, confirming: boolean) {
   if (verifying) {
     return 'Please wait...'
@@ -64,7 +66,7 @@ export function ContactForm() {
           setVerifying(false)
           setConfirming(true)
         }
-      }, 1000)
+      }, OneSecondMs)
     },
     [timer, confirming],
   )
