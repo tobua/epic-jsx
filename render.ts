@@ -1,10 +1,10 @@
 import { commitFiber, createNativeElement } from './browser'
 import { addFiber, createComponent, updateFiber } from './component'
 import { Constants, log, schedule } from './helper'
-import { Change, type Context, type Fiber } from './types'
+import { Change, type Context, type Fiber, type Renderer as RendererType } from './types'
 import type React from './types/index'
 
-export const Renderer: { context?: Context; effects: Function[]; current?: Fiber } = {
+export const Renderer: RendererType = {
   context: undefined,
   effects: [],
   current: undefined,

@@ -5,11 +5,11 @@
     "types": "tsc"
   },
   "dependencies": {
-    "@biomejs/biome": "^2.4.16",
-    "@rsbuild/core": "^2.0.9",
-    "@rsbuild/plugin-react": "^2.0.1",
-    "typescript": "^6.0.3",
-    "zero-configuration": "^1.1.2"
+    "@biomejs/biome": "^2.5.4",
+    "@rsbuild/core": "^2.1.6",
+    "@rsbuild/plugin-react": "^2.1.0",
+    "typescript": "^7.0.2",
+    "zero-configuration": "^1.2.0"
   },
   "localDependencies": {
     "react": ".."

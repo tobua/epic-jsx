@@ -1,7 +1,7 @@
 /// <reference types="@rsbuild/core/types" />
 import { render } from 'react'
 import logo from '../logo.svg'
-import { Basic, Heading, Interactive, State, SVG, Tabs } from './components'
+import { Basic, Heading, Interactive, Stages, State, SVG, Tabs } from './components'
 import { ContactForm } from './contact-form'
 
 render(
@@ -9,11 +9,12 @@ render(
     <img src={logo} alt="epic-jsx Logo" style={{ width: '10vw', height: '10vw', alignSelf: 'center' }} />
     <Heading Tag="h1">epic-jsx Demo</Heading>
     <Heading Tag="h2">Features</Heading>
-    <Tabs tabs={['Basic', 'Interactive', 'State', 'SVG']}>
+    <Tabs tabs={['Basic', 'Interactive', 'State', 'SVG', 'Rendering Stages']}>
       <Basic />
       <Interactive />
       <State />
       <SVG />
+      <Stages />
     </Tabs>
     <section style={{ display: 'flex', justifyContent: 'center', padding: 50 }}>
       <ContactForm />

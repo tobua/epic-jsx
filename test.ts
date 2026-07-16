@@ -101,7 +101,7 @@ export function render(
     }
   }
   if (!context.root) {
-    return
+    throw new Error(`Failed to render "${Element.name ?? Element.toString()}".`)
   }
   // NOTE make sure to not destruct context before run(), context not useful for user.
   return {

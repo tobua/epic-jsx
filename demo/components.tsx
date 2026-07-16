@@ -184,3 +184,58 @@ export function SVG() {
     </div>
   )
 }
+
+const stageCount = 3
+
+export function Stages() {
+  const [stage, setStage] = useState(0)
+
+  let markup = <p>Missing stage</p>
+
+  if (stage % stageCount === 0) {
+    markup = (
+      <div>
+        <p>Stage 1</p>
+        <p>Some text</p>
+        <div>Element</div>
+        <div>
+          <button type="button">Button</button>
+        </div>
+      </div>
+    )
+  }
+
+  if (stage % stageCount === 1) {
+    markup = (
+      <div>
+        <p>Stage 2</p>
+        <p>Other text</p>
+        <span>Other element</span>
+        <div>
+          <button type="button">Other Button</button>
+        </div>
+      </div>
+    )
+  }
+
+  if (stage % stageCount === 2) {
+    markup = (
+      <div>
+        <p>Stage 3</p>
+        <p>Last text</p>
+        <button type="button">Last element</button>
+        <p>Wrapper gone!</p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <Heading Tag="h3">Stages</Heading>
+      <p>Current stage: {stage}</p>
+      {markup}
+      <Button onClick={() => setStage(stage + 1)}>Next</Button>
+      {stage > 0 && <Button onClick={() => setStage(0)}>Reset</Button>}
+    </div>
+  )
+}

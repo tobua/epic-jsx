@@ -33,15 +33,15 @@ type ComponentListener<T extends object | undefined = undefined> = (this: Compon
 export class Fiber {
   id?: number
   type?: Type
-  child?: Fiber
-  sibling?: Fiber
-  parent?: Fiber
-  native?: HTMLElement | Text
+  child?: Fiber | undefined
+  sibling?: Fiber | undefined
+  parent?: Fiber | undefined
+  native?: HTMLElement | Text | undefined
   props!: Props
-  hooks?: any[]
+  hooks?: any[] | undefined
   component?: Component
   previous?: Fiber
-  change?: Change
+  change?: Change | undefined
   unmount?: () => void
   svg?: boolean
   endListener?: Function // ComponentListener<T>
@@ -82,9 +82,15 @@ export interface Context {
   rendered: Fiber[] // Roots of rendered and reconciled trees to be committed.
   root?: Fiber // Root fully committed to the view engine.
   deletions: Fiber[]
-  current?: Fiber
+  current?: Fiber | undefined
   dependencies: Map<Function, any[]>
   afterListeners: Function[]
+}
+
+export interface Renderer {
+  context: Context | undefined
+  effects: Function[]
+  current: Fiber | undefined
 }
 
 export type Ref = { tag: keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap; native: HTMLElement }
