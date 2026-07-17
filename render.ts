@@ -12,7 +12,10 @@ export const Renderer: RendererType = {
 
 function commit(context: Context, fiber: Fiber) {
   for (const currentFiber of context.deletions) {
-    commitFiber(currentFiber)
+    // Each deletion is an isolated subtree: currentFiber.sibling is a stale pointer into the old
+    // fiber tree (still carrying whatever change flag it had when created), not a second thing to
+    // delete, so sibling recursion must be suppressed here (unlike the main tree walk below).
+    commitFiber(currentFiber, undefined, false)
     if (typeof currentFiber.type === 'function' && typeof currentFiber.endListener === 'function') {
       currentFiber.endListener()
     }
@@ -100,7 +103,10 @@ function reconcileChildren(context: Context, current: Fiber, children: React.JSX
   }
 }
 
-function deleteChildren(context: Context, fiber: Fiber) {
+// includeSiblings only applies below the subtree root: a fiber's siblings are its parent's other
+// children, so they must be swept too, but the root passed in from reconcileChildren is itself a
+// sibling in the outer list, which reconcileChildren already walks and must not be deleted here.
+function deleteChildren(context: Context, fiber: Fiber, includeSiblings = false) {
   if (fiber.change === Change.Delete) {
     return
   }
@@ -109,11 +115,11 @@ function deleteChildren(context: Context, fiber: Fiber) {
   context.deletions.push(fiber)
 
   if (fiber.child) {
-    deleteChildren(context, fiber.child)
+    deleteChildren(context, fiber.child, true)
   }
 
-  if (fiber.sibling) {
-    deleteChildren(context, fiber.sibling)
+  if (includeSiblings && fiber.sibling) {
+    deleteChildren(context, fiber.sibling, true)
   }
 }
 
@@ -243,16 +249,45 @@ function updateHostComponent(context: Context, fiber: Fiber) {
   reconcileChildren(context, fiber, fiber.props?.children.flat())
 }
 
+// Bailing out of a re-render (props unchanged) must still carry the previously rendered subtree
+// forward, otherwise this fiber's .child stays unset even though its DOM output is still live -
+// breaking reconciliation the next time this component's props actually do change (reconcileChildren
+// would find no previous child, treat everything as new, and leave the real old nodes as orphaned
+// duplicates instead of updating them). The carried-over fibers keep whatever stale Change flag they
+// were left with, so it must be cleared here or the commit walk would needlessly re-apply it.
+function resetChange(fiber?: Fiber) {
+  if (!fiber) {
+    return
+  }
+  fiber.change = undefined
+  resetChange(fiber.child)
+  resetChange(fiber.sibling)
+}
+
 function render(context: Context, fiber: Fiber, isFirst = false) {
   const isFunctionComponent = fiber.type instanceof Function
+  let shouldDescend = true
   if (isFunctionComponent) {
     if (isFirst || propsChanged(fiber.props, fiber.previous?.props)) {
       updateFunctionComponent(context, fiber)
+    } else {
+      // Bailing out: carry the subtree forward for structural lookups (e.g. the insertBefore
+      // anchor search, or the next genuine re-render's reconcile), but there is nothing new to
+      // process here, so the tree walk itself must not descend into it. Guarded on !fiber.child:
+      // component.rerender() reuses the same fiber as its own .previous and can be queued more
+      // than once per pass (for batching), so a duplicate pass here may already have fiber.child
+      // set to a freshly reconciled (not yet committed) subtree from earlier in this same pass -
+      // carrying forward and neutralizing that would discard its pending Change flags.
+      if (!fiber.child && fiber.previous?.child) {
+        fiber.child = fiber.previous.child
+        resetChange(fiber.child)
+      }
+      shouldDescend = false
     }
   } else {
     updateHostComponent(context, fiber)
   }
-  if (fiber.child) {
+  if (shouldDescend && fiber.child) {
     return fiber.child
   }
   let nextFiber: Fiber | undefined = fiber

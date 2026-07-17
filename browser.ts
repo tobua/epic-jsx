@@ -148,6 +148,62 @@ function findNativeParent(fiber: Fiber): Fiber | undefined {
   return parent
 }
 
+// The next fiber in document order sharing the same real native parent: a sibling if there is one,
+// otherwise escalates through ancestors as long as they are native-less (fragments/components are
+// transparent to the DOM), stopping once an ancestor with its own native is reached.
+function nextFiberInDocumentOrder(fiber: Fiber): Fiber | undefined {
+  if (fiber.sibling) {
+    return fiber.sibling
+  }
+
+  let parent = fiber.parent
+  let maxTries = 500
+
+  while (parent && !parent.native && maxTries > 0) {
+    maxTries -= 1
+    if (parent.sibling) {
+      return parent.sibling
+    }
+    parent = parent.parent
+  }
+
+  if (maxTries === 0) {
+    log('Ran out of tries finding next fiber in document order.', 'warning')
+  }
+
+  return
+}
+
+// Finds the next already-connected DOM node in document order to use as the insertBefore anchor,
+// so newly added fibers land at their correct position instead of always at the end of the parent.
+function findNextNative(fiber?: Fiber): HTMLElement | Text | undefined {
+  let current = fiber
+  let maxTries = 500
+
+  while (current && maxTries > 0) {
+    maxTries -= 1
+
+    if (current.native) {
+      if (current.native.isConnected) {
+        return current.native
+      }
+    } else if (current.child) {
+      const found = findNextNative(current.child)
+      if (found) {
+        return found
+      }
+    }
+
+    current = nextFiberInDocumentOrder(current)
+  }
+
+  if (maxTries === 0) {
+    log('Ran out of tries finding next native.', 'warning')
+  }
+
+  return
+}
+
 export function createNativeElement(fiber: Fiber) {
   if (!fiber.type) {
     return // Ignore fragments.
@@ -195,7 +251,13 @@ function commitDeletion(fiber: Fiber, nativeParent: HTMLElement | Text) {
   }
 }
 
-export function commitFiber(fiber: Fiber, currentComponent?: Component) {
+// includeSiblings is only false when called directly on a context.deletions entry: that fiber is
+// an isolated subtree to tear down, and its .sibling is a stale pointer into the old fiber tree
+// (from before this commit) rather than another thing to delete - walking it re-processes fibers
+// that were already handled by the main tree commit below, using whatever stale change flag they
+// were left with. Descendants reached via .child are still a real subtree, so they keep sweeping
+// their own siblings (see the recursive calls at the bottom of this function).
+export function commitFiber(fiber: Fiber, currentComponent?: Component, includeSiblings = true) {
   if (!fiber) {
     return
   }
@@ -208,7 +270,12 @@ export function commitFiber(fiber: Fiber, currentComponent?: Component) {
   const parent = findNativeParent(fiber)
 
   if (fiber.change === Change.Add && fiber.native) {
-    parent?.native?.appendChild(fiber.native)
+    const anchor = findNextNative(fiber)
+    if (anchor) {
+      parent?.native?.insertBefore(fiber.native, anchor)
+    } else {
+      parent?.native?.appendChild(fiber.native)
+    }
   } else if (fiber.change === Change.Update && fiber.native) {
     updateNativeElement(fiber.native, fiber.previous?.props, fiber.props)
   } else if (fiber.change === Change.Delete && parent) {
@@ -223,9 +290,9 @@ export function commitFiber(fiber: Fiber, currentComponent?: Component) {
   addRefs(fiber, currentComponent)
 
   if (fiber.child) {
-    commitFiber(fiber.child, currentComponent)
+    commitFiber(fiber.child, currentComponent, true)
   }
-  if (fiber.sibling) {
-    commitFiber(fiber.sibling, currentComponent)
+  if (includeSiblings && fiber.sibling) {
+    commitFiber(fiber.sibling, currentComponent, true)
   }
 }

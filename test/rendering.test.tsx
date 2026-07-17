@@ -582,8 +582,6 @@ test('Existing components are only rerendered when props change.', () => {
   function App(this: Component) {
     context.app = this
     renderCounts.app += 1
-    // TODO in an array all elements will be rerendered.
-    // TODO test deep props
     return (
       <>
         <First count={state} />
@@ -608,10 +606,11 @@ test('Existing components are only rerendered when props change.', () => {
   run()
 
   expect(renderCounts).toEqual({ app: 3, first: 2, second: 2 })
-  // TODO rendering bug
-  expect(serializeElement()).toEqual(
-    '<body><p id="first">First 0</p><p id="second">Second 1</p><p id="first">First 1</p><p id="second">Second 2</p></body>',
-  )
+  // Regression test: a bailed-out re-render (previous test step, unchanged props) used to lose the
+  // link to its already-rendered subtree, so once First/Second's props actually changed here, their
+  // existing <p> elements were never found by reconcileChildren and got orphaned instead of updated,
+  // leaving stale duplicates in the DOM alongside newly added ones. See render()'s bailout branch.
+  expect(serializeElement()).toEqual('<body><p id="first">First 1</p><p id="second">Second 2</p></body>')
 })
 
 test('Existing components are only rerendered when props change children are still updated.', () => {
@@ -673,6 +672,87 @@ test('Existing components are only rerendered when props change children are sti
 
   expect(renderCounts).toEqual({ app: 3, first: 3, second: 3 })
   expect(serializeElement()).toEqual('<body><p id="first">First 1 - <p>2</p></p><p id="second">Second 2 - <p>3</p></p></body>')
+})
+
+test('A component surviving several bailed-out rerenders in a row still updates in place once its props change.', () => {
+  const context = {} as { app: Component }
+  const renderCounts = { app: 0, child: 0 }
+  let state = 0
+
+  function Child(this: Component, { count }: { count: number }) {
+    renderCounts.child += 1
+    return <p id="child">Child {count}</p>
+  }
+
+  function App(this: Component) {
+    context.app = this
+    renderCounts.app += 1
+    return <Child count={state} />
+  }
+
+  const { serialized } = render(<App />)
+
+  expect(serialized).toEqual('<body><p id="child">Child 0</p></body>')
+
+  // Several bail-outs in a row (props unchanged each time) must keep the link to Child's rendered
+  // <p> alive across every generation of App's own fiber, not just the first one.
+  context.app.rerender()
+  run()
+  context.app.rerender()
+  run()
+  context.app.rerender()
+  run()
+
+  expect(renderCounts).toEqual({ app: 4, child: 1 })
+  expect(serializeElement()).toEqual('<body><p id="child">Child 0</p></body>')
+
+  state = 1
+  context.app.rerender()
+  run()
+
+  expect(renderCounts).toEqual({ app: 5, child: 2 })
+  expect(serializeElement()).toEqual('<body><p id="child">Child 1</p></body>')
+})
+
+test('A bailed-out component with a nested, multi-element subtree updates in place once its props change.', () => {
+  const context = {} as { app: Component }
+  const renderCounts = { app: 0, child: 0 }
+  let state = 1
+
+  function Child(this: Component, { count }: { count: number }) {
+    renderCounts.child += 1
+    return (
+      <section id="child">
+        <p>
+          Count <b>{count}</b>
+        </p>
+        <span>fixed</span>
+      </section>
+    )
+  }
+
+  function App(this: Component) {
+    context.app = this
+    renderCounts.app += 1
+    return <Child count={state} />
+  }
+
+  const { serialized } = render(<App />)
+
+  expect(serialized).toEqual('<body><section id="child"><p>Count <b>1</b></p><span>fixed</span></section></body>')
+
+  context.app.rerender()
+  run()
+
+  expect(renderCounts).toEqual({ app: 2, child: 1 })
+  expect(serializeElement()).toEqual('<body><section id="child"><p>Count <b>1</b></p><span>fixed</span></section></body>')
+
+  state = 2
+  context.app.rerender()
+  run()
+
+  expect(renderCounts).toEqual({ app: 3, child: 2 })
+  expect(serializeElement()).toEqual('<body><section id="child"><p>Count <b>2</b></p><span>fixed</span></section></body>')
 })
 
 test('Rerendering a component removed from DOM should not affect the DOM', () => {

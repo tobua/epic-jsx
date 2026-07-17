@@ -18,7 +18,8 @@ function createTextElement(text: string) {
 export function createElement(type: Type, props: Props, ...children: React.JSX.Element[]) {
   let mappedChildren = children
   // NOTE needed for browser JSX runtime
-  if (props?.children) {
+  // NOTE existence check, not truthiness: a falsy-but-valid single child (e.g. 0) must still count.
+  if (props?.children !== undefined) {
     mappedChildren = Array.isArray(props.children) ? props.children : [props.children]
     props.children = undefined
   }

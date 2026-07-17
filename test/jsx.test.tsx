@@ -99,6 +99,22 @@ test('Various empty elements are ignored.', () => {
   expect(serialized).toEqual('<body><p>start</p><p>end</p><p>Falsy numbers: 0 0 NaN</p></body>')
 })
 
+// Regression test: createElement() used `if (props?.children)` (truthiness) to decide whether to
+// use props.children over the rest-args children, so a single falsy-but-valid child (0, NaN) was
+// mistaken for "no children" and silently dropped instead of rendered. Only reproduces with a lone
+// scalar child (props.children holds the value directly, not wrapped in an array), unlike having
+// several children where props.children is already a non-empty array regardless of falsy items.
+test('A single falsy-but-valid child is still rendered.', () => {
+  const { serialized } = render(
+    <div>
+      <b>{0}</b>
+      <i>{Number.NaN}</i>
+    </div>,
+  )
+
+  expect(serialized).toEqual('<body><div><b>0</b><i>NaN</i></div></body>')
+})
+
 test('Component can return nothing.', () => {
   function Component() {
     return null
