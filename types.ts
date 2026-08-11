@@ -25,6 +25,8 @@ export type ComponentPropsWithoutRef<T = 'div'> = { [key: string]: any }
 
 export type Type = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap | Function | 'TEXT_ELEMENT' | undefined // undefined if Fragment
 
+export type CreateElementPlugin = (type: Type, props: Props, children: React.JSX.Element[]) => void
+
 // JSX.IntrinsicElements includes list of all React tags with their respecitive props available.
 
 type ComponentListener<T extends object | undefined = undefined> = (this: Component<T>) => void

@@ -16,10 +16,10 @@
     "logua": "^3.0.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.4",
-    "@happy-dom/global-registrator": "^20.10.6",
+    "@biomejs/biome": "^2.5.8",
+    "@happy-dom/global-registrator": "^20.11.2",
     "@types/bun": "^1.3.14",
-    "markdown-to-jsx": "^9.8.2",
+    "markdown-to-jsx": "^9.10.2",
     "react": "file:./",
     "typescript": "^7.0.2",
     "zero-configuration": "^1.2.0"
@@ -46,9 +46,6 @@
     "react",
     "client"
   ],
-  "publishConfig": {
-    "provenance": true
-  },
   "configuration": {
     "gitignore": "recommended",
     "vscode": "biome",
@@ -69,8 +66,8 @@
         "files": {
           "includes": [
             "**/*",
-            "!types",
-            "!test"
+            "!demo/**/*",
+            "!types/**/*"
           ]
         }
       },
@@ -81,12 +78,27 @@
         "linter": {
           "rules": {
             "complexity": {
-              "noUselessFragments": "off"
+              "noUselessFragments": "info"
+            },
+            "a11y": {
+              "noSvgWithoutTitle": "info",
+              "useButtonType": "info"
+            },
+            "style": {
+              "noMagicNumbers": "info"
             },
             "correctness": {
-              "useJsxKeyInIterable": "off"
+              "useJsxKeyInIterable": "info"
+            },
+            "performance": {
+              "noDelete": "info"
             }
           }
+        },
+        "files": {
+          "includes": [
+            "*.test.tsx"
+          ]
         }
       }
     ],

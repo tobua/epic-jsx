@@ -38,11 +38,11 @@ test('Can get component refs from tree.', () => {
 
   for (const component of componentRefs) {
     if (component instanceof HTMLElement) {
-      console.log('tag', component.tagName)
+      // TODO console.log('tag', component.tagName)
     }
 
     if (component instanceof Fiber) {
-      console.log('type', component.type)
+      // TODO console.log('type', component.type)
     }
   }
 

@@ -1,6 +1,6 @@
 import './helper'
-import { afterEach, expect, mock, test } from 'bun:test'
-import { type Component, getRoots, type JSX, unmountAll, useEffect, useState } from '../index'
+import { afterEach, expect, test } from 'bun:test'
+import { getRoots, unmountAll, useEffect, useState } from '../index'
 import { render, run, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -8,9 +8,7 @@ afterEach(unmountAll)
 test('<div> with text.', () => {
   expect(getRoots().length).toBe(0)
 
-  const { serialized } = render(
-    <div>text</div>,
-  )
+  const { serialized } = render(<div>text</div>)
 
   expect(serialized).toEqual('<body><div>text</div></body>')
   expect(getRoots().length).toBe(1)
@@ -231,12 +229,7 @@ test('Deeply nested subtree can be replaced with a differently tagged structure.
 test('Growing and shrinking a list of mixed tags at the tail keeps earlier items intact.', () => {
   function List() {
     const [count, setCount] = useState(1)
-    const tags = [
-      <div id="tag-0">div</div>,
-      <span id="tag-1">span</span>,
-      <p id="tag-2">p</p>,
-      <b id="tag-3">b</b>,
-    ]
+    const tags = [<div id="tag-0">div</div>, <span id="tag-1">span</span>, <p id="tag-2">p</p>, <b id="tag-3">b</b>]
     return (
       <section>
         {tags.slice(0, count)}
@@ -247,7 +240,7 @@ test('Growing and shrinking a list of mixed tags at the tail keeps earlier items
     )
   }
 
-  const { serialized, tree } = render(<List />)
+  const { serialized } = render(<List />)
 
   expect(serialized).toEqual('<body><section><div id="tag-0">div</div><button type="button">grow</button></section></body>')
 

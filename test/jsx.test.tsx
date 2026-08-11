@@ -1,7 +1,8 @@
 import './helper'
 import { afterEach, expect, test } from 'bun:test'
 import { compiler } from 'markdown-to-jsx/react'
-import { cloneElement, createElement, getRoots, type JSX, unmountAll } from '../index'
+import { addCreateElementPlugin, cloneElement, createElement, getRoots, type JSX, unmountAll } from '../index'
+import { resetCreateElementPlugins } from '../jsx'
 import { clear, render, serializeElement } from '../test'
 
 afterEach(unmountAll)
@@ -185,4 +186,44 @@ Wait! This is **bold**.`
   expect(serialized).toEqual(
     '<body><div><div><h1 id="title">Title</h1><p>Some text here.</p><h2 id="subtitle">Subtitle</h2><p>Wait! This is <strong>bold</strong>.</p></div></div></body>',
   )
+})
+
+test('Can add createElement plugins.', () => {
+  addCreateElementPlugin((_type, props, _children) => {
+    if (props.title) {
+      delete props.title
+    }
+    if (typeof props.className === 'object') {
+      props.className = props.className.value.toString()
+    }
+  })
+
+  const { serialized } = render(
+    // @ts-expect-error
+    <button title="test" aria-label="keep" className={{ value: 1 }}>
+      test
+    </button>,
+  )
+  expect(serialized).toEqual('<body><button aria-label="keep" class="1">test</button></body>')
+
+  resetCreateElementPlugins()
+})
+
+test('Can add createElement plugins.', () => {
+  addCreateElementPlugin((_type, props, _children) => {
+    for (const key in props) {
+      if (key.startsWith('aria-')) {
+        delete props[key]
+      }
+    }
+  })
+
+  const { serialized } = render(
+    <button aria-label="gone" aria-hidden="false" title="reset">
+      test
+    </button>,
+  )
+  expect(serialized).toEqual('<body><button title="reset">test</button></body>')
+
+  resetCreateElementPlugins()
 })

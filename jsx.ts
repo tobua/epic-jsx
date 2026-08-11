@@ -1,7 +1,20 @@
-import type { Props, Type } from './types'
+import type { CreateElementPlugin, Props, Type } from './types'
 import type React from './types/index'
 import type { jsxDEV as jsxDevType } from './types/jsx-dev-runtime'
 import type { jsxs as jsxsType, jsx as jsxType } from './types/jsx-runtime'
+
+const createElementPlugins: CreateElementPlugin[] = []
+
+export function addCreateElementPlugin(plugin: CreateElementPlugin) {
+  if (typeof plugin !== 'function') {
+    throw new Error('Plugin must be a function')
+  }
+  createElementPlugins.push(plugin)
+}
+
+export function resetCreateElementPlugins() {
+  createElementPlugins.length = 0
+}
 
 function createTextElement(text: string) {
   return {
@@ -16,6 +29,9 @@ function createTextElement(text: string) {
 // Official signature (not working yet).
 // createElement<P>(type: React.ElementType<P>, props: P & { children?: React.ReactNode }, ...children: React.ReactNode[]): React.ReactElement<P> | null;
 export function createElement(type: Type, props: Props, ...children: React.JSX.Element[]) {
+  for (const plugin of createElementPlugins) {
+    plugin(type, props, children)
+  }
   let mappedChildren = children
   // NOTE needed for browser JSX runtime
   // NOTE existence check, not truthiness: a falsy-but-valid single child (e.g. 0) must still count.
